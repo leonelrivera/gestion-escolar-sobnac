@@ -1,17 +1,24 @@
-# Ignorar bases de datos locales
-postgres_data/
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
 
-# Reforzar ignorar variables de entorno en cualquier nivel
-**/.env
-**/.env.local
-**/.env.production
+# Entorno Docker y DB Producción
+.env
+!.env.example
+docker-compose.override.yml
 
-# Archivos de sistema
+# SO Mac
 .DS_Store
-Thumbs.db
 
-# Dependencias y builds
-**/node_modules/
-**/dist/
-**/.next/
-**/out/
+# Editor de texto / IDE
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

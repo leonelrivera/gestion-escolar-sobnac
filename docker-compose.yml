@@ -6,9 +6,9 @@ services:
     container_name: sobnac-db
     restart: always
     environment:
-      POSTGRES_USER: ${DB_USER:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
-      POSTGRES_DB: ${DB_NAME:-sobnac_db}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -24,8 +24,8 @@ services:
     depends_on:
       - db
     environment:
-      - DATABASE_URL=postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@db:5432/${DB_NAME:-sobnac_db}?schema=public
-      - JWT_SECRET=${JWT_SECRET:-super-secret-key-change-it-in-prod}
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}?schema=public
+      - JWT_SECRET=${JWT_SECRET}
       # Si hay CORS estricto en el backend, añadir la URL del frontend:
       # - FRONTEND_URL=https://gestion-escolar-soberania-nacional.tierradelfuego.edu.ar
     ports:
@@ -37,7 +37,7 @@ services:
       dockerfile: Dockerfile
       args:
         # Nota: Next.js 'incrusta' esta variable en el JS durante el build
-        - NEXT_PUBLIC_API_URL=https://gestion-escolar-soberania-nacional.tierradelfuego.edu.ar/api
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
     container_name: sobnac-frontend
     restart: always
     depends_on:
