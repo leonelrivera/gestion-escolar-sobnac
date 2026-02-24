@@ -1,0 +1,17 @@
+# Ignorar bases de datos locales
+postgres_data/
+
+# Reforzar ignorar variables de entorno en cualquier nivel
+**/.env
+**/.env.local
+**/.env.production
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Dependencias y builds
+**/node_modules/
+**/dist/
+**/.next/
+**/out/
