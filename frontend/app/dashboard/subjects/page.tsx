@@ -36,8 +36,8 @@ export default function SubjectsPage() {
         setLoading(true);
         try {
             const [subjRes, orientRes] = await Promise.all([
-                fetch('http://localhost:3001/subjects', { headers: getHeaders() }),
-                fetch('http://localhost:3001/orientations', { headers: getHeaders() })
+                fetch('`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/subjects', { headers: getHeaders() }),
+                fetch('`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/orientations', { headers: getHeaders() })
             ]);
 
             if (subjRes.ok) setSubjects(await subjRes.json());
@@ -52,8 +52,8 @@ export default function SubjectsPage() {
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
         const url = currentSubject.id
-            ? `http://localhost:3001/subjects/${currentSubject.id}`
-            : 'http://localhost:3001/subjects';
+            ? ``${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/subjects/${currentSubject.id}`
+            : '`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/subjects';
         const method = currentSubject.id ? 'PATCH' : 'POST';
 
         try {
@@ -76,7 +76,7 @@ export default function SubjectsPage() {
     const handleDelete = async (id: number) => {
         if (!confirm('¿Está seguro de eliminar esta materia?')) return;
         try {
-            const res = await fetch(`http://localhost:3001/subjects/${id}`, {
+            const res = await fetch(``${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/subjects/${id}`, {
                 method: 'DELETE',
                 headers: getHeaders(),
             });

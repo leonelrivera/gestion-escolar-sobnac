@@ -60,9 +60,9 @@ export default function GradesPage() {
     // Carga inicial de filtros
     useEffect(() => {
         Promise.all([
-            fetch('http://localhost:3001/cycles', { headers: getHeaders() }).then(r => r.json()),
-            fetch('http://localhost:3001/courses', { headers: getHeaders() }).then(r => r.json()),
-            fetch('http://localhost:3001/subjects', { headers: getHeaders() }).then(r => r.json()),
+            fetch('`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/cycles', { headers: getHeaders() }).then(r => r.json()),
+            fetch('`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/courses', { headers: getHeaders() }).then(r => r.json()),
+            fetch('`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/subjects', { headers: getHeaders() }).then(r => r.json()),
         ]).then(([cyclesData, coursesData, subjectsData]) => {
             if (Array.isArray(cyclesData)) {
                 setCycles(cyclesData);
@@ -87,7 +87,7 @@ export default function GradesPage() {
     const fetchMatrix = async () => {
         setLoading(true);
         try {
-            const res = await fetch(`http://localhost:3001/grades/matrix?courseId=${selectedCourseId}&subjectId=${selectedSubjectId}`, {
+            const res = await fetch(``${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/grades/matrix?courseId=${selectedCourseId}&subjectId=${selectedSubjectId}`, {
                 headers: getHeaders()
             });
             if (res.ok) {
@@ -117,7 +117,7 @@ export default function GradesPage() {
         setSaving(cellId);
 
         try {
-            const res = await fetch('http://localhost:3001/grades', {
+            const res = await fetch('`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/grades', {
                 method: 'POST',
                 headers: getHeaders(),
                 body: JSON.stringify({

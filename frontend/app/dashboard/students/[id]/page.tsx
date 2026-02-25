@@ -14,7 +14,7 @@ export default function StudentProfilePage() {
         const fetchStudent = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await fetch(`http://localhost:3001/students/${id}`, {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/students/${id}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 if (!res.ok) throw new Error('Error al cargar perfil');
@@ -42,7 +42,7 @@ export default function StudentProfilePage() {
                 </button>
                 <div className="space-x-4">
                     <button
-                        onClick={() => window.open(`http://localhost:3001/reports/bulletin/${student.id}?token=${localStorage.getItem('token')}`, '_blank')}
+                        onClick={() => window.open(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/reports/bulletin/${student.id}?token=${localStorage.getItem('token')}`, '_blank')}
                         className="bg-red-600 text-white px-4 py-2 rounded-lg font-bold shadow-md hover:bg-red-700 transition text-sm"
                     >
                         Descargar Boletín (PDF)
@@ -265,7 +265,7 @@ export default function StudentProfilePage() {
                                             </div>
                                             <div className="text-right">
                                                 <button
-                                                    onClick={() => window.open(`http://localhost:3001/reports/bulletin/${student.id}?token=${localStorage.getItem('token')}`, '_blank')}
+                                                    onClick={() => window.open(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/reports/bulletin/${student.id}?token=${localStorage.getItem('token')}`, '_blank')}
                                                     className="text-blue-600 text-xs font-black hover:underline uppercase"
                                                 >
                                                     Ver Boletín Histórico →

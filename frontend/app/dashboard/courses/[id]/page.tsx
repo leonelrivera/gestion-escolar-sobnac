@@ -57,7 +57,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
 
     const fetchCourse = async () => {
         try {
-            const res = await fetch(`http://localhost:3001/courses/${id}`, { headers: getHeaders() });
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/courses/${id}`, { headers: getHeaders() });
             if (!res.ok) throw new Error('Error al cargar el curso');
             setCourse(await res.json());
         } catch (err: any) {
@@ -72,7 +72,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
         if (!searchTerm.trim()) return;
         setSearching(true);
         try {
-            const res = await fetch(`http://localhost:3001/students?search=${searchTerm}`, { headers: getHeaders() });
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/students?search=${searchTerm}`, { headers: getHeaders() });
             if (res.ok) setSearchResults(await res.json());
         } catch (err) {
             console.error(err);
@@ -83,7 +83,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
 
     const addStudent = async (studentId: number) => {
         try {
-            const res = await fetch(`http://localhost:3001/inscriptions`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/inscriptions`, {
                 method: 'POST',
                 headers: getHeaders(),
                 body: JSON.stringify({ estudianteId: studentId, cursoId: Number(id) }),
@@ -110,7 +110,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
     const openPromotion = async () => {
         setShowPromotionModal(true);
         try {
-            const res = await fetch('http://localhost:3001/cycles', { headers: getHeaders() });
+            const res = await fetch('${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/cycles', { headers: getHeaders() });
             if (res.ok) setTargetCycles(await res.json());
         } catch (err) {
             console.error(err);
@@ -119,7 +119,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
 
     useEffect(() => {
         if (selectedCycleId) {
-            fetch(`http://localhost:3001/courses?cicloLectivoId=${selectedCycleId}`, { headers: getHeaders() })
+            fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/courses?cicloLectivoId=${selectedCycleId}`, { headers: getHeaders() })
                 .then(res => res.json())
                 .then(data => setTargetCourses(data));
         }
@@ -129,7 +129,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
         if (!selectedCourseId) return;
         setPromoting(true);
         try {
-            const res = await fetch(`http://localhost:3001/inscriptions/bulk`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/inscriptions/bulk`, {
                 method: 'POST',
                 headers: getHeaders(),
                 body: JSON.stringify({

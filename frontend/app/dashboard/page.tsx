@@ -3,7 +3,7 @@
 export default function DashboardPage() {
     const downloadRiskReport = () => {
         const token = localStorage.getItem('token');
-        window.open(`http://localhost:3001/reports/risk-report?token=${token}`, '_blank');
+        window.open(``${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/reports/risk-report?token=${token}`, '_blank');
     };
 
     return (

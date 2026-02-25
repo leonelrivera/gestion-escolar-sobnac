@@ -34,7 +34,7 @@ export default function OrientationsPage() {
     const fetchOrientations = async () => {
         setLoading(true);
         try {
-            const res = await fetch('http://localhost:3001/orientations', { headers: getHeaders() });
+            const res = await fetch('`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/orientations', { headers: getHeaders() });
             if (!res.ok) throw new Error('Error al cargar orientaciones');
             setOrientations(await res.json());
         } catch (err: any) {
@@ -65,8 +65,8 @@ export default function OrientationsPage() {
 
         try {
             const url = editingId
-                ? `http://localhost:3001/orientations/${editingId}`
-                : 'http://localhost:3001/orientations';
+                ? ``${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/orientations/${editingId}`
+                : '`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/orientations';
             const method = editingId ? 'PATCH' : 'POST';
             const res = await fetch(url, {
                 method,
@@ -89,7 +89,7 @@ export default function OrientationsPage() {
     const handleDelete = async (id: number) => {
         setDeleteError('');
         try {
-            const res = await fetch(`http://localhost:3001/orientations/${id}`, {
+            const res = await fetch(``${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/orientations/${id}`, {
                 method: 'DELETE',
                 headers: getHeaders(),
             });

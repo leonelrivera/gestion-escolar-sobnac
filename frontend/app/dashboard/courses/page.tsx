@@ -72,7 +72,7 @@ export default function CoursesPage() {
 
     const fetchCycles = async () => {
         try {
-            const res = await fetch('http://localhost:3001/cycles', { headers: getHeaders() });
+            const res = await fetch('`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/cycles', { headers: getHeaders() });
             if (!res.ok) {
                 console.error('Error fetching cycles:', res.status);
                 return;
@@ -95,8 +95,8 @@ export default function CoursesPage() {
         setLoading(true);
         try {
             const url = selectedCycleId
-                ? `http://localhost:3001/courses?cicloLectivoId=${selectedCycleId}`
-                : 'http://localhost:3001/courses';
+                ? ``${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/courses?cicloLectivoId=${selectedCycleId}`
+                : '`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/courses';
             const res = await fetch(url, { headers: getHeaders() });
             if (!res.ok) throw new Error('Error al cargar cursos');
             const data = await res.json();
@@ -110,7 +110,7 @@ export default function CoursesPage() {
 
     const fetchOrientations = async () => {
         try {
-            const res = await fetch('http://localhost:3001/orientations', { headers: getHeaders() });
+            const res = await fetch('`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/orientations', { headers: getHeaders() });
             if (res.ok) setOrientations(await res.json());
         } catch (err) {
             console.error('Error fetching orientations:', err);
@@ -150,8 +150,8 @@ export default function CoursesPage() {
 
         try {
             const url = editingCourseId
-                ? `http://localhost:3001/courses/${editingCourseId}`
-                : 'http://localhost:3001/courses';
+                ? ``${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/courses/${editingCourseId}`
+                : '`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/courses';
             const method = editingCourseId ? 'PATCH' : 'POST';
 
             const res = await fetch(url, {
@@ -177,7 +177,7 @@ export default function CoursesPage() {
     const handleDelete = async (id: number) => {
         setDeleteError('');
         try {
-            const res = await fetch(`http://localhost:3001/courses/${id}`, {
+            const res = await fetch(``${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/courses/${id}`, {
                 method: 'DELETE',
                 headers: getHeaders(),
             });

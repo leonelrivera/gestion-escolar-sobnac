@@ -39,7 +39,7 @@ export default function CreateStudentPage() {
     const [orientations, setOrientations] = useState([]);
 
     useEffect(() => {
-        fetch('http://localhost:3001/orientations', {
+        fetch('`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/orientations', {
             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         })
             .then(r => r.json())
@@ -73,7 +73,7 @@ export default function CreateStudentPage() {
 
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:3001/students', {
+            const res = await fetch('`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/students', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

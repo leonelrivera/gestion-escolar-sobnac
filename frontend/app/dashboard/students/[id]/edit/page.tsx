@@ -44,7 +44,7 @@ export default function EditStudentPage() {
         const fetchStudent = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await fetch(`http://localhost:3001/students/${id}`, {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/students/${id}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 if (!res.ok) throw new Error('Error al cargar datos');
@@ -133,7 +133,7 @@ export default function EditStudentPage() {
 
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`http://localhost:3001/students/${id}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/students/${id}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
