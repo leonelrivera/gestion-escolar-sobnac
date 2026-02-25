@@ -35,5 +35,5 @@ COPY --from=builder /app/prisma ./prisma
 
 EXPOSE 3001
 
-# Ejecutar migraciones de DB, poblarla (seed en JS puro) y arrancar la app
-CMD ["sh", "-c", "npx prisma migrate deploy && node prisma/seed_refactor.js && npm run start:prod"]
+# Generar cliente de Prisma para las librerías nativas, ejecutar migraciones, poblarla (seed) y arrancar
+CMD ["sh", "-c", "npx prisma generate && npx prisma migrate deploy && node prisma/seed_refactor.js && npm run start:prod"]
