@@ -3,6 +3,9 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# Instalar openssl para compatibilidad con Prisma en Alpine
+RUN apk add --no-cache openssl
+
 # Instalar dependencias
 COPY package*.json ./
 RUN npm ci
@@ -18,6 +21,9 @@ RUN npm run build
 FROM node:20-alpine AS production
 
 WORKDIR /app
+
+# Instalar openssl para que Prisma funcione en Alpine en producción
+RUN apk add --no-cache openssl
 
 # Copiar dependencias de producción
 COPY package*.json ./
