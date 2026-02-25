@@ -14,8 +14,8 @@ RUN npm ci
 COPY . .
 RUN npx prisma generate
 
-# Compilar NestJS
-RUN npm run build
+# Compilar NestJS y script Seed
+RUN npm run build && npx tsc prisma/seed_refactor.ts
 
 # Etapa de producción
 FROM node:20-alpine AS production
@@ -35,5 +35,5 @@ COPY --from=builder /app/prisma ./prisma
 
 EXPOSE 3001
 
-# Ejecutar migraciones de DB, poblarla (seed) y arrancar la app
-CMD ["sh", "-c", "npx prisma migrate deploy && npx prisma db seed && npm run start:prod"]
+# Ejecutar migraciones de DB, poblarla (seed en JS puro) y arrancar la app
+CMD ["sh", "-c", "npx prisma migrate deploy && node prisma/seed_refactor.js && npm run start:prod"]

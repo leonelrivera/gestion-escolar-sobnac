@@ -18,20 +18,23 @@ async function main() {
     // await prisma.orientacion.deleteMany({}); // Opcional
     // await prisma.cicloLectivo.deleteMany({}); // Opcional
 
-    const password = await bcrypt.hash('admin123', 10);
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@escuela.com';
+    const adminPasswordRaw = process.env.ADMIN_PASSWORD || 'admin123';
+    const password = await bcrypt.hash(adminPasswordRaw, 10);
 
     // 2. Usuarios
     await prisma.usuario.upsert({
-        where: { email: 'admin@escuela.com' },
+        where: { email: adminEmail },
         update: {},
         create: {
-            email: 'admin@escuela.com',
+            email: adminEmail,
             nombreCompleto: 'Administrador Sistema',
             passwordHash: password,
             rol: 'ADMIN',
             activo: true,
         },
     });
+
 
     // 3. Ciclos Lectivos
     const ciclo2025 = await prisma.cicloLectivo.upsert({
