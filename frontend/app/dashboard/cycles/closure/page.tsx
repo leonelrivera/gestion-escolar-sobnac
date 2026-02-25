@@ -28,7 +28,7 @@ export default function CyclesClosurePage() {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        fetch('`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/cycles', {
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/cycles`, {
             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         })
             .then(r => r.json())
@@ -46,7 +46,7 @@ export default function CyclesClosurePage() {
     const fetchParams = async () => {
         setLoading(true);
         try {
-            const res = await fetch(``${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/cycles/${selectedCycleId}/parameters`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/cycles/${selectedCycleId}/parameters`, {
                 headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
             });
             if (res.ok) {
@@ -59,7 +59,7 @@ export default function CyclesClosurePage() {
 
     const toggleClosure = async (instancia: string, cuatrimestre: number, currentStatus: boolean) => {
         try {
-            const res = await fetch('`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/cycles/toggle', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/cycles/toggle`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

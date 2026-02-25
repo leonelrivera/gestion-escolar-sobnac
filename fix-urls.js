@@ -23,12 +23,11 @@ files.forEach(file => {
     let content = fs.readFileSync(file, 'utf8');
     let original = content;
 
-    // Fix the botched replacement from the previous powershell script:
-    // '`${process.env.NEXT_PUBLIC_API_URL || "${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}"}`/auth/login' -> '`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/auth/login'
-    content = content.replace(/['`]\$\{process\.env\.NEXT_PUBLIC_API_URL \|\| ".*?localhost:3001.*?"\}['`]/g, '`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`');
-    
-    // Also catch any remaining pure 'http://localhost:3001' strings
-    content = content.replace(/'http:\/\/localhost:3001/g, '`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`');
+    // Caso 1: Estaba originalmente en comillas simples. Ej: '`${process.env...}`/auth/login'
+    content = content.replace(/'`\$\{process\.env\.NEXT_PUBLIC_API_URL \|\| "http:\/\/localhost:3001"\}`(.*?)'/g, '`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}$1`');
+
+    // Caso 2: Estaba originalmente en acentos graves (Template literal). Ej: ``${process.env...}`/students?curso=${...}`
+    content = content.replace(/``\$\{process\.env\.NEXT_PUBLIC_API_URL \|\| "http:\/\/localhost:3001"\}`/g, '`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}');
 
     if (content !== original) {
         fs.writeFileSync(file, content);
@@ -36,4 +35,4 @@ files.forEach(file => {
     }
 });
 
-console.log(`Replaced in ${modifiedCount} files.`);
+console.log(`Corregido el error de sintaxis en ${modifiedCount} archivos.`);

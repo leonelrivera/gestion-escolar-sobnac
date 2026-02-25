@@ -15,7 +15,7 @@ export default function AttendancePage() {
 
     useEffect(() => {
         const token = localStorage.getItem('token');
-        fetch('`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/courses', { headers: { Authorization: `Bearer ${token}` } })
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/courses`, { headers: { Authorization: `Bearer ${token}` } })
             .then(r => r.json())
             .then(data => {
                 setCourses(data);
@@ -37,7 +37,7 @@ export default function AttendancePage() {
         const token = localStorage.getItem('token');
         try {
             // 1. Get Students for the course
-            const studentsRes = await fetch(``${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/students?curso=${selectedCourseId.split('-')[1]}&division=${selectedCourseId.split('-')[2]}&cicloLectivo=${selectedCycle}`, {
+            const studentsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/students?curso=${selectedCourseId.split('-')[1]}&division=${selectedCourseId.split('-')[2]}&cicloLectivo=${selectedCycle}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             // Actually, querying by 'curso' string is tricky if I only have ID. 
@@ -47,13 +47,13 @@ export default function AttendancePage() {
             if (!course) return;
 
             // My backend students filter uses 'curso' (anio) and 'division'.
-            const sRes = await fetch(``${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/students?curso=${course.anioCurso}&division=${course.division}&cicloLectivo=${course.cicloLectivo.anio}`, {
+            const sRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/students?curso=${course.anioCurso}&division=${course.division}&cicloLectivo=${course.cicloLectivo.anio}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const studentsData = await sRes.json();
 
             // 2. Get Existing Attendance
-            const attRes = await fetch(``${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/attendance?cursoId=${selectedCourseId}&fecha=${selectedDate}`, {
+            const attRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/attendance?cursoId=${selectedCourseId}&fecha=${selectedDate}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const attendanceData = await attRes.json();
@@ -97,7 +97,7 @@ export default function AttendancePage() {
         }));
 
         try {
-            const res = await fetch('`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/attendance/bulk', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/attendance/bulk`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

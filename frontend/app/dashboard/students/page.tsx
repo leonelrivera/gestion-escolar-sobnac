@@ -50,13 +50,13 @@ export default function StudentsPage() {
     useEffect(() => {
         const token = localStorage.getItem('token');
         // Fetch Courses
-        fetch('`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/courses', { headers: { Authorization: `Bearer ${token}` } })
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/courses`, { headers: { Authorization: `Bearer ${token}` } })
             .then(r => r.json())
             .then(setCourses)
             .catch(console.error);
 
         // Fetch Cycles to set default
-        fetch('`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/cycles', { headers: { Authorization: `Bearer ${token}` } })
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/cycles`, { headers: { Authorization: `Bearer ${token}` } })
             .then(r => r.json())
             .then(data => {
                 setCycles(data);
@@ -79,7 +79,7 @@ export default function StudentsPage() {
             if (filters.sinCurso) queryObj.sinCurso = 'true';
 
             const query = new URLSearchParams(queryObj).toString();
-            const res = await fetch(``${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/students?${query}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/students?${query}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -114,7 +114,7 @@ export default function StudentsPage() {
         if (!selectedCourseId || !assignModal) return;
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/inscriptions', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/inscriptions`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -28,7 +28,7 @@ export default function CyclesPage() {
     const fetchCycles = async () => {
         setLoading(true);
         try {
-            const res = await fetch('`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/cycles', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/cycles`, {
                 headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
             });
             if (res.ok) {
@@ -44,7 +44,7 @@ export default function CyclesPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const token = localStorage.getItem('token');
-        const url = editing ? ``${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/cycles/${editing.id}` : '`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/cycles';
+        const url = editing ? `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/cycles/${editing.id}` : `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/cycles`;
         const method = editing ? 'PATCH' : 'POST';
 
         try {
@@ -83,7 +83,7 @@ export default function CyclesPage() {
         if (!confirm('¿Seguro que desea eliminar este ciclo?')) return;
 
         try {
-            const res = await fetch(``${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}`/cycles/${id}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/cycles/${id}`, {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
             });
