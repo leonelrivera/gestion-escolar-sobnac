@@ -29,5 +29,5 @@ COPY --from=builder /app/prisma ./prisma
 
 EXPOSE 3001
 
-# Ejecutar migraciones de DB (si hay nuevas) y arrancar la app
-CMD ["sh", "-c", "npx prisma migrate deploy && npm run start:prod"]
+# Ejecutar migraciones de DB, poblarla (seed) y arrancar la app
+CMD ["sh", "-c", "npx prisma migrate deploy && npx prisma db seed && npm run start:prod"]

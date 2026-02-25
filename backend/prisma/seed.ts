@@ -4,13 +4,17 @@ import * as bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 
 async function main() {
-    const password = await bcrypt.hash('admin123', 10);
+    // Obtener credenciales desde entorno o usar defaults
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@escuela.com';
+    const adminPasswordRaw = process.env.ADMIN_PASSWORD || 'admin123';
+
+    const password = await bcrypt.hash(adminPasswordRaw, 10);
 
     const admin = await prisma.usuario.upsert({
-        where: { email: 'admin@escuela.com' },
+        where: { email: adminEmail },
         update: {},
         create: {
-            email: 'admin@escuela.com',
+            email: adminEmail,
             nombreCompleto: 'Administrador Sistema',
             passwordHash: password,
             rol: 'ADMIN',
@@ -18,7 +22,7 @@ async function main() {
         },
     });
 
-    console.log({ admin });
+    console.log(`Usuario Admin creado o verificado: ${adminEmail}`);
 
     // Seed Cycles
     const ciclo2025 = await prisma.cicloLectivo.upsert({
