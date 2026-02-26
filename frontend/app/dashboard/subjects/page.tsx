@@ -124,7 +124,6 @@ export default function SubjectsPage() {
                         onChange={(e) => setSelectOrientacion(e.target.value)}
                     >
                         <option value="">Todas las Orientaciones</option>
-                        <option value="E.S.O">E.S.O / Ciclo Básico</option>
                         {orientations.map(o => (
                             <option key={o.id} value={o.nombre}>{o.nombre}</option>
                         ))}
@@ -222,8 +221,7 @@ export default function SubjectsPage() {
                                         value={currentSubject.orientacionFiltro || ''}
                                         onChange={(e) => setCurrentSubject({ ...currentSubject, orientacionFiltro: e.target.value })}
                                     >
-                                        <option value="">General</option>
-                                        <option value="E.S.O">E.S.O</option>
+                                        <option value="">General / Sin Especificar</option>
                                         {orientations.map(o => (
                                             <option key={o.id} value={o.nombre}>{o.nombre}</option>
                                         ))}

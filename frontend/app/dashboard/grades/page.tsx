@@ -246,6 +246,7 @@ export default function GradesPage() {
                     </select>
                 </div>
                 <div>
+                    <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Materia</label>
                     <select
                         value={selectedSubjectId}
                         onChange={e => setSelectedSubjectId(e.target.value)}
