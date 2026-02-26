@@ -29,7 +29,7 @@ COPY --from=builder /app/public ./public
 
 # Preparar el script de entrypoint para inyección en tiempo de ejecución
 COPY entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
+RUN sed -i 's/\r$//' /app/entrypoint.sh && chmod +x /app/entrypoint.sh
 
 EXPOSE 3000
 
