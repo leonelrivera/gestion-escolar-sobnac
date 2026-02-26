@@ -28,10 +28,10 @@ COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 
 # Preparar el script de entrypoint para inyección en tiempo de ejecución
-COPY entrypoint.sh ./entrypoint.sh
-RUN chmod +x ./entrypoint.sh
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 
 EXPOSE 3000
 
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["/bin/sh", "/app/entrypoint.sh"]
 CMD ["npm", "run", "start"]
