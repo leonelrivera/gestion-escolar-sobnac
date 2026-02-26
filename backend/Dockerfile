@@ -36,4 +36,4 @@ COPY --from=builder /app/prisma ./prisma
 EXPOSE 3001
 
 # Generar cliente de Prisma para las librerías nativas, crear tablas por sincronización directa (db push), poblarla (seed) y arrancar
-CMD ["sh", "-c", "npx prisma generate && npx prisma db push --accept-data-loss --skip-generate && node prisma/seed_refactor.js && npm run start:prod"]
+CMD ["sh", "-c", "npx prisma generate && npx prisma db push --accept-data-loss --skip-generate && node prisma/seed_refactor.js && node dist/src/main.js"]
