@@ -27,6 +27,11 @@ RUN npm ci --only=production
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 
+# Preparar el script de entrypoint para inyección en tiempo de ejecución
+COPY entrypoint.sh ./entrypoint.sh
+RUN chmod +x ./entrypoint.sh
+
 EXPOSE 3000
 
+ENTRYPOINT ["./entrypoint.sh"]
 CMD ["npm", "run", "start"]
