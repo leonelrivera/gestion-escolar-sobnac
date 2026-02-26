@@ -25,6 +25,9 @@ WORKDIR /app
 # Instalar openssl para que Prisma funcione en Alpine en producción
 RUN apk add --no-cache openssl
 
+# Asegurar entorno de producción para NestJS y Scripts
+ENV NODE_ENV=production
+
 # Copiar dependencias de producción
 COPY package*.json ./
 RUN npm ci --only=production
