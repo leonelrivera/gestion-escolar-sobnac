@@ -27,6 +27,9 @@ export class CreateStudentDto {
   nombreTutor?: string;
   telefonoTutor?: string;
   emailTutor?: string;
+  nombreTutorAlternativo?: string;
+  telefonoTutorAlternativo?: string;
+  emailTutorAlternativo?: string;
   contactoEmergenciaNombre?: string;
   contactoEmergenciaTelefono?: string;
   orientacion?: string;

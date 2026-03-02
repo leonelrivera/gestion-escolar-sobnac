@@ -9,6 +9,8 @@ export default function StudentProfilePage() {
     const [student, setStudent] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [observations, setObservations] = useState('');
+    const [savingObs, setSavingObs] = useState(false);
 
     useEffect(() => {
         const fetchStudent = async () => {
@@ -20,6 +22,7 @@ export default function StudentProfilePage() {
                 if (!res.ok) throw new Error('Error al cargar perfil');
                 const data = await res.json();
                 setStudent(data);
+                setObservations(data.observacionesGenerales || '');
             } catch (err: any) {
                 setError(err.message);
             } finally {
@@ -28,6 +31,28 @@ export default function StudentProfilePage() {
         };
         fetchStudent();
     }, [id]);
+
+    const handleUpdateObservations = async () => {
+        setSavingObs(true);
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/students/${id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ observacionesGenerales: observations })
+            });
+            if (!res.ok) throw new Error('Error al guardar observaciones');
+            // Flash a nice feedback or just stay silent
+        } catch (err) {
+            console.error(err);
+            alert('Error al guardar observaciones');
+        } finally {
+            setSavingObs(false);
+        }
+    };
 
     const [activeTab, setActiveTab] = useState<'ficha' | 'trayectoria'>('ficha');
 
@@ -143,6 +168,13 @@ export default function StudentProfilePage() {
                                         <p className="font-bold text-gray-700">{student.emailTutor || '-'}</p>
                                     </div>
                                 </div>
+                                {student.nombreTutorAlternativo && (
+                                    <div className="pt-2 border-t border-gray-100 mt-2">
+                                        <p className="text-[10px] text-gray-400 uppercase font-bold">Tutor Alternativo</p>
+                                        <p className="font-bold text-gray-700 uppercase mb-1">{student.nombreTutorAlternativo}</p>
+                                        <p className="font-bold text-gray-500 text-xs">📞 {student.telefonoTutorAlternativo || '-'} | ✉️ {student.emailTutorAlternativo || '-'}</p>
+                                    </div>
+                                )}
                                 <div>
                                     <p className="text-[10px] text-gray-400 uppercase font-bold">Domicilio Estudiante</p>
                                     <p className="font-bold text-gray-700">{student.domicilio || '-'}</p>
@@ -184,8 +216,22 @@ export default function StudentProfilePage() {
                                     <p className="font-bold text-gray-700 uppercase">{student.institucionOrigen || '-'}</p>
                                 </div>
                                 <div className="pt-2 border-t mt-2">
-                                    <p className="text-[10px] text-gray-400 uppercase font-bold">Observaciones Generales</p>
-                                    <p className="text-xs text-gray-600 italic mt-1 leading-relaxed">"{student.observacionesGenerales || 'Sin observaciones registradas.'}"</p>
+                                    <div className="flex justify-between items-center mb-1">
+                                        <p className="text-[10px] text-gray-400 uppercase font-bold">Observaciones Generales</p>
+                                        <button
+                                            onClick={handleUpdateObservations}
+                                            disabled={savingObs}
+                                            className="text-[10px] bg-blue-50 text-blue-600 px-2 py-1 rounded hover:bg-blue-100 font-bold disabled:opacity-50 transition"
+                                        >
+                                            {savingObs ? 'Guardando...' : '💾 Guardar'}
+                                        </button>
+                                    </div>
+                                    <textarea
+                                        value={observations}
+                                        onChange={(e) => setObservations(e.target.value)}
+                                        className="w-full text-xs text-gray-600 border border-gray-200 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none h-24 resize-none bg-gray-50 focus:bg-white"
+                                        placeholder="Puede escribir notas y observaciones permanentes del estudiante aquí..."
+                                    />
                                 </div>
                             </div>
                         </div>

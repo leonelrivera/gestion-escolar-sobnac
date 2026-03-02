@@ -27,6 +27,9 @@ export default function CreateStudentPage() {
         nombreTutor: '',
         telefonoTutor: '',
         emailTutor: '',
+        nombreTutorAlternativo: '',
+        telefonoTutorAlternativo: '',
+        emailTutorAlternativo: '',
         contactoEmergenciaNombre: '',
         contactoEmergenciaTelefono: '',
         orientacion: '',
@@ -187,7 +190,22 @@ export default function CreateStudentPage() {
                             <label className="block text-[10px] font-black text-gray-400 uppercase">Email del Tutor</label>
                             <input type="email" name="emailTutor" onChange={handleChange} className="mt-1 block w-full border rounded-lg p-2 bg-gray-50 focus:bg-white outline-none" />
                         </div>
-                        <div className="md:col-span-2">
+
+                        {/* Segundo Tutor (Alternativo) */}
+                        <div className="md:col-span-2 mt-4">
+                            <label className="block text-[10px] font-black text-gray-400 uppercase">Nombre del Tutor Alternativo (Opcional)</label>
+                            <input name="nombreTutorAlternativo" onChange={handleChange} className="mt-1 block w-full border rounded-lg p-2 bg-gray-50 focus:bg-white outline-none" />
+                        </div>
+                        <div>
+                            <label className="block text-[10px] font-black text-gray-400 uppercase">Teléfono Tutor Alt.</label>
+                            <input name="telefonoTutorAlternativo" onChange={handleChange} className="mt-1 block w-full border rounded-lg p-2 bg-gray-50 focus:bg-white outline-none" />
+                        </div>
+                        <div>
+                            <label className="block text-[10px] font-black text-gray-400 uppercase">Email Tutor Alt.</label>
+                            <input type="email" name="emailTutorAlternativo" onChange={handleChange} className="mt-1 block w-full border rounded-lg p-2 bg-gray-50 focus:bg-white outline-none" />
+                        </div>
+
+                        <div className="md:col-span-2 mt-4">
                             <label className="block text-[10px] font-black text-gray-400 uppercase">Domicilio del Estudiante</label>
                             <input name="domicilio" required onChange={handleChange} className="mt-1 block w-full border rounded-lg p-2 bg-gray-50 focus:bg-white outline-none" />
                         </div>

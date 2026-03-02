@@ -86,6 +86,9 @@ model Estudiante {
   nombreTutor        String?
   telefonoTutor      String?
   emailTutor         String?
+  nombreTutorAlternativo   String?  @map("nombre_tutor_alternativo")
+  telefonoTutorAlternativo String?  @map("telefono_tutor_alternativo")
+  emailTutorAlternativo    String?  @map("email_tutor_alternativo")
   
   // Emergencia
   contactoEmergenciaNombre   String?
