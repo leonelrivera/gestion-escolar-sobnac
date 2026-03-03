@@ -152,10 +152,12 @@ export default function SubjectsPage() {
                                     <td className="p-4 font-medium text-gray-800">{s.nombre}</td>
                                     <td className="p-4 text-gray-600">{s.anioCurso}</td>
                                     <td className="p-4">
-                                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${s.orientacionFiltro === 'E.S.O' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
-                                            }`}>
-                                            {s.orientacionFiltro || 'General'}
-                                        </span>
+                                        {s.orientacionFiltro && (
+                                            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${s.orientacionFiltro === 'E.S.O' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
+                                                }`}>
+                                                {s.orientacionFiltro}
+                                            </span>
+                                        )}
                                     </td>
                                     <td className="p-4 text-right">
                                         <button
@@ -221,7 +223,7 @@ export default function SubjectsPage() {
                                         value={currentSubject.orientacionFiltro || ''}
                                         onChange={(e) => setCurrentSubject({ ...currentSubject, orientacionFiltro: e.target.value })}
                                     >
-                                        <option value="">General / Sin Especificar</option>
+                                        <option value="">-- Sin Orientación --</option>
                                         {orientations.map(o => (
                                             <option key={o.id} value={o.nombre}>{o.nombre}</option>
                                         ))}

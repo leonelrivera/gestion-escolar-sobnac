@@ -6,7 +6,7 @@ import type { Response } from 'express';
 @UseGuards(AuthGuard('jwt'))
 @Controller('reports')
 export class ReportsController {
-  constructor(private readonly reportsService: ReportsService) {}
+  constructor(private readonly reportsService: ReportsService) { }
 
   @Get('bulletin/:studentId')
   async getBulletin(
@@ -31,5 +31,10 @@ export class ReportsController {
       'Content-Length': buffer.length,
     });
     res.end(buffer);
+  }
+
+  @Get('stats/risk')
+  async getRiskStats() {
+    return this.reportsService.getRiskStats();
   }
 }

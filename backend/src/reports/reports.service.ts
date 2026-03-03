@@ -185,4 +185,64 @@ export class ReportsService {
       doc.end();
     });
   }
+
+  async getRiskStats() {
+    const students = await this.prisma.estudiante.findMany({
+      include: {
+        inscripciones: {
+          where: { curso: { cicloLectivo: { enCurso: true } } },
+          include: {
+            curso: true,
+            calificaciones: {
+              where: { instancia: 'CIERRE' },
+            },
+          },
+        },
+      },
+    });
+
+    const stats = {
+      total: students.length,
+      bajo: 0,
+      medio: 0,
+      alto: 0,
+      sinRiesgo: 0,
+      studentsRisk: [] as any[]
+    };
+
+    students.forEach((s) => {
+      const activeIns = s.inscripciones[0];
+      if (!activeIns) {
+        stats.sinRiesgo++;
+        return;
+      }
+
+      const desaprobadas = activeIns.calificaciones.filter((c) => c.nota < 6).length;
+      let riesgo = 'Bajo';
+      if (desaprobadas === 0) {
+        riesgo = 'Sin Riesgo';
+        stats.sinRiesgo++;
+      } else if (desaprobadas > 6) {
+        riesgo = 'Alto';
+        stats.alto++;
+      } else if (desaprobadas >= 2) {
+        riesgo = 'Medio';
+        stats.medio++;
+      } else {
+        stats.bajo++;
+      }
+
+      if (riesgo !== 'Sin Riesgo') {
+        stats.studentsRisk.push({
+          id: s.id,
+          nombre: `${s.apellido.toUpperCase()}, ${s.nombre}`,
+          curso: `${activeIns.curso.anioCurso || ''} ${activeIns.curso.division || ''}`,
+          desaprobadas,
+          riesgo
+        });
+      }
+    });
+
+    return stats;
+  }
 }

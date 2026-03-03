@@ -305,67 +305,79 @@ export default function GradesPage() {
                         No hay estudiantes inscritos en este curso.
                     </div>
                 ) : (
-                    <table key={`${selectedCourseId}-${selectedSubjectId}`} className="w-full text-sm border-collapse">
-                        <thead className="bg-gray-100 sticky top-0 z-10 shadow-sm">
-                            <tr>
-                                <th rowSpan={2} className="p-3 text-left font-bold text-gray-600 border bg-gray-50 min-w-[200px] sticky left-0 z-20">Estudiante</th>
-                                <th colSpan={4} className="p-2 text-center font-black text-gray-500 uppercase border bg-blue-50/50">1º Cuatrimestre</th>
-                                <th colSpan={4} className="p-2 text-center font-black text-gray-500 uppercase border bg-green-50/50">2º Cuatrimestre</th>
-                                <th colSpan={3} className="p-2 text-center font-black text-gray-500 uppercase border bg-yellow-50/50">Instancias Finales</th>
-                            </tr>
-                            <tr>
-                                {/* Headers 1º Cuat */}
-                                {INSTANCES.map(i => {
-                                    const isClosed = periods.find(p => p.instancia === i.key && p.cuatrimestre === 1)?.cerrado;
-                                    return (
-                                        <th key={`1-${i.key}`} className={`p-2 text-center text-[10px] font-bold border w-16 ${isClosed ? 'bg-red-50 text-red-600' : 'bg-blue-50/30 text-gray-400'}`}>
-                                            <div className="flex flex-col items-center gap-0.5">
-                                                {isClosed && <span>🚫</span>}
-                                                {i.label}
-                                            </div>
-                                        </th>
-                                    );
-                                })}
-                                {/* Headers 2º Cuat */}
-                                {INSTANCES.map(i => {
-                                    const isClosed = periods.find(p => p.instancia === i.key && p.cuatrimestre === 2)?.cerrado;
-                                    return (
-                                        <th key={`2-${i.key}`} className={`p-2 text-center text-[10px] font-bold border w-16 ${isClosed ? 'bg-red-50 text-red-600' : 'bg-green-50/30 text-gray-400'}`}>
-                                            <div className="flex flex-col items-center gap-0.5">
-                                                {isClosed && <span>🚫</span>}
-                                                {i.label}
-                                            </div>
-                                        </th>
-                                    );
-                                })}
-                                {/* Headers Finales */}
-                                {FINAL_INSTANCES.map(i => {
-                                    const isClosed = periods.find(p => p.instancia === i.key && p.cuatrimestre === 2)?.cerrado;
-                                    return (
-                                        <th key={`F-${i.key}`} className={`p-2 text-center text-[10px] font-bold border w-16 ${isClosed ? 'bg-red-50 text-red-600' : 'bg-yellow-50/30 text-gray-400'}`}>
-                                            <div className="flex flex-col items-center gap-0.5">
-                                                {isClosed && <span>🚫</span>}
-                                                {i.label}
-                                            </div>
-                                        </th>
-                                    );
-                                })}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {matrix.map(row => (
-                                <tr key={row.student.id} className="hover:bg-gray-50 transition-colors group">
-                                    <td className="p-3 font-medium text-gray-700 border bg-white group-hover:bg-gray-50 sticky left-0 z-10 whitespace-nowrap">
-                                        <span className="font-bold">{row.student.apellido}</span>, {row.student.nombre}
-                                        <div className="text-[10px] text-gray-400">{row.student.dni}</div>
-                                    </td>
-                                    {getGradeInputs(row, 1)}
-                                    {getGradeInputs(row, 2)}
-                                    {getFinalInputs(row)}
+                    <>
+                        <div className="p-4 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
+                            <div>
+                                <h2 className="text-lg font-black text-gray-700">
+                                    {courses.find(c => String(c.id) === selectedCourseId)?.anioCurso} "{courses.find(c => String(c.id) === selectedCourseId)?.division}"
+                                    <span className="mx-2 text-gray-300">|</span>
+                                    {subjects.find(s => String(s.id) === selectedSubjectId)?.nombre}
+                                </h2>
+                                <p className="text-xs text-gray-400 font-bold uppercase">Ciclo Lectivo: {cycles.find(c => String(c.id) === selectedCycleId)?.anio}</p>
+                            </div>
+                        </div>
+                        <table key={`${selectedCourseId}-${selectedSubjectId}`} className="w-full text-sm border-collapse">
+                            <thead className="bg-gray-100 sticky top-0 z-10 shadow-sm">
+                                <tr>
+                                    <th rowSpan={2} className="p-3 text-left font-bold text-gray-600 border bg-gray-50 min-w-[200px] sticky left-0 z-20">Estudiante</th>
+                                    <th colSpan={4} className="p-2 text-center font-black text-gray-500 uppercase border bg-blue-50/50">1º Cuatrimestre</th>
+                                    <th colSpan={4} className="p-2 text-center font-black text-gray-500 uppercase border bg-green-50/50">2º Cuatrimestre</th>
+                                    <th colSpan={3} className="p-2 text-center font-black text-gray-500 uppercase border bg-yellow-50/50">Instancias Finales</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                                <tr>
+                                    {/* Headers 1º Cuat */}
+                                    {INSTANCES.map(i => {
+                                        const isClosed = periods.find(p => p.instancia === i.key && p.cuatrimestre === 1)?.cerrado;
+                                        return (
+                                            <th key={`1-${i.key}`} className={`p-2 text-center text-[10px] font-bold border w-16 ${isClosed ? 'bg-red-50 text-red-600' : 'bg-blue-50/30 text-gray-400'}`}>
+                                                <div className="flex flex-col items-center gap-0.5">
+                                                    {isClosed && <span>🚫</span>}
+                                                    {i.label}
+                                                </div>
+                                            </th>
+                                        );
+                                    })}
+                                    {/* Headers 2º Cuat */}
+                                    {INSTANCES.map(i => {
+                                        const isClosed = periods.find(p => p.instancia === i.key && p.cuatrimestre === 2)?.cerrado;
+                                        return (
+                                            <th key={`2-${i.key}`} className={`p-2 text-center text-[10px] font-bold border w-16 ${isClosed ? 'bg-red-50 text-red-600' : 'bg-green-50/30 text-gray-400'}`}>
+                                                <div className="flex flex-col items-center gap-0.5">
+                                                    {isClosed && <span>🚫</span>}
+                                                    {i.label}
+                                                </div>
+                                            </th>
+                                        );
+                                    })}
+                                    {/* Headers Finales */}
+                                    {FINAL_INSTANCES.map(i => {
+                                        const isClosed = periods.find(p => p.instancia === i.key && p.cuatrimestre === 2)?.cerrado;
+                                        return (
+                                            <th key={`F-${i.key}`} className={`p-2 text-center text-[10px] font-bold border w-16 ${isClosed ? 'bg-red-50 text-red-600' : 'bg-yellow-50/30 text-gray-400'}`}>
+                                                <div className="flex flex-col items-center gap-0.5">
+                                                    {isClosed && <span>🚫</span>}
+                                                    {i.label}
+                                                </div>
+                                            </th>
+                                        );
+                                    })}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {matrix.map(row => (
+                                    <tr key={row.student.id} className="hover:bg-gray-50 transition-colors group">
+                                        <td className="p-3 font-medium text-gray-700 border bg-white group-hover:bg-gray-50 sticky left-0 z-10 whitespace-nowrap">
+                                            <span className="font-bold">{row.student.apellido}</span>, {row.student.nombre}
+                                            <div className="text-[10px] text-gray-400">{row.student.dni}</div>
+                                        </td>
+                                        {getGradeInputs(row, 1)}
+                                        {getGradeInputs(row, 2)}
+                                        {getFinalInputs(row)}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </>
                 )}
             </div>
         </div>
