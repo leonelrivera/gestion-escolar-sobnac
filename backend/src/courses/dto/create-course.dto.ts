@@ -4,5 +4,4 @@ export class CreateCourseDto {
   division: string; // "A"
   turno?: 'MANANA' | 'TARDE' | 'VESPERTINO';
   orientacionId?: number;
-  preceptorId?: number;
 }

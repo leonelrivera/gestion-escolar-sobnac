@@ -15,12 +15,12 @@ datasource db {
 enum Rol {
   ADMIN
   DIRECTIVO
-  JEFE_PRECEPTORES
-  PRECEPTOR
-  SECRETARIA
-  PROSECRETARIA
+  SECRETARIO
+  PROSECRETARIO
+  DEP_ESTUDIANTES
   COORDINADOR
-  ADMINISTRATIVO
+  JEFE_PRECEPTOR
+  PRECEPTOR
 }
 
 model Usuario {
@@ -33,7 +33,7 @@ model Usuario {
   createdAt      DateTime @default(now()) @map("created_at")
 
   // Relaciones
-  cursosACargo   Curso[]        @relation("PreceptorCurso")
+  asignaciones   Asignacion[]
   auditoriaNotas   Calificacion[]    @relation("UsuarioCarga")
   parametrosCiclo  ParametrosCiclo[]
   estudiantesCargados Estudiante[]
@@ -171,6 +171,18 @@ model Orientacion {
   @@map("orientaciones")
 }
 
+model Asignacion {
+  id        Int      @id @default(autoincrement())
+  usuarioId Int      @map("usuario_id")
+  cursoId   Int      @map("curso_id")
+
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  curso     Curso    @relation(fields: [cursoId], references: [id], onDelete: Cascade)
+
+  @@unique([usuarioId, cursoId])
+  @@map("asignaciones")
+}
+
 model Curso {
   id             Int          @id @default(autoincrement())
   cicloLectivoId Int          @map("ciclo_lectivo_id")
@@ -179,11 +191,10 @@ model Curso {
   turno          Turno? 
 
   orientacionId  Int?         @map("orientacion_id")
-  preceptorId    Int?         @map("preceptor_id")
 
   cicloLectivo   CicloLectivo @relation(fields: [cicloLectivoId], references: [id])
   orientacion    Orientacion? @relation(fields: [orientacionId], references: [id])
-  preceptor      Usuario?     @relation("PreceptorCurso", fields: [preceptorId], references: [id])
+  asignaciones   Asignacion[]
   inscripciones  Inscripcion[]
 
   @@unique([cicloLectivoId, anioCurso, division, turno])

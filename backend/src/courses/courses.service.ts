@@ -9,13 +9,13 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class CoursesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(createCourseDto: CreateCourseDto) {
     try {
       return await this.prisma.curso.create({
         data: createCourseDto,
-        include: { cicloLectivo: true, orientacion: true, preceptor: true },
+        include: { cicloLectivo: true, orientacion: true, asignaciones: { include: { usuario: true } } },
       });
     } catch (error: any) {
       if (error.code === 'P2002') {
@@ -27,13 +27,20 @@ export class CoursesService {
     }
   }
 
-  findAll(cicloLectivoId?: number) {
+  findAll(cicloLectivoId?: number, user?: { rol: string; userId: number }) {
+    const whereClause: any = cicloLectivoId ? { cicloLectivoId } : {};
+
+    // RLS para Preceptores
+    if (user?.rol === 'PRECEPTOR') {
+      whereClause.asignaciones = { some: { usuarioId: user.userId } };
+    }
+
     return this.prisma.curso.findMany({
-      where: cicloLectivoId ? { cicloLectivoId } : undefined,
+      where: whereClause,
       include: {
         cicloLectivo: true,
         orientacion: true,
-        preceptor: true,
+        asignaciones: { include: { usuario: true } },
         inscripciones: { select: { id: true } },
       },
       orderBy: [
@@ -50,7 +57,7 @@ export class CoursesService {
       include: {
         cicloLectivo: true,
         orientacion: true,
-        preceptor: true,
+        asignaciones: { include: { usuario: true } },
         inscripciones: {
           include: { estudiante: true },
         },
@@ -65,7 +72,7 @@ export class CoursesService {
       return await this.prisma.curso.update({
         where: { id },
         data: updateCourseDto,
-        include: { cicloLectivo: true, orientacion: true, preceptor: true },
+        include: { cicloLectivo: true, orientacion: true, asignaciones: { include: { usuario: true } } },
       });
     } catch (error: any) {
       if (error.code === 'P2025') {

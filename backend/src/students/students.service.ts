@@ -60,7 +60,7 @@ export class StudentsService {
     turno?: any;
     condicion?: any;
     sinCurso?: boolean; // New filter
-  }) {
+  }, user?: { rol: string; userId: number }) {
     const where: any = {};
 
     if (filters?.search) {
@@ -101,6 +101,28 @@ export class StudentsService {
             },
           },
         };
+      }
+    }
+
+    // RLS Preceptores
+    if (user?.rol === 'PRECEPTOR') {
+      const preceptorFilter = {
+        curso: {
+          asignaciones: {
+            some: { usuarioId: user.userId },
+          },
+        },
+      };
+
+      if (!where.inscripciones) {
+        where.inscripciones = { some: preceptorFilter };
+      } else if (where.inscripciones.some) {
+        where.inscripciones.some = {
+          AND: [where.inscripciones.some, preceptorFilter],
+        };
+      } else if (where.inscripciones.none) {
+        // Los alumnos sin curso no pertenecen a ningún preceptor, forzamos resultado vacío
+        where.inscripciones.some = preceptorFilter;
       }
     }
 
@@ -224,8 +246,19 @@ export class StudentsService {
       b.curso.cicloLectivo.anio - a.curso.cicloLectivo.anio
     );
 
+    const currentReprobadas = inscripcionesConLogica.length > 0
+      ? inscripcionesConLogica[inscripcionesConLogica.length - 1].reprobadasCount
+      : 0;
+
+    let nivelRiesgo = 'Sin Riesgo';
+    if (currentReprobadas >= 1 && currentReprobadas <= 4) nivelRiesgo = 'Riesgo Bajo';
+    if (currentReprobadas === 5 || currentReprobadas === 6) nivelRiesgo = 'Riesgo Medio';
+    if (currentReprobadas > 6) nivelRiesgo = 'Riesgo Alto';
+
     return {
       ...student,
+      nivelRiesgo,
+      reprobadasAcumuladas: currentReprobadas,
       inscripciones: inscripcionesVista
     };
   }

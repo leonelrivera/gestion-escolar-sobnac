@@ -50,6 +50,7 @@ export default function GradesPage() {
     const [periods, setPeriods] = useState<Period[]>([]);
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState<string | null>(null); // "studentId-key" being saved
+    const [userRole, setUserRole] = useState<string | null>(null);
 
     // Auth Header
     const getHeaders = () => ({
@@ -59,6 +60,15 @@ export default function GradesPage() {
 
     // Carga inicial de filtros
     useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            try {
+                const payload = token.split('.')[1];
+                const decoded = JSON.parse(atob(payload));
+                setUserRole(decoded.rol);
+            } catch { }
+        }
+
         Promise.all([
             fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/cycles`, { headers: getHeaders() }).then(r => r.json()),
             fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/courses`, { headers: getHeaders() }).then(r => r.json()),
@@ -106,8 +116,8 @@ export default function GradesPage() {
         if (grade === '' || isNaN(Number(grade))) return;
 
         // Client-side validation
-        const isClosed = periods.find(p => p.instancia === instancia && p.cuatrimestre === cuatrimestre)?.cerrado;
-        if (isClosed) {
+        const periodIsClosed = periods.find(p => p.instancia === instancia && p.cuatrimestre === cuatrimestre)?.cerrado;
+        if (periodIsClosed && userRole !== 'ADMIN') {
             alert('El periodo está CERRADO. No se pueden modificar notas.');
             return;
         }
@@ -160,15 +170,16 @@ export default function GradesPage() {
             const gradeKey = `${cuatrimestre}-${inst.key}`;
             const val = row.grades[gradeKey];
             const isSaving = saving === `${row.student.id}-${gradeKey}`;
-            const isClosed = periods.find(p => p.instancia === inst.key && p.cuatrimestre === cuatrimestre)?.cerrado;
+            const periodIsClosed = periods.find(p => p.instancia === inst.key && p.cuatrimestre === cuatrimestre)?.cerrado;
+            const isClosedAndNotAdmin = periodIsClosed && userRole !== 'ADMIN';
 
             return (
-                <td key={gradeKey} className={`p-1 border text-center ${isClosed ? 'bg-gray-100' : ''}`}>
+                <td key={gradeKey} className={`p-1 border text-center ${isClosedAndNotAdmin ? 'bg-gray-100' : ''}`}>
                     <input
                         className={`w-12 text-center p-1 rounded border ${isSaving ? 'bg-blue-50 border-blue-400' : 'border-transparent hover:border-gray-200 focus:border-blue-500'} outline-none transition-colors font-medium disabled:text-gray-400 disabled:bg-gray-100 disabled:cursor-not-allowed`}
                         defaultValue={val ?? ''}
-                        disabled={isClosed}
-                        title={isClosed ? 'Periodo Cerrado' : ''}
+                        disabled={isClosedAndNotAdmin}
+                        title={periodIsClosed ? (isClosedAndNotAdmin ? 'Periodo Cerrado' : 'Cerrado (Editando como ADMIN)') : ''}
                         onBlur={(e) => {
                             if (e.target.value !== String(val ?? '')) {
                                 handleSave(row.student.id, e.target.value, cuatrimestre, inst.key);
@@ -191,15 +202,16 @@ export default function GradesPage() {
             const gradeKey = `${cuatrimestre}-${inst.key}`;
             const val = row.grades[gradeKey];
             const isSaving = saving === `${row.student.id}-${gradeKey}`;
-            const isClosed = periods.find(p => p.instancia === inst.key && p.cuatrimestre === cuatrimestre)?.cerrado;
+            const periodIsClosed = periods.find(p => p.instancia === inst.key && p.cuatrimestre === cuatrimestre)?.cerrado;
+            const isClosedAndNotAdmin = periodIsClosed && userRole !== 'ADMIN';
 
             return (
-                <td key={gradeKey} className={`p-1 border text-center ${isClosed ? 'bg-gray-100' : 'bg-gray-50/50'}`}>
+                <td key={gradeKey} className={`p-1 border text-center ${isClosedAndNotAdmin ? 'bg-gray-100' : 'bg-gray-50/50'}`}>
                     <input
                         className={`w-12 text-center p-1 rounded border ${isSaving ? 'bg-blue-50 border-blue-400' : 'border-transparent hover:border-gray-200 focus:border-blue-500'} outline-none transition-colors font-bold text-gray-700 disabled:text-gray-400 disabled:bg-gray-100 disabled:cursor-not-allowed`}
                         defaultValue={val ?? ''}
-                        disabled={isClosed}
-                        title={isClosed ? 'Periodo Cerrado' : ''}
+                        disabled={isClosedAndNotAdmin}
+                        title={periodIsClosed ? (isClosedAndNotAdmin ? 'Periodo Cerrado' : 'Cerrado (Editando como ADMIN)') : ''}
                         onBlur={(e) => {
                             if (e.target.value !== String(val ?? '')) {
                                 handleSave(row.student.id, e.target.value, cuatrimestre, inst.key);

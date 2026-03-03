@@ -1,29 +1,59 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
+type Role = 'ADMIN' | 'DIRECTIVO' | 'SECRETARIO' | 'PROSECRETARIO' | 'DEP_ESTUDIANTES' | 'COORDINADOR' | 'JEFE_PRECEPTOR' | 'PRECEPTOR';
+
+const ALL_ROLES: Role[] = ['ADMIN', 'DIRECTIVO', 'SECRETARIO', 'PROSECRETARIO', 'DEP_ESTUDIANTES', 'COORDINADOR', 'JEFE_PRECEPTOR', 'PRECEPTOR'];
+
 const menuItems = [
-    { href: '/dashboard', label: 'Inicio', icon: '🏠' },
-    { href: '/dashboard/students', label: 'Estudiantes', icon: '🎓' },
-    { href: '/dashboard/courses', label: 'Cursos', icon: '📚' },
-    { href: '/dashboard/orientations', label: 'Orientaciones', icon: '🧭' },
-    { href: '/dashboard/subjects', label: 'Materias', icon: '📖' },
-    { href: '/dashboard/grades', label: 'Notas', icon: '📝' },
-    { href: '/dashboard/attendance', label: 'Asistencias', icon: '📅' },
-    { href: '/dashboard/cycles', label: 'Ciclos Lectivos', icon: '📅' },
-    { href: '/dashboard/cycles/closure', label: 'Cierre de Periodos', icon: '🔒' },
+    { href: '/dashboard', label: 'Inicio', icon: '🏠', roles: ALL_ROLES },
+    { href: '/dashboard/students', label: 'Estudiantes', icon: '🎓', roles: ['ADMIN', 'DIRECTIVO', 'SECRETARIO', 'PROSECRETARIO', 'DEP_ESTUDIANTES', 'COORDINADOR', 'JEFE_PRECEPTOR'] },
+    { href: '/dashboard/courses', label: 'Cursos', icon: '📚', roles: ALL_ROLES },
+    { href: '/dashboard/orientations', label: 'Orientaciones', icon: '🧭', roles: ['ADMIN', 'DIRECTIVO', 'SECRETARIO', 'PROSECRETARIO', 'DEP_ESTUDIANTES'] },
+    { href: '/dashboard/subjects', label: 'Materias', icon: '📖', roles: ['ADMIN', 'DIRECTIVO', 'SECRETARIO', 'PROSECRETARIO', 'DEP_ESTUDIANTES'] },
+    { href: '/dashboard/grades', label: 'Notas', icon: '📝', roles: ['ADMIN', 'DIRECTIVO', 'SECRETARIO', 'PROSECRETARIO', 'DEP_ESTUDIANTES', 'JEFE_PRECEPTOR', 'PRECEPTOR'] },
+    { href: '/dashboard/attendance', label: 'Asistencias', icon: '📅', roles: ['ADMIN', 'DIRECTIVO', 'SECRETARIO', 'PROSECRETARIO', 'JEFE_PRECEPTOR', 'PRECEPTOR'] },
+    { href: '/dashboard/cycles', label: 'Ciclos Lectivos', icon: '📅', roles: ['ADMIN', 'DIRECTIVO', 'SECRETARIO', 'PROSECRETARIO'] },
+    { href: '/dashboard/cycles/closure', label: 'Cierre de Periodos', icon: '🔒', roles: ['ADMIN', 'PROSECRETARIO'] },
+    // Nuevos módulos a construir:
+    { href: '/dashboard/users', label: 'Usuarios', icon: '👥', roles: ['ADMIN', 'PROSECRETARIO', 'JEFE_PRECEPTOR'] },
+    { href: '/dashboard/stats', label: 'Estadística y Riesgo', icon: '📊', roles: ['ADMIN', 'DIRECTIVO', 'SECRETARIO', 'PROSECRETARIO', 'COORDINADOR'] },
+    { href: '/dashboard/reports', label: 'Reportes', icon: '📑', roles: ALL_ROLES },
 ];
+
+function decodeRoleFromToken(): Role | null {
+    if (typeof window === 'undefined') return null;
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+    try {
+        const payload = token.split('.')[1];
+        const decoded = JSON.parse(atob(payload));
+        return decoded.rol as Role;
+    } catch {
+        return null;
+    }
+}
 
 export default function Sidebar() {
     const pathname = usePathname();
+
+    const [userRole, setUserRole] = useState<Role | null>(null);
+
+    useEffect(() => {
+        setUserRole(decodeRoleFromToken());
+    }, []);
+
+    const filteredItems = menuItems.filter(item => userRole && item.roles.includes(userRole));
 
     return (
         <aside className="w-64 bg-gray-900 text-white min-h-screen p-4 shadow-xl flex flex-col">
             <h2 className="text-2xl font-bold mb-8 text-center text-blue-400">SOBNAC</h2>
             <nav className="flex-1">
                 <ul>
-                    {menuItems.map((item) => (
+                    {filteredItems.map((item) => (
                         <li key={item.href} className="mb-2">
                             <Link
                                 href={item.href}
