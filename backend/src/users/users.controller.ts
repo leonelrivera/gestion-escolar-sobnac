@@ -48,4 +48,16 @@ export class UsersController {
     remove(@Param('id') id: string) {
         return this.usersService.remove(+id);
     }
+
+    @Roles(Rol.ADMIN, Rol.PROSECRETARIO, Rol.JEFE_PRECEPTOR)
+    @Get(':id/assignments')
+    async getAssignments(@Param('id') id: string) {
+        return this.usersService.getUserAssignments(+id);
+    }
+
+    @Roles(Rol.ADMIN, Rol.PROSECRETARIO, Rol.JEFE_PRECEPTOR)
+    @Post(':id/assignments')
+    async updateAssignments(@Param('id') id: string, @Body('courseIds') courseIds: number[]) {
+        return this.usersService.updateUserAssignments(+id, courseIds);
+    }
 }

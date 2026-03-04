@@ -42,4 +42,33 @@ export class UsersService {
       where: { id },
     });
   }
+
+  async getUserAssignments(userId: number) {
+    const asignaciones = await this.prisma.asignacion.findMany({
+      where: { usuarioId: userId },
+      select: { cursoId: true }
+    });
+    return asignaciones.map(a => a.cursoId);
+  }
+
+  async updateUserAssignments(userId: number, courseIds: number[]) {
+    return this.prisma.$transaction(async (tx) => {
+      // Eliminar asignaciones anteriores
+      await tx.asignacion.deleteMany({
+        where: { usuarioId: userId }
+      });
+
+      // Crear nuevas asignaciones
+      if (courseIds.length > 0) {
+        await tx.asignacion.createMany({
+          data: courseIds.map(cursoId => ({
+            usuarioId: userId,
+            cursoId
+          }))
+        });
+      }
+
+      return { count: courseIds.length };
+    });
+  }
 }
