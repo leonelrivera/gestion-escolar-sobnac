@@ -5,16 +5,30 @@ import { useState, useEffect } from 'react';
 export default function AttendancePage() {
     const [courses, setCourses] = useState<any[]>([]);
     const [students, setStudents] = useState<any[]>([]);
+    const [cycles, setCycles] = useState<{ id: number; anio: number; enCurso: boolean }[]>([]);
     const [attendances, setAttendances] = useState<Record<number, boolean>>({}); // Key is inscripcionId
     const [loading, setLoading] = useState(false);
 
     // Filters
-    const [selectedCycle, setSelectedCycle] = useState('2025');
+    const [selectedCycle, setSelectedCycle] = useState('');
     const [selectedCourseId, setSelectedCourseId] = useState('');
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
+
+        // Cargar Ciclos Lectivos
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/cycles`, { headers: { Authorization: `Bearer ${token}` } })
+            .then(r => r.json())
+            .then(data => {
+                setCycles(data);
+                const active = data.find((c: any) => c.enCurso);
+                if (active) setSelectedCycle(String(active.anio));
+                else if (data.length > 0) setSelectedCycle(String(data[0].anio));
+            })
+            .catch(console.error);
+
+        // Cargar Cursos
         fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/courses`, { headers: { Authorization: `Bearer ${token}` } })
             .then(r => r.json())
             .then(data => {
@@ -131,8 +145,10 @@ export default function AttendancePage() {
                         onChange={e => setSelectedCycle(e.target.value)}
                         className="w-full border rounded p-2 text-sm"
                     >
-                        <option value="2025">2025</option>
-                        <option value="2026">2026</option>
+                        <option value="">Seleccionar...</option>
+                        {cycles.map(c => (
+                            <option key={c.id} value={c.anio}>{c.anio} {c.enCurso && '(En Curso)'}</option>
+                        ))}
                     </select>
                 </div>
                 <div>
