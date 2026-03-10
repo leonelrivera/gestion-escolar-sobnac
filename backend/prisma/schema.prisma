@@ -288,3 +288,13 @@ model Asistencia {
   @@index([inscripcionId])
   @@map("asistencias")
 }
+
+model Configuracion {
+  id                Int      @id @default(1)
+  nombreInstitucion String   @default("SGE - Soberanía Nacional") @map("nombre_institucion")
+  logoBase64        String?  @map("logo_base64") @db.Text
+  pieDePagina       String?  @map("pie_de_pagina")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@map("configuracion")
+}

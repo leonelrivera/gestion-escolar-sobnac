@@ -13,6 +13,7 @@ import { GradesModule } from './grades/grades.module';
 import { AttendanceModule } from './attendance/attendance.module';
 import { ReportsModule } from './reports/reports.module';
 import { InscriptionsModule } from './inscriptions/inscriptions.module';
+import { ConfiguracionModule } from './configuracion/configuracion.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { InscriptionsModule } from './inscriptions/inscriptions.module';
     AttendanceModule,
     ReportsModule,
     InscriptionsModule,
+    ConfiguracionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

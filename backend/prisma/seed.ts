@@ -25,30 +25,32 @@ async function main() {
     console.log(`Usuario Admin creado o verificado: ${adminEmail}`);
 
     if (process.env.NODE_ENV !== 'production') {
-        // Seed Cycles
-        const ciclo2025 = await prisma.cicloLectivo.upsert({
-            where: { anio: 2025 },
-            update: {},
-            create: {
-                anio: 2025,
-                fechaInicio: new Date('2025-03-01'),
-                fechaFin: new Date('2025-12-15'),
-                enCurso: false,
-            },
-        });
-
-        const ciclo2026 = await prisma.cicloLectivo.upsert({
-            where: { anio: 2026 },
-            update: {},
-            create: {
-                anio: 2026,
-                fechaInicio: new Date('2026-03-01'),
-                fechaFin: new Date('2026-12-15'),
-                enCurso: true,
-            },
-        });
-
-        console.log({ ciclo2025, ciclo2026 });
+        /*
+                // Seed Cycles
+                const ciclo2025 = await prisma.cicloLectivo.upsert({
+                    where: { anio: 2025 },
+                    update: {},
+                    create: {
+                        anio: 2025,
+                        fechaInicio: new Date('2025-03-01'),
+                        fechaFin: new Date('2025-12-15'),
+                        enCurso: false,
+                    },
+                });
+        
+                const ciclo2026 = await prisma.cicloLectivo.upsert({
+                    where: { anio: 2026 },
+                    update: {},
+                    create: {
+                        anio: 2026,
+                        fechaInicio: new Date('2026-03-01'),
+                        fechaFin: new Date('2026-12-15'),
+                        enCurso: true,
+                    },
+                });
+        
+                console.log({ ciclo2025, ciclo2026 });
+        */
 
         // Seed Subjects
         const subjects = [

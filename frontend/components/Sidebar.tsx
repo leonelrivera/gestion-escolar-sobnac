@@ -22,6 +22,7 @@ const menuItems = [
     { href: '/dashboard/users', label: 'Usuarios', icon: '👥', roles: ['ADMIN', 'PROSECRETARIO', 'JEFE_PRECEPTOR'] },
     { href: '/dashboard/stats', label: 'Estadística y Riesgo', icon: '📊', roles: ['ADMIN', 'DIRECTIVO', 'SECRETARIO', 'PROSECRETARIO', 'COORDINADOR'] },
     { href: '/dashboard/reports', label: 'Reportes', icon: '📑', roles: ALL_ROLES },
+    { href: '/dashboard/settings', label: 'Ajustes', icon: '⚙️', roles: ['ADMIN'] },
 ];
 
 function decodeRoleFromToken(): Role | null {
@@ -50,7 +51,9 @@ export default function Sidebar() {
 
     return (
         <aside className="w-64 bg-gray-900 text-white min-h-screen p-4 shadow-xl flex flex-col">
-            <h2 className="text-2xl font-bold mb-8 text-center text-blue-400">SOBNAC</h2>
+            <h2 className="text-xl font-bold mb-8 text-center text-primary italic tracking-tight">
+                SGE - Soberanía Nacional
+            </h2>
             <nav className="flex-1">
                 <ul>
                     {filteredItems.map((item) => (
@@ -58,7 +61,7 @@ export default function Sidebar() {
                             <Link
                                 href={item.href}
                                 className={`flex items-center p-3 rounded-lg transition-colors ${pathname === item.href
-                                    ? 'bg-blue-600 text-white'
+                                    ? 'bg-dark-green text-white shadow-md font-bold'
                                     : 'text-gray-300 hover:bg-gray-800 hover:text-white'
                                     }`}
                             >
