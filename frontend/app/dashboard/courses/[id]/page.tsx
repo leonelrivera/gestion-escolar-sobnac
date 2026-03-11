@@ -3,6 +3,7 @@
 import { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { usePermissions } from '@/hooks/usePermissions';
 
 interface Student {
     id: number;
@@ -28,6 +29,7 @@ interface Course {
 export default function CourseDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
     const router = useRouter();
+    const { canAddStudentToCourse, canPromoteOrTransfer } = usePermissions();
     const [course, setCourse] = useState<Course | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -180,7 +182,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                                 Alumnos Inscriptos
                                 <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full">{course.inscripciones.length}</span>
                             </h2>
-                            {selectedStudents.length > 0 && (
+                            {(canPromoteOrTransfer && selectedStudents.length > 0) && (
                                 <button
                                     onClick={openPromotion}
                                     className="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-sm font-bold hover:bg-blue-700 transition shadow-sm"
@@ -243,43 +245,45 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                 </div>
 
                 {/* Buscador de Alumnos */}
-                <div>
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sticky top-4">
-                        <h2 className="font-bold text-gray-800 mb-4">Agregar Alumno</h2>
-                        <form onSubmit={handleSearch} className="relative mb-4">
-                            <input
-                                placeholder="Buscar por DNI o Nombre..."
-                                className="w-full border border-gray-200 rounded-xl p-3 pr-10 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition font-medium"
-                                value={searchTerm}
-                                onChange={e => setSearchTerm(e.target.value)}
-                            />
-                            <button className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600 transition">
-                                🔍
-                            </button>
-                        </form>
+                {canAddStudentToCourse && (
+                    <div>
+                        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sticky top-4">
+                            <h2 className="font-bold text-gray-800 mb-4">Agregar Alumno</h2>
+                            <form onSubmit={handleSearch} className="relative mb-4">
+                                <input
+                                    placeholder="Buscar por DNI o Nombre..."
+                                    className="w-full border border-gray-200 rounded-xl p-3 pr-10 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition font-medium"
+                                    value={searchTerm}
+                                    onChange={e => setSearchTerm(e.target.value)}
+                                />
+                                <button className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600 transition">
+                                    🔍
+                                </button>
+                            </form>
 
-                        <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
-                            {searching && <p className="text-center text-xs text-gray-400 py-4 animate-pulse">Buscando...</p>}
-                            {searchResults.map(student => (
-                                <div key={student.id} className="flex justify-between items-center p-3 rounded-xl border border-gray-50 bg-gray-50/30 hover:bg-blue-50/50 hover:border-blue-100 transition group">
-                                    <div className="min-w-0">
-                                        <div className="text-sm font-bold text-gray-800 truncate">{student.apellido}, {student.nombre}</div>
-                                        <div className="text-[10px] font-bold text-gray-400 uppercase">{student.dni}</div>
+                            <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
+                                {searching && <p className="text-center text-xs text-gray-400 py-4 animate-pulse">Buscando...</p>}
+                                {searchResults.map(student => (
+                                    <div key={student.id} className="flex justify-between items-center p-3 rounded-xl border border-gray-50 bg-gray-50/30 hover:bg-blue-50/50 hover:border-blue-100 transition group">
+                                        <div className="min-w-0">
+                                            <div className="text-sm font-bold text-gray-800 truncate">{student.apellido}, {student.nombre}</div>
+                                            <div className="text-[10px] font-bold text-gray-400 uppercase">{student.dni}</div>
+                                        </div>
+                                        <button
+                                            onClick={() => addStudent(student.id)}
+                                            className="bg-white text-blue-600 text-xs font-black p-2 rounded-lg border border-gray-100 shadow-sm opacity-0 group-hover:opacity-100 transition hover:bg-blue-600 hover:text-white"
+                                        >
+                                            +
+                                        </button>
                                     </div>
-                                    <button
-                                        onClick={() => addStudent(student.id)}
-                                        className="bg-white text-blue-600 text-xs font-black p-2 rounded-lg border border-gray-100 shadow-sm opacity-0 group-hover:opacity-100 transition hover:bg-blue-600 hover:text-white"
-                                    >
-                                        +
-                                    </button>
-                                </div>
-                            ))}
-                            {searchTerm && !searching && searchResults.length === 0 && (
-                                <p className="text-center text-xs text-gray-400 py-4">No se encontraron resultados.</p>
-                            )}
+                                ))}
+                                {searchTerm && !searching && searchResults.length === 0 && (
+                                    <p className="text-center text-xs text-gray-400 py-4">No se encontraron resultados.</p>
+                                )}
+                            </div>
                         </div>
                     </div>
-                </div>
+                )}
             </div>
 
             {/* Modal de Promoción */}

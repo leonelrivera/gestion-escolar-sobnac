@@ -16,10 +16,9 @@ const menuItems = [
     { href: '/dashboard/subjects', label: 'Materias', icon: '📖', roles: ['ADMIN', 'DIRECTIVO', 'SECRETARIO', 'PROSECRETARIO', 'DEP_ESTUDIANTES'] },
     { href: '/dashboard/grades', label: 'Notas', icon: '📝', roles: ['ADMIN', 'DIRECTIVO', 'SECRETARIO', 'PROSECRETARIO', 'DEP_ESTUDIANTES', 'JEFE_PRECEPTOR', 'PRECEPTOR'] },
     { href: '/dashboard/attendance', label: 'Asistencias', icon: '📅', roles: ['ADMIN', 'DIRECTIVO', 'SECRETARIO', 'PROSECRETARIO', 'JEFE_PRECEPTOR', 'PRECEPTOR'] },
-    { href: '/dashboard/cycles', label: 'Ciclos Lectivos', icon: '📅', roles: ['ADMIN', 'DIRECTIVO', 'SECRETARIO', 'PROSECRETARIO'] },
     { href: '/dashboard/cycles/closure', label: 'Cierre de Periodos', icon: '🔒', roles: ['ADMIN', 'PROSECRETARIO'] },
     // Nuevos módulos a construir:
-    { href: '/dashboard/users', label: 'Usuarios', icon: '👥', roles: ['ADMIN', 'PROSECRETARIO', 'JEFE_PRECEPTOR'] },
+    { href: '/dashboard/users', label: 'Usuarios', icon: '👥', roles: ['ADMIN', 'DIRECTIVO', 'SECRETARIO', 'PROSECRETARIO', 'JEFE_PRECEPTOR'] },
     { href: '/dashboard/stats', label: 'Estadística y Riesgo', icon: '📊', roles: ['ADMIN', 'DIRECTIVO', 'SECRETARIO', 'PROSECRETARIO', 'COORDINADOR'] },
     { href: '/dashboard/reports', label: 'Reportes', icon: '📑', roles: ALL_ROLES },
     { href: '/dashboard/settings', label: 'Ajustes', icon: '⚙️', roles: ['ADMIN'] },
@@ -50,11 +49,11 @@ export default function Sidebar() {
     const filteredItems = menuItems.filter(item => userRole && item.roles.includes(userRole));
 
     return (
-        <aside className="w-64 bg-gray-900 text-white min-h-screen p-4 shadow-xl flex flex-col">
-            <h2 className="text-xl font-bold mb-8 text-center text-primary italic tracking-tight">
+        <aside className="w-64 bg-gray-900 text-white h-screen p-4 shadow-xl flex flex-col sticky top-0">
+            <h2 className="text-xl font-bold mb-8 text-center text-primary italic tracking-tight flex-shrink-0">
                 SGE - Soberanía Nacional
             </h2>
-            <nav className="flex-1">
+            <nav className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
                 <ul>
                     {filteredItems.map((item) => (
                         <li key={item.href} className="mb-2">

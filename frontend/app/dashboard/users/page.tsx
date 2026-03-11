@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import AssignCoursesModal from '@/components/AssignCoursesModal';
+import { usePermissions } from '@/hooks/usePermissions';
 
 interface User {
     id: number;
@@ -29,10 +30,7 @@ export default function UsersPage() {
         rol: 'PRECEPTOR'
     });
 
-    const ROLES = [
-        'ADMIN', 'DIRECTIVO', 'SECRETARIO', 'PROSECRETARIO',
-        'DEP_ESTUDIANTES', 'COORDINADOR', 'JEFE_PRECEPTOR', 'PRECEPTOR'
-    ];
+    const { canCreateUsers, allowedRolesToCreate } = usePermissions();
 
     const fetchUsers = async () => {
         setLoading(true);
@@ -140,12 +138,14 @@ export default function UsersPage() {
         <div className="flex flex-col h-full">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold text-gray-800">Gestión de Usuarios</h1>
-                <button
-                    onClick={openCreateModal}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm hover:bg-blue-700 transition-colors"
-                >
-                    + Nuevo Usuario
-                </button>
+                {canCreateUsers && (
+                    <button
+                        onClick={openCreateModal}
+                        className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm hover:bg-blue-700 transition-colors"
+                    >
+                        + Nuevo Usuario
+                    </button>
+                )}
             </div>
 
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -261,7 +261,7 @@ export default function UsersPage() {
                                     value={formData.rol}
                                     onChange={e => setFormData({ ...formData, rol: e.target.value })}
                                 >
-                                    {ROLES.map(role => (
+                                    {allowedRolesToCreate.map(role => (
                                         <option key={role} value={role}>{role}</option>
                                     ))}
                                 </select>

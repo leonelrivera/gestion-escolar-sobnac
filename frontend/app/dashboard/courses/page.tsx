@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { usePermissions } from '@/hooks/usePermissions';
 
 interface Cycle {
     id: number;
@@ -34,6 +35,8 @@ const EMPTY_COURSE = {
 };
 
 export default function CoursesPage() {
+    const { canCreateCourse, canEditCourse, canDeleteCourse } = usePermissions();
+
     const [courses, setCourses] = useState<Course[]>([]);
     const [cycles, setCycles] = useState<Cycle[]>([]);
     const [loading, setLoading] = useState(true);
@@ -208,9 +211,11 @@ export default function CoursesPage() {
             {/* Header */}
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-3xl font-bold text-gray-800">Cursos y Divisiones</h1>
-                <button onClick={openCreateModal} className="bg-blue-600 text-white px-5 py-2.5 rounded-lg font-bold hover:bg-blue-700 transition shadow-sm">
-                    + Nuevo Curso
-                </button>
+                {canCreateCourse && (
+                    <button onClick={openCreateModal} className="bg-blue-600 text-white px-5 py-2.5 rounded-lg font-bold hover:bg-blue-700 transition shadow-sm">
+                        + Nuevo Curso
+                    </button>
+                )}
             </div>
 
             {/* Filtro por Ciclo */}
@@ -238,7 +243,7 @@ export default function CoursesPage() {
             ) : courses.length === 0 ? (
                 <div className="text-center py-12 text-gray-400">
                     <p className="text-lg">No hay cursos registrados para este ciclo.</p>
-                    <p className="text-sm">Hacé clic en "+ Nuevo Curso" para crear uno.</p>
+                    {canCreateCourse && <p className="text-sm">Hacé clic en "+ Nuevo Curso" para crear uno.</p>}
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -268,20 +273,26 @@ export default function CoursesPage() {
                             </div>
 
                             {/* Acciones */}
-                            <div className="mt-3 pt-3 border-t flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button
-                                    onClick={() => openEditModal(course)}
-                                    className="text-xs px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg font-bold hover:bg-gray-200 transition"
-                                >
-                                    Editar
-                                </button>
-                                <button
-                                    onClick={() => { setDeletingId(course.id); setDeleteError(''); }}
-                                    className="text-xs px-3 py-1.5 bg-red-50 text-red-600 rounded-lg font-bold hover:bg-red-100 transition"
-                                >
-                                    Eliminar
-                                </button>
-                            </div>
+                            {(canEditCourse || canDeleteCourse) && (
+                                <div className="mt-3 pt-3 border-t flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    {canEditCourse && (
+                                        <button
+                                            onClick={() => openEditModal(course)}
+                                            className="text-xs px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg font-bold hover:bg-gray-200 transition"
+                                        >
+                                            Editar
+                                        </button>
+                                    )}
+                                    {canDeleteCourse && (
+                                        <button
+                                            onClick={() => { setDeletingId(course.id); setDeleteError(''); }}
+                                            className="text-xs px-3 py-1.5 bg-red-50 text-red-600 rounded-lg font-bold hover:bg-red-100 transition"
+                                        >
+                                            Eliminar
+                                        </button>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     ))}
                 </div>
@@ -325,10 +336,10 @@ export default function CoursesPage() {
                                 <div>
                                     <label className="block text-[10px] font-black text-gray-400 uppercase mb-1">División</label>
                                     <input
-                                        placeholder="Ej: A"
-                                        className="w-full border rounded-lg p-2.5 bg-gray-50 font-bold uppercase"
+                                        placeholder="Ej: A o 1ra"
+                                        className="w-full border rounded-lg p-2.5 bg-gray-50 font-bold"
                                         value={formData.division}
-                                        onChange={e => setFormData({ ...formData, division: e.target.value.toUpperCase() })}
+                                        onChange={e => setFormData({ ...formData, division: e.target.value.toLowerCase() })}
                                         required
                                     />
                                 </div>

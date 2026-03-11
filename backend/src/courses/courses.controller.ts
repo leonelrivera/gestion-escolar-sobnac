@@ -23,7 +23,7 @@ import { Rol } from '@prisma/client';
 export class CoursesController {
   constructor(private readonly coursesService: CoursesService) { }
 
-  @Roles(Rol.ADMIN, Rol.PROSECRETARIO, Rol.DEP_ESTUDIANTES, Rol.JEFE_PRECEPTOR)
+  @Roles(Rol.ADMIN, Rol.PROSECRETARIO, Rol.DEP_ESTUDIANTES)
   @Post()
   create(@Body() createCourseDto: CreateCourseDto) {
     return this.coursesService.create(createCourseDto);
@@ -42,13 +42,13 @@ export class CoursesController {
     return this.coursesService.findOne(+id);
   }
 
-  @Roles(Rol.ADMIN, Rol.PROSECRETARIO, Rol.DEP_ESTUDIANTES, Rol.JEFE_PRECEPTOR)
+  @Roles(Rol.ADMIN, Rol.PROSECRETARIO, Rol.DEP_ESTUDIANTES)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateCourseDto: UpdateCourseDto) {
     return this.coursesService.update(+id, updateCourseDto);
   }
 
-  @Roles(Rol.ADMIN, Rol.PROSECRETARIO, Rol.DEP_ESTUDIANTES, Rol.JEFE_PRECEPTOR)
+  @Roles(Rol.ADMIN, Rol.PROSECRETARIO, Rol.DEP_ESTUDIANTES)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.coursesService.remove(+id);

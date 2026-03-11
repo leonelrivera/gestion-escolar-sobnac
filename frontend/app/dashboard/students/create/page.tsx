@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { usePermissions } from '@/hooks/usePermissions';
 
 export default function CreateStudentPage() {
     const router = useRouter();
@@ -40,6 +41,15 @@ export default function CreateStudentPage() {
     const [error, setError] = useState('');
     const [vieneDeOtraInstitucion, setVieneDeOtraInstitucion] = useState(false);
     const [orientations, setOrientations] = useState([]);
+
+    const { canCreateStudent, role } = usePermissions();
+
+    useEffect(() => {
+        // Redirigir si no tiene permisos (espera a que el rol se cargue)
+        if (role && !canCreateStudent) {
+            router.push('/dashboard/students');
+        }
+    }, [role, canCreateStudent, router]);
 
     useEffect(() => {
         fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/orientations`, {

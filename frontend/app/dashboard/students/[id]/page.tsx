@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { usePermissions } from '@/hooks/usePermissions';
 
 export default function StudentProfilePage() {
     const { id } = useParams();
     const router = useRouter();
+    const { canEditStudent } = usePermissions();
     const [student, setStudent] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -72,12 +74,14 @@ export default function StudentProfilePage() {
                     >
                         Descargar Boletín (PDF)
                     </button>
-                    <button
-                        onClick={() => router.push(`/dashboard/students/${student.id}/edit`)}
-                        className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-bold border hover:bg-gray-200 text-sm"
-                    >
-                        Editar Datos
-                    </button>
+                    {canEditStudent && (
+                        <button
+                            onClick={() => router.push(`/dashboard/students/${student.id}/edit`)}
+                            className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-bold border hover:bg-gray-200 text-sm"
+                        >
+                            Editar Datos
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -218,20 +222,28 @@ export default function StudentProfilePage() {
                                 <div className="pt-2 border-t mt-2">
                                     <div className="flex justify-between items-center mb-1">
                                         <p className="text-[10px] text-gray-400 uppercase font-bold">Observaciones Generales</p>
-                                        <button
-                                            onClick={handleUpdateObservations}
-                                            disabled={savingObs}
-                                            className="text-[10px] bg-blue-50 text-blue-600 px-2 py-1 rounded hover:bg-blue-100 font-bold disabled:opacity-50 transition"
-                                        >
-                                            {savingObs ? 'Guardando...' : '💾 Guardar'}
-                                        </button>
+                                        {canEditStudent && student.observacionesGenerales !== observations && (
+                                            <button
+                                                onClick={handleUpdateObservations}
+                                                disabled={savingObs}
+                                                className="text-[10px] bg-blue-50 text-blue-600 px-2 py-1 rounded hover:bg-blue-100 font-bold disabled:opacity-50 transition"
+                                            >
+                                                {savingObs ? 'Guardando...' : '💾 Guardar'}
+                                            </button>
+                                        )}
                                     </div>
-                                    <textarea
-                                        value={observations}
-                                        onChange={(e) => setObservations(e.target.value)}
-                                        className="w-full text-xs text-gray-600 border border-gray-200 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none h-24 resize-none bg-gray-50 focus:bg-white"
-                                        placeholder="Puede escribir notas y observaciones permanentes del estudiante aquí..."
-                                    />
+                                    {canEditStudent ? (
+                                        <textarea
+                                            value={observations}
+                                            onChange={(e) => setObservations(e.target.value)}
+                                            className="w-full text-xs text-gray-600 border border-gray-200 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none h-24 resize-none bg-gray-50 focus:bg-white"
+                                            placeholder="Puede escribir notas y observaciones permanentes del estudiante aquí..."
+                                        />
+                                    ) : (
+                                        <div className="w-full text-xs text-gray-600 border border-gray-200 rounded p-2 h-24 overflow-y-auto bg-gray-50 whitespace-pre-wrap">
+                                            {observations || <span className="italic text-gray-400">Sin observaciones destacadas.</span>}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>

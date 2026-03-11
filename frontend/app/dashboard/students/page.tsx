@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { usePermissions } from '@/hooks/usePermissions';
 
 interface Student {
     id: number;
@@ -23,6 +24,7 @@ interface Student {
 }
 
 export default function StudentsPage() {
+    const { canCreateStudent } = usePermissions();
     const [students, setStudents] = useState<Student[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -142,9 +144,11 @@ export default function StudentsPage() {
         <div className="p-4">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold text-gray-800">Libro Matriz (Estudiantes)</h1>
-                <Link href="/dashboard/students/create" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
-                    + Nuevo Estudiante
-                </Link>
+                {canCreateStudent && (
+                    <Link href="/dashboard/students/create" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+                        + Nuevo Estudiante
+                    </Link>
+                )}
             </div>
 
             {/* Buscador Global y Filtros */}
@@ -182,9 +186,9 @@ export default function StudentsPage() {
                         <label className="block text-xs font-bold text-gray-500 uppercase mb-1">División</label>
                         <select name="division" value={filters.division} onChange={handleFilterChange} className="w-full border rounded p-2 text-sm">
                             <option value="">Todas</option>
-                            <option value="A">A</option>
-                            <option value="B">B</option>
-                            <option value="C">C</option>
+                            {Array.from(new Set(courses.map(c => c.division.toLowerCase()))).sort().map(div => (
+                                <option key={div} value={div}>{div}</option>
+                            ))}
                         </select>
                     </div>
                     <div>

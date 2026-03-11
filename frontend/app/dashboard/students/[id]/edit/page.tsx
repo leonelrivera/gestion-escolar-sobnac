@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { usePermissions } from '@/hooks/usePermissions';
 
 export default function EditStudentPage() {
     const { id } = useParams();
@@ -41,6 +42,14 @@ export default function EditStudentPage() {
     const [vieneDeOtraInstitucion, setVieneDeOtraInstitucion] = useState(false);
     const [orientations, setOrientations] = useState([]);
     const [loadingData, setLoadingData] = useState(true);
+
+    const { canEditStudent, role } = usePermissions();
+
+    useEffect(() => {
+        if (role && !canEditStudent) {
+            router.push(`/dashboard/students/${id}`);
+        }
+    }, [role, canEditStudent, router, id]);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
