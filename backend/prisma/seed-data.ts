@@ -24,11 +24,11 @@ async function main() {
 
     // 4. Create Students
     const studentsData = [
-        { dni: '11111111', apellido: 'Gomez', nombre: 'Juan', fechaNacimiento: new Date('2010-05-15') },
-        { dni: '22222222', apellido: 'Perez', nombre: 'Maria', fechaNacimiento: new Date('2010-08-20') },
-        { dni: '33333333', apellido: 'Lopez', nombre: 'Carlos', fechaNacimiento: new Date('2010-02-10') },
-        { dni: '44444444', apellido: 'Diaz', nombre: 'Ana', fechaNacimiento: new Date('2010-11-05') },
-        { dni: '55555555', apellido: 'Romero', nombre: 'Luis', fechaNacimiento: new Date('2010-06-30') },
+        { dni: '11111111', apellido: 'Gomez', nombre: 'Juan', fechaNacimiento: new Date('2010-05-15'), lugarNacimiento: 'La Rioja' },
+        { dni: '22222222', apellido: 'Perez', nombre: 'Maria', fechaNacimiento: new Date('2010-08-20'), lugarNacimiento: 'La Rioja' },
+        { dni: '33333333', apellido: 'Lopez', nombre: 'Carlos', fechaNacimiento: new Date('2010-02-10'), lugarNacimiento: 'La Rioja' },
+        { dni: '44444444', apellido: 'Diaz', nombre: 'Ana', fechaNacimiento: new Date('2010-11-05'), lugarNacimiento: 'La Rioja' },
+        { dni: '55555555', apellido: 'Romero', nombre: 'Luis', fechaNacimiento: new Date('2010-06-30'), lugarNacimiento: 'La Rioja' },
     ];
 
     for (const s of studentsData) {

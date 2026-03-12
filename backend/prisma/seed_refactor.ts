@@ -80,6 +80,7 @@ async function main() {
                 apellido: 'GONZALEZ',
                 nombre: 'JUAN PABLO',
                 fechaNacimiento: new Date('2010-05-15'),
+                lugarNacimiento: 'La Rioja',
                 condicion: 'REGULAR',
                 usuarioCargaId: 1
             }
@@ -91,6 +92,7 @@ async function main() {
                 apellido: 'RODRIGUEZ',
                 nombre: 'MARIA BELEN',
                 fechaNacimiento: new Date('2011-08-20'),
+                lugarNacimiento: 'La Rioja',
                 condicion: 'REGULAR',
                 usuarioCargaId: 1
             }

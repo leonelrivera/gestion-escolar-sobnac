@@ -63,7 +63,7 @@ model Estudiante {
   apellido        String
   nombre          String
   fechaNacimiento DateTime @map("fecha_nacimiento") @db.Date
-  lugarNacimiento String?  @map("lugar_nacimiento")
+  lugarNacimiento String   @map("lugar_nacimiento")
   genero          String?
   domicilio       String?
   telefonoContacto String? @map("telefono_contacto")

@@ -5,7 +5,7 @@ export class CreateStudentDto {
   apellido: string;
   nombre: string;
   fechaNacimiento: string; // ISO Date string
-  lugarNacimiento?: string;
+  lugarNacimiento: string;
   genero?: string;
   domicilio?: string;
   telefonoContacto?: string;

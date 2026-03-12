@@ -145,9 +145,14 @@ export default function StudentsPage() {
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold text-gray-800">Libro Matriz (Estudiantes)</h1>
                 {canCreateStudent && (
-                    <Link href="/dashboard/students/create" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
-                        + Nuevo Estudiante
-                    </Link>
+                    <div className="flex items-center gap-2">
+                        <Link href="/dashboard/students/import" className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
+                            Carga Masiva (Excel)
+                        </Link>
+                        <Link href="/dashboard/students/create" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+                            + Nuevo Estudiante
+                        </Link>
+                    </div>
                 )}
             </div>
 

@@ -193,7 +193,7 @@ export default function EditStudentPage() {
                         </div>
                         <div>
                             <label className="block text-[10px] font-black text-gray-400 uppercase">Lugar de Nacimiento</label>
-                            <input name="lugarNacimiento" value={formData.lugarNacimiento} onChange={handleChange} className="mt-1 block w-full border rounded-lg p-2 bg-gray-50 focus:bg-white outline-none" />
+                            <input name="lugarNacimiento" value={formData.lugarNacimiento} required onChange={handleChange} className="mt-1 block w-full border rounded-lg p-2 bg-gray-50 focus:bg-white outline-none" />
                         </div>
                     </div>
                 </div>
@@ -224,11 +224,11 @@ export default function EditStudentPage() {
                     <div className="mt-4 p-4 bg-red-50 rounded-lg border border-red-100 flex gap-4">
                         <div className="flex-1">
                             <label className="block text-[10px] font-black text-red-800 uppercase">Contacto de Emergencia (Nombre)</label>
-                            <input name="contactoEmergenciaNombre" value={formData.contactoEmergenciaNombre} required onChange={handleChange} className="mt-1 block w-full border-red-200 rounded-lg p-2 focus:ring-red-500 outline-none" />
+                            <input name="contactoEmergenciaNombre" value={formData.contactoEmergenciaNombre} onChange={handleChange} className="mt-1 block w-full border-red-200 rounded-lg p-2 focus:ring-red-500 outline-none" />
                         </div>
                         <div className="flex-1">
                             <label className="block text-[10px] font-black text-red-800 uppercase">Teléfono de Emergencia</label>
-                            <input name="contactoEmergenciaTelefono" value={formData.contactoEmergenciaTelefono} required onChange={handleChange} className="mt-1 block w-full border-red-200 rounded-lg p-2 focus:ring-red-500 outline-none" />
+                            <input name="contactoEmergenciaTelefono" value={formData.contactoEmergenciaTelefono} onChange={handleChange} className="mt-1 block w-full border-red-200 rounded-lg p-2 focus:ring-red-500 outline-none" />
                         </div>
                     </div>
                 </div>

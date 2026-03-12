@@ -27,6 +27,30 @@ export class StudentsService {
     });
   }
 
+  async createBulk(createStudentDtos: CreateStudentDto[], usuarioCargaId: number) {
+    const dataToInsert = createStudentDtos.map(dto => {
+      // Ignoramos librosFolios en la carga masiva (se agregan individualmente si se requiere)
+      const { librosFolios, ...studentData } = dto;
+      return {
+        ...studentData,
+        fechaNacimiento: new Date(studentData.fechaNacimiento),
+        fechaIngreso: studentData.fechaIngreso ? new Date(studentData.fechaIngreso) : undefined,
+        usuarioCargaId: usuarioCargaId,
+      };
+    });
+
+    // skipDuplicates: ignora filas donde el DNI ya existe (Unique Constraint)
+    const result = await this.prisma.estudiante.createMany({
+      data: dataToInsert as any, // Hacemos un casting a any para que Prisma procese los opcionales
+      skipDuplicates: true,
+    });
+
+    return {
+      message: 'Carga masiva procesada',
+      recordsInserted: result.count,
+    };
+  }
+
   update(
     id: number,
     updateStudentDto: UpdateStudentDto,

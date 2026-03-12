@@ -28,6 +28,12 @@ export class StudentsController {
     return this.studentsService.create(createStudentDto, req.user.userId);
   }
 
+  @Roles(Rol.ADMIN, Rol.PROSECRETARIO, Rol.DEP_ESTUDIANTES, Rol.JEFE_PRECEPTOR)
+  @Post('bulk')
+  createBulk(@Body() createStudentDtos: CreateStudentDto[], @Req() req: any) {
+    return this.studentsService.createBulk(createStudentDtos, req.user.userId);
+  }
+
   @Get()
   findAll(
     @Query('search') search?: string,
