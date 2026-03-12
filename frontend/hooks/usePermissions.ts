@@ -28,6 +28,7 @@ export function usePermissions() {
     // PRECEPTOR: SOLO VER
     // COORDINADOR: SOLO VER
     const canCreateStudent = ['ADMIN', 'DIRECTIVO', 'SECRETARIO', 'PROSECRETARIO', 'DEP_ESTUDIANTES'].includes(role || '');
+    const canBulkImportStudents = ['ADMIN', 'PROSECRETARIO', 'DEP_ESTUDIANTES'].includes(role || '');
     const canEditStudent = ['ADMIN', 'DIRECTIVO', 'SECRETARIO', 'PROSECRETARIO', 'DEP_ESTUDIANTES', 'JEFE_PRECEPTOR'].includes(role || '');
 
     // --- Permisos de Cursos ---
@@ -57,6 +58,7 @@ export function usePermissions() {
     return {
         role,
         canCreateStudent,
+        canBulkImportStudents,
         canEditStudent,
         canCreateCourse,
         canEditCourse,

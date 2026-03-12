@@ -7,7 +7,7 @@ import { usePermissions } from '@/hooks/usePermissions';
 
 export default function BulkImportStudentsPage() {
     const router = useRouter();
-    const { canCreateStudent, role } = usePermissions();
+    const { canBulkImportStudents, role } = usePermissions();
 
     const [fileData, setFileData] = useState<any[]>([]);
     const [existingDnis, setExistingDnis] = useState<string[]>([]);
@@ -16,10 +16,10 @@ export default function BulkImportStudentsPage() {
     const [error, setError] = useState('');
 
     useEffect(() => {
-        if (role && !canCreateStudent) {
+        if (role && !canBulkImportStudents) {
             router.push('/dashboard/students');
         }
-    }, [role, canCreateStudent, router]);
+    }, [role, canBulkImportStudents, router]);
 
     useEffect(() => {
         // Precargar DNI existentes para la validación cruzada
