@@ -22,3 +22,8 @@ docker-compose.override.yml
 *.njsproj
 *.sln
 *.sw?
+
+# Backup VM
+scripts/vm-backup/*.env
+scripts/vm-backup/*.json
+/opt/backups/
