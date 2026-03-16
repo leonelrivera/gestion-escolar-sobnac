@@ -16,6 +16,7 @@ const menuItems = [
     { href: '/dashboard/subjects', label: 'Materias', icon: '📖', roles: ['ADMIN', 'DIRECTIVO', 'SECRETARIO', 'PROSECRETARIO', 'DEP_ESTUDIANTES'] },
     { href: '/dashboard/grades', label: 'Notas', icon: '📝', roles: ['ADMIN', 'DIRECTIVO', 'SECRETARIO', 'PROSECRETARIO', 'DEP_ESTUDIANTES', 'JEFE_PRECEPTOR', 'PRECEPTOR'] },
     { href: '/dashboard/attendance', label: 'Asistencias', icon: '📅', roles: ['ADMIN', 'DIRECTIVO', 'SECRETARIO', 'PROSECRETARIO', 'JEFE_PRECEPTOR', 'PRECEPTOR'] },
+    { href: '/dashboard/cycles', label: 'Ciclo Lectivo', icon: '🗓️', roles: ['ADMIN', 'PROSECRETARIO'] },
     { href: '/dashboard/cycles/closure', label: 'Cierre de Periodos', icon: '🔒', roles: ['ADMIN', 'PROSECRETARIO'] },
     // Nuevos módulos a construir:
     { href: '/dashboard/users', label: 'Usuarios', icon: '👥', roles: ['ADMIN', 'DIRECTIVO', 'SECRETARIO', 'PROSECRETARIO', 'JEFE_PRECEPTOR'] },
