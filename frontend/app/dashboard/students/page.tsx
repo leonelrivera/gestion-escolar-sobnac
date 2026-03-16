@@ -191,10 +191,10 @@ export default function StudentsPage() {
                     </div>
                     <div>
                         <label className="block text-xs font-bold text-gray-500 uppercase mb-1">División</label>
-                        <select name="division" value={filters.division} onChange={handleFilterChange} className="w-full border rounded p-2 text-sm">
+                        <select name="division" value={filters.division} onChange={handleFilterChange} className="w-full border rounded p-2 text-sm text-gray-800">
                             <option value="">Todas</option>
-                            {Array.from(new Set(courses.map(c => c.division.toLowerCase()))).sort().map(div => (
-                                <option key={div} value={div}>{div}</option>
+                            {['1ra', '2da', '3ra', '4ta', '5ta', '6ta', '7ma'].map(div => (
+                                <option key={div} value={div}>{div.toUpperCase()}</option>
                             ))}
                         </select>
                     </div>

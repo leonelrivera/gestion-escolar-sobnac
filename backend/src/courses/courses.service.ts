@@ -2,16 +2,23 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
+  BadRequestException,
 } from '@nestjs/common';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { PrismaService } from '../prisma/prisma.service';
+
+const VALID_DIVISIONS = ['1ra', '2da', '3ra', '4ta', '5ta', '6ta', '7ma'];
 
 @Injectable()
 export class CoursesService {
   constructor(private prisma: PrismaService) { }
 
   async create(createCourseDto: CreateCourseDto) {
+    if (!VALID_DIVISIONS.includes(createCourseDto.division)) {
+      throw new BadRequestException('División inválida. Opciones admitidas: 1ra a 7ma.');
+    }
+    
     try {
       return await this.prisma.curso.create({
         data: createCourseDto,
@@ -68,6 +75,10 @@ export class CoursesService {
   }
 
   async update(id: number, updateCourseDto: UpdateCourseDto) {
+    if (updateCourseDto.division && !VALID_DIVISIONS.includes(updateCourseDto.division)) {
+      throw new BadRequestException('División inválida. Opciones admitidas: 1ra a 7ma.');
+    }
+
     try {
       return await this.prisma.curso.update({
         where: { id },

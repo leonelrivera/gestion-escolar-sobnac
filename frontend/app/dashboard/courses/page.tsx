@@ -335,13 +335,17 @@ export default function CoursesPage() {
                                 </div>
                                 <div>
                                     <label className="block text-[10px] font-black text-gray-400 uppercase mb-1">División</label>
-                                    <input
-                                        placeholder="Ej: A o 1ra"
+                                    <select
                                         className="w-full border rounded-lg p-2.5 bg-gray-50 font-bold"
                                         value={formData.division}
-                                        onChange={e => setFormData({ ...formData, division: e.target.value.toLowerCase() })}
+                                        onChange={e => setFormData({ ...formData, division: e.target.value })}
                                         required
-                                    />
+                                    >
+                                        <option value="">Seleccionar...</option>
+                                        {['1ra', '2da', '3ra', '4ta', '5ta', '6ta', '7ma'].map(d => (
+                                            <option key={d} value={d}>{d.toUpperCase()}</option>
+                                        ))}
+                                    </select>
                                 </div>
                             </div>
                             <div>
