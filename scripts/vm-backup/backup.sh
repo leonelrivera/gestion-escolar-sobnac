@@ -6,24 +6,9 @@
 # Mantiene solo las últimas 2 copias locales.
 # ==============================================================================
 
-# --- CONFIGURACIÓN (Rellenar estos datos en la VM o vía .env) ---
-# Se recomienda usar un archivo .env en el mismo directorio que este script
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-if [ -f "$SCRIPT_DIR/backup.env" ]; then
-    source "$SCRIPT_DIR/backup.env"
-fi
-
-# Variables (por defecto si no están en backup.env)
-BACKUP_DIR="${BACKUP_DIR:-/opt/backups/sgesoberanianacional/backups}"
-DB_CONTAINER_NAME="${DB_CONTAINER_NAME:-postgres}"
-DB_USER="${DB_USER:-postgres}"
-DB_NAME="${DB_NAME:-gestion_escolar_sobnac}"
-GDRIVE_REMOTE="${GDRIVE_REMOTE:-gdrive:/backups}"
-SERVER_NAME="${SERVER_NAME:-VM-SGE-SOBNAC}"
-
-# Telegram
-TELEGRAM_BOT_TOKEN="${TELEGRAM_BOT_TOKEN:-}"
-TELEGRAM_CHAT_ID="${TELEGRAM_CHAT_ID:-}"
+# --- CONFIGURACIÓN ---
+# Cargar variables desde archivo env
+source /opt/backups/sgesoberanianacional/backup.env
 
 # Tiempos y nombres de archivo
 START_TIME=$(date +%s)
