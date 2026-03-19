@@ -173,16 +173,16 @@ export default function StudentsPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
                     <div>
-                        <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Ciclo Lectivo</label>
-                        <select name="cicloLectivo" value={filters.cicloLectivo} onChange={handleFilterChange} className="w-full border rounded p-2 text-sm font-bold bg-blue-50 border-blue-200">
+                        <label className="block text-xs font-black text-black uppercase mb-1">Ciclo Lectivo</label>
+                        <select name="cicloLectivo" value={filters.cicloLectivo} onChange={handleFilterChange} className="w-full border-2 border-gray-300 rounded p-2 text-sm font-black bg-blue-50 text-black">
                             {cycles.map(c => (
                                 <option key={c.id} value={c.anio}>{c.anio} {c.enCurso ? '(ACTUAL)' : ''}</option>
                             ))}
                         </select>
                     </div>
                     <div>
-                        <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Curso</label>
-                        <select name="curso" value={filters.curso} onChange={handleFilterChange} className="w-full border rounded p-2 text-sm">
+                        <label className="block text-xs font-black text-black uppercase mb-1">Curso</label>
+                        <select name="curso" value={filters.curso} onChange={handleFilterChange} className="w-full border-2 border-gray-300 rounded p-2 text-sm font-black text-black">
                             <option value="">Todos</option>
                             {[1, 2, 3, 4, 5, 6, 7].map(n => (
                                 <option key={n} value={String(n)}>{formatAnio(String(n))}</option>
@@ -190,8 +190,8 @@ export default function StudentsPage() {
                         </select>
                     </div>
                     <div>
-                        <label className="block text-xs font-bold text-gray-700 uppercase mb-1">División</label>
-                        <select name="division" value={filters.division} onChange={handleFilterChange} className="w-full border rounded p-2 text-sm text-gray-800">
+                        <label className="block text-xs font-black text-black uppercase mb-1">División</label>
+                        <select name="division" value={filters.division} onChange={handleFilterChange} className="w-full border-2 border-gray-300 rounded p-2 text-sm font-black text-black">
                             <option value="">Todas</option>
                             {['1ra', '2da', '3ra', '4ta', '5ta', '6ta', '7ma'].map(div => (
                                 <option key={div} value={div}>{div.toUpperCase()}</option>
@@ -199,8 +199,8 @@ export default function StudentsPage() {
                         </select>
                     </div>
                     <div>
-                        <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Condición</label>
-                        <select name="condicion" value={filters.condicion} onChange={handleFilterChange} className="w-full border rounded p-2 text-sm">
+                        <label className="block text-xs font-black text-black uppercase mb-1">Condición</label>
+                        <select name="condicion" value={filters.condicion} onChange={handleFilterChange} className="w-full border-2 border-gray-300 rounded p-2 text-sm font-black text-black">
                             <option value="">Todas</option>
                             <option value="REGULAR">Regular</option>
                             <option value="REPITENTE">Repitente</option>
@@ -228,15 +228,15 @@ export default function StudentsPage() {
             <div className="bg-white shadow rounded-lg overflow-x-auto">
                 <table className="min-w-full text-xs">
                     <thead>
-                        <tr className="bg-gray-50 border-b">
-                            <th className="px-4 py-3 text-left font-bold text-gray-700 uppercase">DNI</th>
-                            <th className="px-4 py-3 text-left font-bold text-gray-700 uppercase">Apellido y Nombre</th>
-                            <th className="px-4 py-3 text-left font-bold text-gray-700 uppercase">Libro/Folio</th>
-                            <th className="px-4 py-3 text-left font-bold text-gray-700 uppercase">F. Nacimiento</th>
-                            <th className="px-4 py-3 text-left font-bold text-gray-700 uppercase">Orientación</th>
-                            <th className="px-4 py-3 text-left font-bold text-gray-700 uppercase">Curso/Div</th>
-                            <th className="px-4 py-3 text-left font-bold text-gray-700 uppercase">Condición</th>
-                            <th className="px-4 py-3 text-left font-bold text-gray-700 uppercase text-center">Acciones</th>
+                        <tr className="bg-gray-100 border-b-2 border-gray-400">
+                            <th className="px-4 py-3 text-left font-black text-black uppercase">DNI</th>
+                            <th className="px-4 py-3 text-left font-black text-black uppercase">Apellido y Nombre</th>
+                            <th className="px-4 py-3 text-left font-black text-black uppercase">Libro/Folio</th>
+                            <th className="px-4 py-3 text-left font-black text-black uppercase">F. Nacimiento</th>
+                            <th className="px-4 py-3 text-left font-black text-black uppercase">Orientación</th>
+                            <th className="px-4 py-3 text-left font-black text-black uppercase">Curso/Div</th>
+                            <th className="px-4 py-3 text-left font-black text-black uppercase">Condición</th>
+                            <th className="px-4 py-3 text-left font-black text-black uppercase text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
@@ -247,9 +247,9 @@ export default function StudentsPage() {
                                 </tr>
                             ))
                         ) : students.map((student) => (
-                            <tr key={student.id} className="hover:bg-gray-50 transition">
-                                <td className="px-4 py-3 font-medium">{student.dni}</td>
-                                <td className="px-4 py-3 uppercase">{student.apellido}, {student.nombre}</td>
+                            <tr key={student.id} className="hover:bg-gray-100 border-b border-gray-300 transition">
+                                <td className="px-4 py-3 font-black text-black">{student.dni}</td>
+                                <td className="px-4 py-3 uppercase font-black text-black">{student.apellido}, {student.nombre}</td>
                                 <td className="px-4 py-3">
                                     {student.librosFolios.map((lf, idx) => (
                                         <div key={idx} className="bg-blue-50 text-blue-700 px-1 rounded inline-block mr-1">
@@ -257,16 +257,16 @@ export default function StudentsPage() {
                                         </div>
                                     ))}
                                 </td>
-                                <td className="px-4 py-3 whitespace-nowrap">
+                                <td className="px-4 py-3 whitespace-nowrap font-black text-black">
                                     {new Date(student.fechaNacimiento).toLocaleDateString()}
                                 </td>
-                                <td className="px-4 py-3 italic text-gray-500">
+                                <td className="px-4 py-3 italic font-black text-black">
                                     {student.inscripciones[0]?.curso?.orientacion?.nombre || '-'}
                                 </td>
                                 <td className="px-4 py-3 relative group">
                                     {student.inscripciones[0]?.curso ? (
                                         <div className="flex items-center gap-2">
-                                            <span className="font-bold">
+                                            <span className="font-black text-black">
                                                 {formatAnio(student.inscripciones[0].curso.anioCurso)} "{student.inscripciones[0].curso.division}"
                                             </span>
                                             <button

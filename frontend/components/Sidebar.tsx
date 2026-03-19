@@ -61,12 +61,12 @@ export default function Sidebar() {
                             <Link
                                 href={item.href}
                                 className={`flex items-center p-3 rounded-lg transition-colors ${pathname === item.href
-                                    ? 'bg-dark-green text-white shadow-md font-bold'
-                                    : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                                    ? 'bg-dark-green text-white shadow-md font-black'
+                                    : 'text-gray-100 hover:bg-gray-800 hover:text-white font-bold'
                                     }`}
                             >
                                 <span className="mr-3 text-xl">{item.icon}</span>
-                                <span className="font-medium">{item.label}</span>
+                                <span className="font-black">{item.label}</span>
                             </Link>
                         </li>
                     ))}
@@ -75,10 +75,10 @@ export default function Sidebar() {
             <div className="p-4 border-t border-gray-700">
                 <button
                     onClick={() => { localStorage.removeItem('token'); window.location.href = '/login' }}
-                    className="flex items-center w-full p-2 text-red-400 hover:text-red-300 hover:bg-red-900/20 rounded transition-colors"
+                    className="flex items-center w-full p-2 text-red-500 hover:text-red-400 hover:bg-red-900/20 rounded transition-colors"
                 >
                     <span className="mr-3">🚪</span>
-                    <span className="font-medium">Cerrar Sesión</span>
+                    <span className="font-black">Cerrar Sesión</span>
                 </button>
             </div>
         </aside>
