@@ -53,30 +53,30 @@ export default function LoginPage() {
                             <span className="text-3xl font-bold text-dark-green">SN</span>
                         )}
                     </div>
-                    <h2 className="text-2xl font-extrabold text-dark-green text-center">
+                    <h2 className="text-3xl font-black text-black text-center">
                         {config?.nombreInstitucion || 'Soberanía Nacional'}
                     </h2>
-                    <p className="text-foreground/50 text-sm mt-1">Gestión Escolar</p>
+                    <p className="text-black text-sm mt-1 font-bold">Gestión Escolar</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
-                        <label className="block text-sm font-semibold text-foreground/70 ml-1 mb-2" htmlFor="email">Correo Electrónico</label>
+                        <label className="block text-sm font-black text-black ml-1 mb-2" htmlFor="email">Correo Electrónico</label>
                         <input
                             type="email"
                             placeholder="usuario@escuela.com"
-                            className="w-full px-5 py-4 border border-gray-100 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-primary focus:bg-white outline-none transition-all placeholder:text-gray-300"
+                            className="w-full px-5 py-4 border-2 border-gray-400 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-primary focus:bg-white outline-none transition-all placeholder:text-gray-500 text-black font-bold"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-semibold text-foreground/70 ml-1 mb-2">Contraseña</label>
+                        <label className="block text-sm font-black text-black ml-1 mb-2">Contraseña</label>
                         <input
                             type="password"
                             placeholder="••••••••"
-                            className="w-full px-5 py-4 border border-gray-100 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-primary focus:bg-white outline-none transition-all placeholder:text-gray-300"
+                            className="w-full px-5 py-4 border-2 border-gray-400 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-primary focus:bg-white outline-none transition-all placeholder:text-gray-500 text-black font-bold"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
@@ -94,7 +94,7 @@ export default function LoginPage() {
                     </button>
                 </form>
 
-                <div className="mt-8 text-center text-xs text-foreground/30">
+                <div className="mt-8 text-center text-xs text-black font-bold">
                     SGE - Versión 1.0.0
                 </div>
             </div>
