@@ -173,7 +173,7 @@ export default function StudentsPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
                     <div>
-                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Ciclo Lectivo</label>
+                        <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Ciclo Lectivo</label>
                         <select name="cicloLectivo" value={filters.cicloLectivo} onChange={handleFilterChange} className="w-full border rounded p-2 text-sm font-bold bg-blue-50 border-blue-200">
                             {cycles.map(c => (
                                 <option key={c.id} value={c.anio}>{c.anio} {c.enCurso ? '(ACTUAL)' : ''}</option>
@@ -181,7 +181,7 @@ export default function StudentsPage() {
                         </select>
                     </div>
                     <div>
-                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Curso</label>
+                        <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Curso</label>
                         <select name="curso" value={filters.curso} onChange={handleFilterChange} className="w-full border rounded p-2 text-sm">
                             <option value="">Todos</option>
                             {[1, 2, 3, 4, 5, 6, 7].map(n => (
@@ -190,7 +190,7 @@ export default function StudentsPage() {
                         </select>
                     </div>
                     <div>
-                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">División</label>
+                        <label className="block text-xs font-bold text-gray-700 uppercase mb-1">División</label>
                         <select name="division" value={filters.division} onChange={handleFilterChange} className="w-full border rounded p-2 text-sm text-gray-800">
                             <option value="">Todas</option>
                             {['1ra', '2da', '3ra', '4ta', '5ta', '6ta', '7ma'].map(div => (
@@ -199,7 +199,7 @@ export default function StudentsPage() {
                         </select>
                     </div>
                     <div>
-                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Condición</label>
+                        <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Condición</label>
                         <select name="condicion" value={filters.condicion} onChange={handleFilterChange} className="w-full border rounded p-2 text-sm">
                             <option value="">Todas</option>
                             <option value="REGULAR">Regular</option>
@@ -229,14 +229,14 @@ export default function StudentsPage() {
                 <table className="min-w-full text-xs">
                     <thead>
                         <tr className="bg-gray-50 border-b">
-                            <th className="px-4 py-3 text-left font-bold text-gray-600 uppercase">DNI</th>
-                            <th className="px-4 py-3 text-left font-bold text-gray-600 uppercase">Apellido y Nombre</th>
-                            <th className="px-4 py-3 text-left font-bold text-gray-600 uppercase">Libro/Folio</th>
-                            <th className="px-4 py-3 text-left font-bold text-gray-600 uppercase">F. Nacimiento</th>
-                            <th className="px-4 py-3 text-left font-bold text-gray-600 uppercase">Orientación</th>
-                            <th className="px-4 py-3 text-left font-bold text-gray-600 uppercase">Curso/Div</th>
-                            <th className="px-4 py-3 text-left font-bold text-gray-600 uppercase">Condición</th>
-                            <th className="px-4 py-3 text-left font-bold text-gray-600 uppercase text-center">Acciones</th>
+                            <th className="px-4 py-3 text-left font-bold text-gray-700 uppercase">DNI</th>
+                            <th className="px-4 py-3 text-left font-bold text-gray-700 uppercase">Apellido y Nombre</th>
+                            <th className="px-4 py-3 text-left font-bold text-gray-700 uppercase">Libro/Folio</th>
+                            <th className="px-4 py-3 text-left font-bold text-gray-700 uppercase">F. Nacimiento</th>
+                            <th className="px-4 py-3 text-left font-bold text-gray-700 uppercase">Orientación</th>
+                            <th className="px-4 py-3 text-left font-bold text-gray-700 uppercase">Curso/Div</th>
+                            <th className="px-4 py-3 text-left font-bold text-gray-700 uppercase">Condición</th>
+                            <th className="px-4 py-3 text-left font-bold text-gray-700 uppercase text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">

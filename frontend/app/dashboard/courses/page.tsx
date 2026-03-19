@@ -220,7 +220,7 @@ export default function CoursesPage() {
 
             {/* Filtro por Ciclo */}
             <div className="mb-6 flex items-center gap-3">
-                <label className="text-sm font-bold text-gray-500 uppercase">Ciclo Lectivo:</label>
+                <label className="text-sm font-bold text-gray-700 uppercase">Ciclo Lectivo:</label>
                 <select
                     className="border rounded-lg px-3 py-2 bg-white text-sm font-medium shadow-sm"
                     value={selectedCycleId}
@@ -252,7 +252,7 @@ export default function CoursesPage() {
                             <div className="flex justify-between items-start">
                                 <div>
                                     <h3 className="text-xl font-black text-gray-800">{formatAnio(course.anioCurso)} "{course.division}"</h3>
-                                    <p className="text-sm text-gray-500 mt-1">Turno: <span className="font-bold">{course.turno}</span></p>
+                                    <p className="text-sm text-gray-600 mt-1">Turno: <span className="font-bold">{course.turno}</span></p>
                                 </div>
                                 <span className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded font-bold">
                                     {course.cicloLectivo.anio}
@@ -260,14 +260,14 @@ export default function CoursesPage() {
                             </div>
 
                             {course.orientacion && (
-                                <p className="text-xs text-gray-400 mt-2">Orientación: {course.orientacion.nombre}</p>
+                                <p className="text-xs text-gray-600 mt-2">Orientación: {course.orientacion.nombre}</p>
                             )}
 
                             <div className="mt-3 pt-3 border-t flex justify-between items-center">
                                 <Link href={`/dashboard/courses/${course.id}`} className="text-xs font-bold text-blue-600 hover:text-blue-800 transition flex items-center gap-1">
                                     Ver Alumnos <span>→</span>
                                 </Link>
-                                <span className="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+                                <span className="text-xs font-bold text-gray-700 bg-gray-100 px-2 py-0.5 rounded">
                                     {course.inscripciones?.length || 0} alumnos
                                 </span>
                             </div>
@@ -307,7 +307,7 @@ export default function CoursesPage() {
                         </h2>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
-                                <label className="block text-[10px] font-black text-gray-400 uppercase mb-1">Ciclo Lectivo</label>
+                                <label className="block text-[10px] font-black text-gray-600 uppercase mb-1">Ciclo Lectivo</label>
                                 <select
                                     className="w-full border rounded-lg p-2.5 bg-gray-50 font-medium"
                                     value={formData.cicloLectivoId}
@@ -320,7 +320,7 @@ export default function CoursesPage() {
                             </div>
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label className="block text-[10px] font-black text-gray-400 uppercase mb-1">Año</label>
+                                    <label className="block text-[10px] font-black text-gray-600 uppercase mb-1">Año</label>
                                     <select
                                         className="w-full border rounded-lg p-2.5 bg-gray-50 font-bold"
                                         value={formData.anioCurso}
@@ -334,7 +334,7 @@ export default function CoursesPage() {
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-[10px] font-black text-gray-400 uppercase mb-1">División</label>
+                                    <label className="block text-[10px] font-black text-gray-600 uppercase mb-1">División</label>
                                     <select
                                         className="w-full border rounded-lg p-2.5 bg-gray-50 font-bold"
                                         value={formData.division}
@@ -349,7 +349,7 @@ export default function CoursesPage() {
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-[10px] font-black text-gray-400 uppercase mb-1">Turno</label>
+                                <label className="block text-[10px] font-black text-gray-600 uppercase mb-1">Turno</label>
                                 <select
                                     className="w-full border rounded-lg p-2.5 bg-gray-50 font-medium"
                                     value={formData.turno}
@@ -361,7 +361,7 @@ export default function CoursesPage() {
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-[10px] font-black text-gray-400 uppercase mb-1">Orientación (opcional)</label>
+                                <label className="block text-[10px] font-black text-gray-600 uppercase mb-1">Orientación (opcional)</label>
                                 <select
                                     className="w-full border rounded-lg p-2.5 bg-gray-50 font-medium"
                                     value={formData.orientacionId}
