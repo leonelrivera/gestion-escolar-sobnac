@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native", "linux-musl", "linux-musl-openssl-3.0.x"]
@@ -11,7 +8,210 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// 1. Usuarios y Seguridad
+model Usuario {
+  id                     Int               @id @default(autoincrement())
+  email                  String            @unique
+  passwordHash           String?           @map("password_hash")
+  nombreCompleto         String            @map("nombre_completo")
+  rol                    Rol
+  activo                 Boolean           @default(true)
+  createdAt              DateTime          @default(now()) @map("created_at")
+  asignaciones           Asignacion[]
+  auditoriaNotas         Calificacion[]    @relation("UsuarioCarga")
+  estudiantesCargados    Estudiante[]
+  estudiantesModificados Estudiante[]      @relation("UsuarioModificacion")
+  parametrosCiclo        ParametrosCiclo[]
+
+  @@map("usuarios")
+}
+
+model CicloLectivo {
+  id              Int               @id @default(autoincrement())
+  anio            Int               @unique
+  fechaInicio     DateTime          @map("fecha_inicio") @db.Date
+  fechaFin        DateTime          @map("fecha_fin") @db.Date
+  enCurso         Boolean           @default(true) @map("en_curso")
+  cursos          Curso[]
+  parametrosCiclo ParametrosCiclo[]
+
+  @@map("ciclos_lectivos")
+}
+
+model Estudiante {
+  id                         Int                 @id @default(autoincrement())
+  dni                        String              @unique
+  apellido                   String
+  nombre                     String
+  fechaNacimiento            DateTime            @map("fecha_nacimiento") @db.Date
+  lugarNacimiento            String?             @map("lugar_nacimiento")
+  genero                     String?
+  domicilio                  String?
+  telefonoContacto           String?             @map("telefono_contacto")
+  emailContacto              String?             @map("email_contacto")
+  fechaIngreso               DateTime?           @map("fecha_ingreso") @db.Date
+  institucionOrigen          String?             @map("institucion_origen")
+  fechaEgreso                DateTime?           @map("fecha_egreso") @db.Date
+  institucionDestino         String?             @map("institucion_destino")
+  condicion                  CondicionEstudiante @default(REGULAR)
+  grupoSanguineo             String?
+  alergias                   String?
+  enfermedadesCronicas       String?
+  obraSocial                 String?
+  nombreTutor                String?
+  telefonoTutor              String?
+  emailTutor                 String?
+  contactoEmergenciaNombre   String?
+  contactoEmergenciaTelefono String?
+  orientacion                String?
+  observacionesGenerales     String?
+  usuarioCargaId             Int
+  usuarioModificacionId      Int?                @map("usuario_modificacion_id")
+  createdAt                  DateTime            @default(now())
+  updatedAt                  DateTime            @updatedAt
+  emailTutorAlternativo      String?             @map("email_tutor_alternativo")
+  nombreTutorAlternativo     String?             @map("nombre_tutor_alternativo")
+  telefonoTutorAlternativo   String?             @map("telefono_tutor_alternativo")
+  usuarioCarga               Usuario             @relation(fields: [usuarioCargaId], references: [id])
+  usuarioModificacion        Usuario?            @relation("UsuarioModificacion", fields: [usuarioModificacionId], references: [id])
+  inscripciones              Inscripcion[]
+  librosFolios               LibroFolio[]
+
+  @@index([dni])
+  @@index([apellido])
+  @@map("estudiantes")
+}
+
+model LibroFolio {
+  id           Int        @id @default(autoincrement())
+  estudianteId Int        @map("estudiante_id")
+  libro        String
+  folio        String
+  createdAt    DateTime   @default(now()) @map("created_at")
+  estudiante   Estudiante @relation(fields: [estudianteId], references: [id])
+
+  @@map("libros_folios")
+}
+
+model ParametrosCiclo {
+  id              Int                 @id @default(autoincrement())
+  cicloLectivoId  Int                 @map("ciclo_lectivo_id")
+  instancia       InstanciaEvaluacion
+  cuatrimestre    Int
+  cerrado         Boolean             @default(false)
+  fechaCierre     DateTime?           @map("fecha_cierre")
+  usuarioCierreId Int?                @map("usuario_cierre_id")
+  cicloLectivo    CicloLectivo        @relation(fields: [cicloLectivoId], references: [id])
+  usuarioCierre   Usuario?            @relation(fields: [usuarioCierreId], references: [id])
+
+  @@unique([cicloLectivoId, instancia, cuatrimestre])
+  @@map("parametros_ciclo")
+}
+
+model Orientacion {
+  id     Int     @id @default(autoincrement())
+  nombre String  @unique
+  cursos Curso[]
+
+  @@map("orientaciones")
+}
+
+model Asignacion {
+  id        Int     @id @default(autoincrement())
+  usuarioId Int     @map("usuario_id")
+  cursoId   Int     @map("curso_id")
+  curso     Curso   @relation(fields: [cursoId], references: [id], onDelete: Cascade)
+  usuario   Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@unique([usuarioId, cursoId])
+  @@map("asignaciones")
+}
+
+model Curso {
+  id             Int           @id @default(autoincrement())
+  cicloLectivoId Int           @map("ciclo_lectivo_id")
+  anioCurso      String        @map("anio_curso")
+  division       String
+  turno          Turno?
+  orientacionId  Int?          @map("orientacion_id")
+  asignaciones   Asignacion[]
+  cicloLectivo   CicloLectivo  @relation(fields: [cicloLectivoId], references: [id])
+  orientacion    Orientacion?  @relation(fields: [orientacionId], references: [id])
+  inscripciones  Inscripcion[]
+
+  @@unique([cicloLectivoId, anioCurso, division, turno])
+  @@map("cursos")
+}
+
+model Materia {
+  id                Int            @id @default(autoincrement())
+  nombre            String
+  anioCurso         String?        @map("anio_curso")
+  orientacionFiltro String?        @map("orientacion_filtro")
+  calificaciones    Calificacion[]
+
+  @@map("materias")
+}
+
+model Inscripcion {
+  id               Int                  @id @default(autoincrement())
+  estudianteId     Int                  @map("estudiante_id")
+  cursoId          Int                  @map("curso_id")
+  fechaInscripcion DateTime             @default(now()) @map("fecha_inscripcion") @db.Date
+  condicion        CondicionInscripcion @default(REGULAR)
+  estadoFinal      EstadoInscripcion?   @map("estado_final")
+  asistencias      Asistencia[]
+  calificaciones   Calificacion[]
+  curso            Curso                @relation(fields: [cursoId], references: [id])
+  estudiante       Estudiante           @relation(fields: [estudianteId], references: [id])
+
+  @@unique([estudianteId, cursoId])
+  @@index([cursoId])
+  @@map("inscripciones")
+}
+
+model Calificacion {
+  id             Int                 @id @default(autoincrement())
+  inscripcionId  Int                 @map("inscripcion_id")
+  materiaId      Int                 @map("materia_id")
+  cuatrimestre   Int                 @default(1)
+  instancia      InstanciaEvaluacion @default(INFORME_1)
+  nota           Float
+  fecha          DateTime            @default(now())
+  observaciones  String?
+  fechaCarga     DateTime            @default(now()) @map("fecha_carga")
+  usuarioCargaId Int?                @map("usuario_carga_id")
+  inscripcion    Inscripcion         @relation(fields: [inscripcionId], references: [id])
+  materia        Materia             @relation(fields: [materiaId], references: [id])
+  usuarioCarga   Usuario?            @relation("UsuarioCarga", fields: [usuarioCargaId], references: [id])
+
+  @@unique([inscripcionId, materiaId, cuatrimestre, instancia])
+  @@index([inscripcionId])
+  @@map("calificaciones")
+}
+
+model Asistencia {
+  id            Int         @id @default(autoincrement())
+  inscripcionId Int         @map("inscripcion_id")
+  fecha         DateTime    @default(now())
+  presente      Boolean
+  justificado   Boolean?    @default(false)
+  observaciones String?
+  inscripcion   Inscripcion @relation(fields: [inscripcionId], references: [id])
+
+  @@index([inscripcionId])
+  @@map("asistencias")
+}
+
+model Configuracion {
+  id                Int      @id @default(1)
+  nombreInstitucion String   @default("SGE - Soberanía Nacional") @map("nombre_institucion")
+  logoBase64        String?  @map("logo_base64")
+  pieDePagina       String?  @map("pie_de_pagina")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@map("configuracion")
+}
+
 enum Rol {
   ADMIN
   DIRECTIVO
@@ -21,107 +221,6 @@ enum Rol {
   COORDINADOR
   JEFE_PRECEPTOR
   PRECEPTOR
-}
-
-model Usuario {
-  id             Int      @id @default(autoincrement())
-  email          String   @unique
-  passwordHash   String?  @map("password_hash")
-  nombreCompleto String   @map("nombre_completo")
-  rol            Rol
-  activo         Boolean  @default(true)
-  createdAt      DateTime @default(now()) @map("created_at")
-
-  // Relaciones
-  asignaciones   Asignacion[]
-  auditoriaNotas   Calificacion[]    @relation("UsuarioCarga")
-  parametrosCiclo  ParametrosCiclo[]
-  estudiantesCargados Estudiante[]
-  estudiantesModificados Estudiante[] @relation("UsuarioModificacion")
-
-  @@map("usuarios")
-}
-
-// 2. Entidades Principales
-
-model CicloLectivo {
-  id          Int      @id @default(autoincrement())
-  anio        Int      @unique
-  fechaInicio DateTime @map("fecha_inicio") @db.Date
-  fechaFin    DateTime @map("fecha_fin") @db.Date
-  enCurso     Boolean  @default(true) @map("en_curso")
-
-  cursos Curso[]
-  parametrosCiclo ParametrosCiclo[]
-
-  @@map("ciclos_lectivos")
-}
-
-model Estudiante {
-  id              Int      @id @default(autoincrement())
-  dni             String   @unique
-  apellido        String
-  nombre          String
-  fechaNacimiento DateTime @map("fecha_nacimiento") @db.Date
-  lugarNacimiento String   @map("lugar_nacimiento")
-  genero          String?
-  domicilio       String?
-  telefonoContacto String? @map("telefono_contacto")
-  emailContacto   String?  @map("email_contacto")
-  
-  fechaIngreso      DateTime? @map("fecha_ingreso") @db.Date
-  institucionOrigen String?   @map("institucion_origen")
-  
-  fechaEgreso       DateTime? @map("fecha_egreso") @db.Date
-  institucionDestino String?  @map("institucion_destino")
-  condicion         CondicionEstudiante @default(REGULAR)
-  
-  // Datos de Salud
-  grupoSanguineo     String?
-  alergias           String?
-  enfermedadesCronicas String?
-  obraSocial         String?
-  
-  // Datos Familiares
-  nombreTutor        String?
-  telefonoTutor      String?
-  emailTutor         String?
-  nombreTutorAlternativo   String?  @map("nombre_tutor_alternativo")
-  telefonoTutorAlternativo String?  @map("telefono_tutor_alternativo")
-  emailTutorAlternativo    String?  @map("email_tutor_alternativo")
-  
-  // Emergencia
-  contactoEmergenciaNombre   String?
-  contactoEmergenciaTelefono String?
-  
-  // Datos Académicos Extra
-  orientacion        String?
-  observacionesGenerales String?
-
-  librosFolios       LibroFolio[]
-  inscripciones      Inscripcion[]
-  usuarioCargaId     Int
-  usuarioCarga       Usuario        @relation(fields: [usuarioCargaId], references: [id])
-  usuarioModificacionId Int?        @map("usuario_modificacion_id")
-  usuarioModificacion Usuario?      @relation("UsuarioModificacion", fields: [usuarioModificacionId], references: [id])
-  
-  createdAt          DateTime       @default(now())
-  updatedAt          DateTime       @updatedAt
-
-  @@index([dni])
-  @@index([apellido])
-  @@map("estudiantes")
-}
-
-model LibroFolio {
-  id           Int        @id @default(autoincrement())
-  estudiante   Estudiante @relation(fields: [estudianteId], references: [id])
-  estudianteId Int        @map("estudiante_id")
-  libro        String
-  folio        String
-  createdAt    DateTime   @default(now()) @map("created_at")
-
-  @@map("libros_folios")
 }
 
 enum CondicionEstudiante {
@@ -141,78 +240,11 @@ enum InstanciaEvaluacion {
   FINAL
 }
 
-model ParametrosCiclo {
-  id             Int      @id @default(autoincrement())
-  cicloLectivoId Int      @map("ciclo_lectivo_id")
-  instancia      InstanciaEvaluacion
-  cuatrimestre   Int      // 1 o 2
-  cerrado         Boolean             @default(false)
-  fechaCierre     DateTime?           @map("fecha_cierre")
-  usuarioCierreId Int?                @map("usuario_cierre_id")
-
-  cicloLectivo  CicloLectivo @relation(fields: [cicloLectivoId], references: [id])
-  usuarioCierre Usuario?     @relation(fields: [usuarioCierreId], references: [id])
-
-  @@unique([cicloLectivoId, instancia, cuatrimestre])
-  @@map("parametros_ciclo")
-}
-
 enum Turno {
   MANANA
   TARDE
   VESPERTINO
 }
-
-model Orientacion {
-  id     Int    @id @default(autoincrement())
-  nombre String @unique
-  cursos Curso[]
-
-  @@map("orientaciones")
-}
-
-model Asignacion {
-  id        Int      @id @default(autoincrement())
-  usuarioId Int      @map("usuario_id")
-  cursoId   Int      @map("curso_id")
-
-  usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
-  curso     Curso    @relation(fields: [cursoId], references: [id], onDelete: Cascade)
-
-  @@unique([usuarioId, cursoId])
-  @@map("asignaciones")
-}
-
-model Curso {
-  id             Int          @id @default(autoincrement())
-  cicloLectivoId Int          @map("ciclo_lectivo_id")
-  anioCurso      String       @map("anio_curso") // "1ro", "2do"
-  division       String       // "A", "B"
-  turno          Turno? 
-
-  orientacionId  Int?         @map("orientacion_id")
-
-  cicloLectivo   CicloLectivo @relation(fields: [cicloLectivoId], references: [id])
-  orientacion    Orientacion? @relation(fields: [orientacionId], references: [id])
-  asignaciones   Asignacion[]
-  inscripciones  Inscripcion[]
-
-  @@unique([cicloLectivoId, anioCurso, division, turno])
-  @@map("cursos")
-}
-
-model Materia {
-  id                Int      @id @default(autoincrement())
-  nombre            String
-  anioCurso         String?  @map("anio_curso")
-  orientacionFiltro String?  @map("orientacion_filtro")
-
-  calificaciones    Calificacion[]
-
-  @@map("materias")
-}
-
-// 3. Libro Matriz (Relaciones)
 
 enum CondicionInscripcion {
   REGULAR
@@ -227,74 +259,9 @@ enum EstadoInscripcion {
   REPITE
 }
 
-model Inscripcion {
-  id               Int      @id @default(autoincrement())
-  estudianteId     Int      @map("estudiante_id")
-  cursoId          Int      @map("curso_id")
-  fechaInscripcion DateTime @default(now()) @map("fecha_inscripcion") @db.Date
-  condicion        CondicionInscripcion @default(REGULAR)
-  estadoFinal      EstadoInscripcion?   @map("estado_final")
-
-  estudiante       Estudiante @relation(fields: [estudianteId], references: [id])
-  curso            Curso      @relation(fields: [cursoId], references: [id])
-  calificaciones   Calificacion[]
-  asistencias      Asistencia[]
-
-  @@unique([estudianteId, cursoId])
-  @@index([cursoId])
-  @@map("inscripciones")
-}
-
-model Calificacion {
-  id             Int      @id @default(autoincrement())
-  inscripcionId  Int      @map("inscripcion_id")
-  materiaId      Int      @map("materia_id")
-  
-  cuatrimestre   Int      @default(1)
-  instancia      InstanciaEvaluacion @default(INFORME_1)
-  
-  nota           Float
-  fecha          DateTime @default(now())
-  observaciones  String?
-  fechaCarga     DateTime @default(now()) @map("fecha_carga")
-  usuarioCargaId Int?     @map("usuario_carga_id")
-
-  inscripcion    Inscripcion @relation(fields: [inscripcionId], references: [id])
-  materia        Materia      @relation(fields: [materiaId], references: [id])
-  usuarioCarga   Usuario?     @relation("UsuarioCarga", fields: [usuarioCargaId], references: [id])
-
-  @@unique([inscripcionId, materiaId, cuatrimestre, instancia])
-  @@index([inscripcionId])
-  @@map("calificaciones")
-}
-
 enum EstadoAsistencia {
   PRESENTE
   AUSENTE
   TARDE
   RETIRADO
-}
-
-model Asistencia {
-  id             Int      @id @default(autoincrement())
-  inscripcionId  Int      @map("inscripcion_id")
-  fecha          DateTime @default(now())
-  presente       Boolean
-  justificado    Boolean? @default(false)
-  observaciones  String?
-
-  inscripcion    Inscripcion @relation(fields: [inscripcionId], references: [id])
-
-  @@index([inscripcionId])
-  @@map("asistencias")
-}
-
-model Configuracion {
-  id                Int      @id @default(1)
-  nombreInstitucion String   @default("SGE - Soberanía Nacional") @map("nombre_institucion")
-  logoBase64        String?  @map("logo_base64") @db.Text
-  pieDePagina       String?  @map("pie_de_pagina")
-  updatedAt         DateTime @updatedAt @map("updated_at")
-
-  @@map("configuracion")
 }

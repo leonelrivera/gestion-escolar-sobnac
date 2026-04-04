@@ -60,6 +60,25 @@ export default function ReportsPage() {
                     </button>
                 </div>
 
+                {/* Notas Generales Report Card */}
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between">
+                    <div>
+                        <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4 text-green-700 text-xl font-bold">
+                            XLS
+                        </div>
+                        <h2 className="text-lg font-bold text-gray-800 mb-2">Notas Generales por Informe</h2>
+                        <p className="text-sm text-gray-400 mb-6">
+                            Planilla interactiva de control académico por curso y periodo, con descarga en Excel.
+                        </p>
+                    </div>
+                    <button
+                        onClick={() => window.location.href = '/dashboard/reports/general-grades'}
+                        className="w-full py-2.5 bg-green-600 text-white hover:bg-green-700 rounded-lg text-sm font-bold shadow-sm shadow-green-200 transition-all"
+                    >
+                        Abrir Reporte
+                    </button>
+                </div>
+
                 {/* Placeholder for other reports */}
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 opacity-50 border-dashed flex flex-col justify-between">
                     <div>

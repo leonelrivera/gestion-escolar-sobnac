@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 const PDFDocument = require('pdfkit-table');
+const ExcelJS = require('exceljs');
 
 @Injectable()
 export class ReportsService {
@@ -244,5 +245,157 @@ export class ReportsService {
     });
 
     return stats;
+  }
+
+  async getGeneralGradesReport(cursoId: number, cuatrimestreStr: string, instanciaStr: string) {
+    let currentCuatrimestre = 1;
+    let currentInstancia = 'INFORME_1';
+
+    if (cuatrimestreStr === '1') currentCuatrimestre = 1;
+    else if (cuatrimestreStr === '2') currentCuatrimestre = 2;
+
+    if (cuatrimestreStr === 'DICIEMBRE') {
+      currentInstancia = 'COMPLEMENTARIO_DIC';
+      currentCuatrimestre = 2;
+    } else if (cuatrimestreStr === 'FEBRERO') {
+      currentInstancia = 'COMPLEMENTARIO_FEB';
+      currentCuatrimestre = 2;
+    } else if (cuatrimestreStr === 'C.FINAL') {
+      currentInstancia = 'FINAL';
+      currentCuatrimestre = 2;
+    } else {
+      currentInstancia = instanciaStr;
+    }
+
+    const course = await this.prisma.curso.findUnique({
+      where: { id: cursoId },
+      include: {
+        orientacion: true,
+        inscripciones: {
+          include: {
+            estudiante: true,
+            calificaciones: {
+              where: {
+                cuatrimestre: currentCuatrimestre,
+                instancia: currentInstancia as any,
+              },
+              include: { materia: true },
+            },
+          },
+        },
+      },
+    });
+
+    if (!course) throw new Error('Curso no encontrado');
+
+    const materiasCondition: any = { anioCurso: course.anioCurso };
+    if (course.orientacion) {
+      materiasCondition.OR = [
+        { orientacionFiltro: null },
+        { orientacionFiltro: '' },
+        { orientacionFiltro: course.orientacion.nombre },
+      ];
+    }
+
+    const materiasList = await this.prisma.materia.findMany({
+      where: materiasCondition,
+      orderBy: { id: 'asc' },
+    });
+
+    const materiasNamesSet = new Set(materiasList.map((m) => m.nombre));
+
+    course.inscripciones.forEach((ins) => {
+      ins.calificaciones.forEach((g) => {
+        materiasNamesSet.add(g.materia.nombre);
+      });
+    });
+
+    const materiasNames = Array.from(materiasNamesSet);
+
+    const alumnos = course.inscripciones.map((ins) => {
+      const student = ins.estudiante;
+      const grades = ins.calificaciones;
+
+      let desaprobadasCount = 0;
+      const gradesByMateria: Record<string, number | null> = {};
+
+      materiasNames.forEach((m) => {
+        gradesByMateria[m] = null;
+      });
+
+      grades.forEach((g) => {
+        gradesByMateria[g.materia.nombre] = g.nota;
+        if (g.nota < 6) desaprobadasCount++;
+      });
+
+      let riesgo = 'B';
+      if (desaprobadasCount > 6) riesgo = 'A';
+      else if (desaprobadasCount >= 5) riesgo = 'M';
+
+      return {
+        id: student.id,
+        dni: student.dni,
+        apellido: student.apellido,
+        nombre: student.nombre,
+        genero: student.genero === 'Masculino' ? 'V' : (student.genero === 'Femenino' ? 'M' : 'O'),
+        materias: gradesByMateria,
+        desaprobadas: desaprobadasCount,
+        riesgo: desaprobadasCount >= 1 ? riesgo : '',
+      };
+    });
+
+    alumnos.sort((a, b) => {
+      const nameA = `${a.apellido} ${a.nombre}`.toLowerCase();
+      const nameB = `${b.apellido} ${b.nombre}`.toLowerCase();
+      return nameA.localeCompare(nameB);
+    });
+
+    return {
+      curso: `${course.anioCurso} ${course.division}`,
+      materias: materiasNames,
+      alumnos: alumnos,
+    };
+  }
+
+  async generateGeneralGradesExcel(cursoId: number, cuatrimestreStr: string, instanciaStr: string): Promise<Buffer> {
+    const reportData = await this.getGeneralGradesReport(cursoId, cuatrimestreStr, instanciaStr);
+    
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet('Notas Generales');
+
+    // Title
+    sheet.addRow([`Reporte Notas Generales - ${reportData.curso}`]);
+    sheet.addRow([`Cuatrimestre: ${cuatrimestreStr} | Instancia: ${instanciaStr}`]);
+    sheet.addRow([]);
+
+    const baseHeaders = ['Nº', 'DNI', 'Sexo', 'Apellido y Nombre'];
+    const headers = [...baseHeaders, ...reportData.materias, 'C. Desapr', 'R.P.'];
+
+    const headerRow = sheet.addRow(headers);
+    headerRow.font = { bold: true };
+    headerRow.alignment = { horizontal: 'center' };
+
+    reportData.alumnos.forEach((a, idx) => {
+      const rowData: any[] = [
+        idx + 1,
+        a.dni,
+        a.genero,
+        `${a.apellido}, ${a.nombre}`,
+      ];
+
+      reportData.materias.forEach(m => {
+        rowData.push(a.materias[m] !== null ? a.materias[m] : '');
+      });
+
+      rowData.push(a.desaprobadas);
+      rowData.push(a.riesgo);
+
+      sheet.addRow(rowData);
+    });
+
+    sheet.columns.forEach((col: any) => { col.width = 12; });
+    sheet.getColumn(4).width = 30; // Nombre
+
+    return await workbook.xlsx.writeBuffer() as Buffer;
   }
 }
