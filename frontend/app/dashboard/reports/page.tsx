@@ -79,6 +79,25 @@ export default function ReportsPage() {
                     </button>
                 </div>
 
+                {/* Family Report Card */}
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between">
+                    <div>
+                        <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4 text-indigo-700 text-xl font-bold">
+                            PDF
+                        </div>
+                        <h2 className="text-lg font-bold text-gray-800 mb-2">Informe para Familias</h2>
+                        <p className="text-sm text-gray-400 mb-6">
+                            Planilla resumida (PDF) por estudiante para distribuir a los tutores, con firmas directivas.
+                        </p>
+                    </div>
+                    <button
+                        onClick={() => window.location.href = '/dashboard/reports/family-report'}
+                        className="w-full py-2.5 bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg text-sm font-bold shadow-sm shadow-indigo-200 transition-all"
+                    >
+                        Abrir Reporte
+                    </button>
+                </div>
+
                 {/* Placeholder for other reports */}
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 opacity-50 border-dashed flex flex-col justify-between">
                     <div>

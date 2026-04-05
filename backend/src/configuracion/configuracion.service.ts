@@ -24,7 +24,7 @@ export class ConfiguracionService implements OnModuleInit {
         });
     }
 
-    async updateConfig(data: { nombreInstitucion?: string; logoBase64?: string; pieDePagina?: string }) {
+    async updateConfig(data: { nombreInstitucion?: string; logoBase64?: string; firmaBase64?: string; selloBase64?: string; pieDePagina?: string }) {
         return this.prisma.configuracion.update({
             where: { id: 1 },
             data,

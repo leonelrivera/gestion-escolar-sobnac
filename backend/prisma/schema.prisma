@@ -206,6 +206,8 @@ model Configuracion {
   id                Int      @id @default(1)
   nombreInstitucion String   @default("SGE - Soberanía Nacional") @map("nombre_institucion")
   logoBase64        String?  @map("logo_base64")
+  firmaBase64       String?  @map("firma_base64")
+  selloBase64       String?  @map("sello_base64")
   pieDePagina       String?  @map("pie_de_pagina")
   updatedAt         DateTime @updatedAt @map("updated_at")
 

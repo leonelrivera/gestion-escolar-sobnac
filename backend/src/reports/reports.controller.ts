@@ -62,4 +62,37 @@ export class ReportsController {
     });
     res.end(buffer);
   }
+
+  @Get('family-report/course')
+  async getCourseFamilyReport(
+    @Query('cursoId') cursoId: string,
+    @Query('cuatrimestre') cuatrimestre: string,
+    @Query('instancia') instancia: string,
+    @Res() res: Response,
+  ) {
+    const buffer = await this.reportsService.generateFamilyReportPDF(+cursoId, cuatrimestre, instancia, 'COURSE');
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': 'attachment; filename=informes_familia_curso.pdf',
+      'Content-Length': buffer.length,
+    });
+    res.end(buffer);
+  }
+
+  @Get('family-report/student/:studentId')
+  async getStudentFamilyReport(
+    @Param('studentId') studentId: string,
+    @Query('cursoId') cursoId: string,
+    @Query('cuatrimestre') cuatrimestre: string,
+    @Query('instancia') instancia: string,
+    @Res() res: Response,
+  ) {
+    const buffer = await this.reportsService.generateFamilyReportPDF(+cursoId, cuatrimestre, instancia, 'INDIVIDUAL', +studentId);
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename=informe_familia_${studentId}.pdf`,
+      'Content-Length': buffer.length,
+    });
+    res.end(buffer);
+  }
 }

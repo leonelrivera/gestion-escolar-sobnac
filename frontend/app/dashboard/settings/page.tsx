@@ -5,6 +5,8 @@ import { useState, useEffect } from 'react';
 export default function SettingsPage() {
     const [nombre, setNombre] = useState('');
     const [logoBase64, setLogoBase64] = useState<string | null>(null);
+    const [firmaBase64, setFirmaBase64] = useState<string | null>(null);
+    const [selloBase64, setSelloBase64] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
 
@@ -14,16 +16,18 @@ export default function SettingsPage() {
             .then(data => {
                 setNombre(data.nombreInstitucion);
                 setLogoBase64(data.logoBase64);
+                setFirmaBase64(data.firmaBase64);
+                setSelloBase64(data.selloBase64);
             });
     }, []);
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, setter: React.Dispatch<React.SetStateAction<string | null>>) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
         const reader = new FileReader();
         reader.onloadend = () => {
-            setLogoBase64(reader.result as string);
+            setter(reader.result as string);
         };
         reader.readAsDataURL(file);
     };
@@ -42,7 +46,9 @@ export default function SettingsPage() {
                 },
                 body: JSON.stringify({
                     nombreInstitucion: nombre,
-                    logoBase64: logoBase64
+                    logoBase64: logoBase64,
+                    firmaBase64: firmaBase64,
+                    selloBase64: selloBase64
                 })
             });
 
@@ -83,10 +89,43 @@ export default function SettingsPage() {
                         <input
                             type="file"
                             accept="image/*"
-                            onChange={handleFileChange}
+                            onChange={(e) => handleFileChange(e, setLogoBase64)}
                             className="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-dark-green hover:file:bg-primary/80 transition-all cursor-pointer"
                         />
                         <p className="text-xs text-foreground/50 text-center">Recomendado: Imagen cuadrada con fondo transparente (PNG)</p>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label className="block text-sm font-semibold text-foreground mb-2">Firma del Directivo/a</label>
+                        <div className="flex flex-col items-center gap-4 p-4 border-2 border-dashed border-gray-300 rounded-xl bg-gray-50">
+                            {firmaBase64 && (
+                                <img src={firmaBase64} alt="Previsualización firma" className="h-20 w-full object-contain bg-white p-1 rounded border" />
+                            )}
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => handleFileChange(e, setFirmaBase64)}
+                                className="text-xs w-full cursor-pointer"
+                            />
+                            <p className="text-[10px] text-gray-500 text-center">Imagen con fondo transparente (PNG) recomendada</p>
+                        </div>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-semibold text-foreground mb-2">Sello Institucional</label>
+                        <div className="flex flex-col items-center gap-4 p-4 border-2 border-dashed border-gray-300 rounded-xl bg-gray-50">
+                            {selloBase64 && (
+                                <img src={selloBase64} alt="Previsualización sello" className="h-20 w-20 object-contain bg-white p-1 rounded border" />
+                            )}
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => handleFileChange(e, setSelloBase64)}
+                                className="text-xs w-full cursor-pointer"
+                            />
+                            <p className="text-[10px] text-gray-500 text-center">Imagen circular (PNG) recomendada</p>
+                        </div>
                     </div>
                 </div>
 

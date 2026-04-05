@@ -288,7 +288,16 @@ export class ReportsService {
 
     if (!course) throw new Error('Curso no encontrado');
 
-    const materiasCondition: any = { anioCurso: course.anioCurso };
+    let mappedAnio = course.anioCurso;
+    if (mappedAnio === '1') mappedAnio = '1ro';
+    if (mappedAnio === '2') mappedAnio = '2do';
+    if (mappedAnio === '3') mappedAnio = '3ro';
+    if (mappedAnio === '4') mappedAnio = '4to';
+    if (mappedAnio === '5') mappedAnio = '5to';
+    if (mappedAnio === '6') mappedAnio = '6to';
+    if (mappedAnio === '7') mappedAnio = '7mo';
+
+    const materiasCondition: any = { anioCurso: mappedAnio };
     if (course.orientacion) {
       materiasCondition.OR = [
         { orientacionFiltro: null },
@@ -302,15 +311,8 @@ export class ReportsService {
       orderBy: { id: 'asc' },
     });
 
-    const materiasNamesSet = new Set(materiasList.map((m) => m.nombre));
-
-    course.inscripciones.forEach((ins) => {
-      ins.calificaciones.forEach((g) => {
-        materiasNamesSet.add(g.materia.nombre);
-      });
-    });
-
-    const materiasNames = Array.from(materiasNamesSet);
+    const materiasNames = materiasList.map((m) => m.nombre);
+    const acceptedMateriaIds = new Set(materiasList.map((m) => m.id));
 
     const alumnos = course.inscripciones.map((ins) => {
       const student = ins.estudiante;
@@ -324,6 +326,7 @@ export class ReportsService {
       });
 
       grades.forEach((g) => {
+        if (!acceptedMateriaIds.has(g.materiaId)) return; 
         gradesByMateria[g.materia.nombre] = g.nota;
         if (g.nota < 6) desaprobadasCount++;
       });
@@ -397,5 +400,218 @@ export class ReportsService {
     sheet.getColumn(4).width = 30; // Nombre
 
     return await workbook.xlsx.writeBuffer() as Buffer;
+  }
+
+  async generateFamilyReportPDF(cursoId: number, cuatrimestreStr: string, instanciaStr: string, type: 'COURSE' | 'INDIVIDUAL', studentId?: number): Promise<Buffer> {
+    const config = await this.prisma.configuracion.findFirst({ where: { id: 1 } });
+    
+    let currentCuatrimestre = 1;
+    let currentInstancia = 'INFORME_1';
+
+    if (cuatrimestreStr === '1') currentCuatrimestre = 1;
+    else if (cuatrimestreStr === '2') currentCuatrimestre = 2;
+
+    if (cuatrimestreStr === 'DICIEMBRE') {
+      currentInstancia = 'COMPLEMENTARIO_DIC';
+      currentCuatrimestre = 2;
+    } else if (cuatrimestreStr === 'FEBRERO') {
+      currentInstancia = 'COMPLEMENTARIO_FEB';
+      currentCuatrimestre = 2;
+    } else if (cuatrimestreStr === 'C.FINAL') {
+      currentInstancia = 'FINAL';
+      currentCuatrimestre = 2;
+    } else {
+      currentInstancia = instanciaStr;
+    }
+
+    const course = await this.prisma.curso.findUnique({
+      where: { id: cursoId },
+      include: {
+        orientacion: true,
+        inscripciones: {
+          where: studentId ? { estudianteId: studentId } : undefined,
+          include: {
+            estudiante: true,
+            calificaciones: {
+              where: { cuatrimestre: currentCuatrimestre }, 
+              include: { materia: true },
+            },
+          },
+        },
+      },
+    });
+
+    if (!course) throw new Error('Curso no encontrado');
+
+    let mappedAnio = course.anioCurso;
+    if (mappedAnio === '1') mappedAnio = '1ro';
+    if (mappedAnio === '2') mappedAnio = '2do';
+    if (mappedAnio === '3') mappedAnio = '3ro';
+    if (mappedAnio === '4') mappedAnio = '4to';
+    if (mappedAnio === '5') mappedAnio = '5to';
+    if (mappedAnio === '6') mappedAnio = '6to';
+    if (mappedAnio === '7') mappedAnio = '7mo';
+
+    const materiasCondition: any = { anioCurso: mappedAnio };
+    if (course.orientacion) {
+      materiasCondition.OR = [
+        { orientacionFiltro: null },
+        { orientacionFiltro: '' },
+        { orientacionFiltro: course.orientacion.nombre },
+      ];
+    }
+    const materiasList = await this.prisma.materia.findMany({
+      where: materiasCondition,
+      orderBy: { id: 'asc' },
+    });
+    
+    const materiasNames = materiasList.map((m) => m.nombre);
+    const acceptedMateriaIds = new Set(materiasList.map((m) => m.id));
+    
+    const alumnos = course.inscripciones.map(ins => {
+        const student = ins.estudiante;
+        const gradesByMateria: any = {};
+        
+        materiasNames.forEach(m => gradesByMateria[m] = { inf: '-', pfa: '-', cierre: '-' });
+        
+        ins.calificaciones.forEach(g => {
+            if (!acceptedMateriaIds.has(g.materiaId)) return;
+            const m = g.materia.nombre;
+            
+            if (g.instancia === currentInstancia) gradesByMateria[m].inf = g.nota;
+            if (g.instancia === 'PFA') gradesByMateria[m].pfa = g.nota;
+            if (g.instancia === 'CIERRE') gradesByMateria[m].cierre = g.nota;
+        });
+        
+        return {
+            id: student.id,
+            nombreCompleto: `${student.apellido.toUpperCase()}, ${student.nombre}`,
+            materias: gradesByMateria
+        };
+    });
+
+    alumnos.sort((a,b) => a.nombreCompleto.localeCompare(b.nombreCompleto));
+
+    const PDFDocument = require('pdfkit');
+    const doc = new PDFDocument({ 
+        margin: 0, 
+        size: type === 'COURSE' ? 'A4' : [595.28, 420] 
+    }); 
+
+    const chunks: Buffer[] = [];
+    doc.on('data', (chunk: Buffer) => chunks.push(chunk));
+
+    return new Promise((resolve) => {
+      doc.on('end', () => resolve(Buffer.concat(chunks)));
+
+      let drawSlip = (alumno: any, xOffset: number, yOffset: number) => {
+          const width = 500;
+          const left = xOffset + 47.64; // Center horizontally on A4 (595.28 / 2 = 297, minus 250 = 47.64)
+          let currentY = yOffset + 20;
+          const rowHeight = 15;
+          
+          doc.lineWidth(1);
+          doc.rect(left, currentY, width, 50).stroke(); // Header box
+          
+          // Row 1: Institucion
+          doc.font('Helvetica-Bold').fontSize(12).text(config?.nombreInstitucion || 'SGE', left, currentY + 5, { width, align: 'center' });
+          currentY += 20;
+          doc.moveTo(left, currentY).lineTo(left+width, currentY).stroke();
+
+          // Row 2
+          doc.font('Helvetica-Bold').fontSize(9);
+          doc.text(`CURSO: ${course.anioCurso} ${course.division}`, left + 5, currentY + 3);
+          doc.text(`CALIFICACIÓN`, left + 150, currentY + 3);
+          doc.text(instanciaStr.replace('_', ' '), left + 250, currentY + 3);
+          doc.text(`${cuatrimestreStr}º CUATRIMESTRE`, left + 350, currentY + 3);
+
+          currentY += 15;
+          doc.moveTo(left, currentY).lineTo(left+width, currentY).stroke();
+
+          // Row 3
+          doc.font('Helvetica-Bold').fontSize(9);
+          doc.text(`NOMBRE Y APELLIDO:  ${alumno.nombreCompleto}`, left + 5, currentY + 3);
+
+          currentY += 15;
+          doc.lineWidth(1.5).moveTo(left, currentY).lineTo(left+width, currentY).stroke();
+          doc.lineWidth(1);
+          
+          const colX = [left, left + 200, left + 260, left + 320, left + 380, left + width];
+
+          doc.font('Helvetica-Bold').fontSize(8);
+          doc.text('ESPACIO CURRICULAR', colX[0] + 5, currentY + 3);
+          let sufijo = cuatrimestreStr === '1' ? '1º' : '2º';
+          doc.text(`${sufijo} INF.`, colX[1], currentY + 3, { width: 60, align: 'center'});
+          doc.text('P.F.A', colX[2], currentY + 3, { width: 60, align: 'center'});
+          doc.text('Cal. Cierre', colX[3], currentY + 3, { width: 60, align: 'center'});
+          doc.text('FIRMA / SELLO DIRECTIVO', colX[4] + 5, currentY + 3, { width: 110, align: 'center'});
+
+          currentY += rowHeight;
+          doc.moveTo(left, currentY).lineTo(left+width, currentY).stroke();
+
+          const startTableY = currentY;
+          doc.font('Helvetica').fontSize(8);
+          
+          const matKeys = Object.keys(alumno.materias);
+          
+          for(let i=0; i < matKeys.length; i++) {
+              let mat = matKeys[i];
+              let grades = alumno.materias[mat];
+              
+              doc.text(mat, colX[0] + 5, currentY + 3, { width: 190 });
+              doc.text(grades.inf.toString(), colX[1], currentY + 3, { width: 60, align: 'center'});
+              doc.text(grades.pfa.toString(), colX[2], currentY + 3, { width: 60, align: 'center'});
+              doc.text(grades.cierre.toString(), colX[3], currentY + 3, { width: 60, align: 'center'});
+
+              currentY += rowHeight;
+              doc.moveTo(left, currentY).lineTo(colX[4], currentY).stroke(); // Line until signature
+          }
+          
+          const endTableY = currentY;
+          
+          doc.moveTo(colX[0], startTableY - rowHeight).lineTo(colX[0], endTableY).stroke();
+          doc.moveTo(colX[1], startTableY - rowHeight).lineTo(colX[1], endTableY).stroke();
+          doc.moveTo(colX[2], startTableY - rowHeight).lineTo(colX[2], endTableY).stroke();
+          doc.moveTo(colX[3], startTableY - rowHeight).lineTo(colX[3], endTableY).stroke();
+          doc.moveTo(colX[4], startTableY - rowHeight).lineTo(colX[4], endTableY).stroke();
+          doc.moveTo(colX[5], startTableY - rowHeight).lineTo(colX[5], endTableY).stroke();
+          
+          doc.lineWidth(1.5).rect(left, startTableY - rowHeight, width, endTableY - (startTableY - rowHeight)).stroke();
+          
+          const insertImage = (base64Str: string, xPos: number, yPos: number, maxWidth: number, maxHeight: number) => {
+              try {
+                  const part = base64Str.split(',')[1];
+                  if(part) {
+                     const img = Buffer.from(part, 'base64');
+                     doc.image(img, xPos, yPos, { fit: [maxWidth, maxHeight], align: 'center', valign: 'center' });
+                  }
+              } catch(e) {}
+          };
+
+          // Fijas los tamaños en ancho 80 para sello y 100 para firma maximo. Centro = colX[4] + 55
+          if (config?.selloBase64) {
+              insertImage(config.selloBase64, colX[4] + 15, startTableY + 5, 80, 80);
+          }
+          if (config?.firmaBase64) {
+              let sigY = startTableY + 95;
+              insertImage(config.firmaBase64, colX[4] + 10, sigY, 90, 50);
+          }
+      };
+
+      if (type === 'INDIVIDUAL') {
+         if (alumnos.length > 0) drawSlip(alumnos[0], 0, 0);
+         doc.end();
+      } else {
+         for (let i = 0; i < alumnos.length; i++) {
+             let yOffset = (i % 2 === 0) ? 0 : 420;
+             drawSlip(alumnos[i], 0, yOffset);
+
+             if (i % 2 !== 0 && i !== alumnos.length - 1) {
+                 doc.addPage();
+             }
+         }
+         doc.end();
+      }
+    });
   }
 }
