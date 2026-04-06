@@ -102,7 +102,6 @@ export class ReportsController {
     res.end(buffer);
   }
 
-  @UseGuards(AuthGuard('jwt'))
   @Get('calificadores/course')
   async getCalificadoresCourse(
     @Query('cursoId') cursoId: string,
@@ -120,7 +119,6 @@ export class ReportsController {
     res.end(buffer);
   }
 
-  @UseGuards(AuthGuard('jwt'))
   @Get('calificadores/student/:id')
   async getCalificadoresStudent(
     @Param('id') studentId: string,
@@ -135,6 +133,46 @@ export class ReportsController {
     res.set({
       'Content-Type': 'application/pdf',
       'Content-Disposition': 'attachment; filename="calificador_individual.pdf"',
+      'Content-Length': buffer.length,
+    });
+    res.end(buffer);
+  }
+
+  @Get('boletines/course')
+  async getBoletinesCourse(
+    @Query('cursoId') cursoId: string,
+    @Query('cicloId') cicloId: string,
+    @Res() res: Response,
+  ) {
+    const buffer = await this.reportsService.generateBoletinesPDF(
+      Number(cursoId),
+      Number(cicloId),
+      'COURSE'
+    );
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': 'attachment; filename="boletines_curso.pdf"',
+      'Content-Length': buffer.length,
+    });
+    res.end(buffer);
+  }
+
+  @Get('boletines/student/:id')
+  async getBoletinesStudent(
+    @Param('id') studentId: string,
+    @Query('cursoId') cursoId: string,
+    @Query('cicloId') cicloId: string,
+    @Res() res: Response,
+  ) {
+    const buffer = await this.reportsService.generateBoletinesPDF(
+      Number(cursoId),
+      Number(cicloId),
+      'INDIVIDUAL',
+      Number(studentId),
+    );
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': 'attachment; filename="boletin_individual.pdf"',
       'Content-Length': buffer.length,
     });
     res.end(buffer);

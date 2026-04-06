@@ -826,4 +826,198 @@ export class ReportsService {
       doc.end();
     });
   }
+
+  async generateBoletinesPDF(cursoId: number, cicloId: number, type: 'COURSE' | 'INDIVIDUAL', studentId?: number): Promise<Buffer> {
+    const config = await this.prisma.configuracion.findFirst({ where: { id: 1 } });
+    const ciclo = await this.prisma.cicloLectivo.findUnique({ where: { id: cicloId } });
+    const anioCiclo = ciclo?.anio || new Date().getFullYear().toString();
+
+    const course = await this.prisma.curso.findUnique({
+      where: { id: cursoId },
+      include: {
+        orientacion: true,
+        inscripciones: {
+          where: studentId ? { estudianteId: studentId } : undefined,
+          include: {
+            estudiante: true,
+            calificaciones: { include: { materia: true } },
+          },
+        },
+      },
+    });
+
+    if (!course) throw new Error('Curso no encontrado');
+
+    let mappedAnio = course.anioCurso;
+    if (mappedAnio === '1') mappedAnio = '1ro';
+    if (mappedAnio === '2') mappedAnio = '2do';
+    if (mappedAnio === '3') mappedAnio = '3ro';
+    if (mappedAnio === '4') mappedAnio = '4to';
+    if (mappedAnio === '5') mappedAnio = '5to';
+    if (mappedAnio === '6') mappedAnio = '6to';
+    if (mappedAnio === '7') mappedAnio = '7mo';
+
+    const materiasCondition: any = { anioCurso: mappedAnio };
+    if (course.orientacion) {
+      materiasCondition.OR = [
+        { orientacionFiltro: null },
+        { orientacionFiltro: '' },
+        { orientacionFiltro: course.orientacion.nombre },
+      ];
+    }
+
+    const materiasList = await this.prisma.materia.findMany({
+      where: materiasCondition,
+      orderBy: { id: 'asc' },
+    });
+
+    const materiasNames = materiasList.map((m) => m.nombre);
+    const acceptedMateriaIds = new Set(materiasList.map((m) => m.id));
+
+    const periodsShort = ["1° Inf", "2° Inf", "P.F.A", "1er C.", "1° Inf", "2° Inf", "P.F.A", "2do C.", "Dic.", "Feb.", "Final"];
+
+    const alumnos = course.inscripciones.map(ins => {
+        const student = ins.estudiante;
+        
+        const gradesByMateria: Record<string, string[]> = {};
+        materiasNames.forEach(m => gradesByMateria[m] = new Array(11).fill(''));
+        
+        ins.calificaciones.forEach(g => {
+            if (!acceptedMateriaIds.has(g.materiaId)) return;
+            const m = g.materia.nombre;
+            
+            if (g.cuatrimestre === 1) {
+                if (g.instancia === 'INFORME_1') gradesByMateria[m][0] = g.nota.toString();
+                else if (g.instancia === 'INFORME_2') gradesByMateria[m][1] = g.nota.toString();
+                else if (g.instancia === 'PFA') gradesByMateria[m][2] = g.nota.toString();
+                else if (g.instancia === 'CIERRE') gradesByMateria[m][3] = g.nota.toString();
+            } else if (g.cuatrimestre === 2) {
+                if (g.instancia === 'INFORME_1') gradesByMateria[m][4] = g.nota.toString();
+                else if (g.instancia === 'INFORME_2') gradesByMateria[m][5] = g.nota.toString();
+                else if (g.instancia === 'PFA') gradesByMateria[m][6] = g.nota.toString();
+                else if (g.instancia === 'CIERRE') gradesByMateria[m][7] = g.nota.toString();
+            }
+            if (g.instancia === 'COMPLEMENTARIO_DIC') gradesByMateria[m][8] = g.nota.toString();
+            else if (g.instancia === 'COMPLEMENTARIO_FEB') gradesByMateria[m][9] = g.nota.toString();
+            else if (g.instancia === 'FINAL') gradesByMateria[m][10] = g.nota.toString();
+        });
+
+        return {
+            id: student.id,
+            nombreCompleto: `${student.apellido.toUpperCase()}, ${student.nombre}`,
+            gradesByMateria
+        };
+    });
+
+    alumnos.sort((a,b) => a.nombreCompleto.localeCompare(b.nombreCompleto));
+
+    const PDFDocument = require('pdfkit');
+    // Boletines = Portrait A4
+    const doc = new PDFDocument({ margin: 40, size: 'A4', layout: 'portrait' });
+    const chunks: Buffer[] = [];
+    doc.on('data', (chunk: Buffer) => chunks.push(chunk));
+
+    return new Promise((resolve) => {
+      doc.on('end', () => resolve(Buffer.concat(chunks)));
+
+      let drawBoletin = (alumno: any) => {
+          let y = 50;
+          const left = 40;
+          const availableWidth = 595.28 - 80;
+
+          // Institucional Header + Logo right
+          const title = config?.nombreInstitucion || 'Colegio Provincial Técnico Soberanía Nacional';
+          doc.font('Helvetica-Bold').fontSize(12).text(title.toUpperCase(), left, y, { width: availableWidth - 60, align: 'center' });
+          if (config?.logoBase64) {
+              try {
+                  doc.image(Buffer.from(config.logoBase64.split(',')[1], 'base64'), left + availableWidth - 50, y - 10, { width: 50, height: 50 });
+              } catch(e) {}
+          }
+          y += 20;
+          
+          doc.font('Helvetica-Bold').fontSize(14).text(`INFORME DE EVALUACIÓN FORMATIVA ${anioCiclo}`, left, y, { width: availableWidth, align: 'center' });
+          y += 30;
+
+          // Datos del estudiante
+          doc.fontSize(10).text(`ALUMNO/A: ${alumno.nombreCompleto}`, left, y);
+          doc.text(`CURSO: ${course.anioCurso} "${course.division}"`, left + 350, y);
+          y += 20;
+
+          // Table Config
+          const colMateriaWidth = 140;
+          const remainingWidth = availableWidth - colMateriaWidth;
+          const colWidth = remainingWidth / 11;
+          
+          // Table Headers Row
+          const headerHeight = 35;
+          doc.lineWidth(1).rect(left, y, availableWidth, headerHeight).stroke();
+          
+          doc.font('Helvetica-Bold').fontSize(8);
+          doc.text('ESPACIO CURRICULAR', left + 2, y + 12, { width: colMateriaWidth - 4, align: 'center' });
+          
+          periodsShort.forEach((p, idx) => {
+              const xPos = left + colMateriaWidth + (colWidth * idx);
+              doc.moveTo(xPos, y).lineTo(xPos, y + headerHeight).stroke();
+              doc.text(p, xPos + 1, y + 5, { width: colWidth - 2, align: 'center', height: headerHeight - 10 });
+          });
+          y += headerHeight;
+
+          // Table Rows (Materias)
+          let rowHeight = 22;
+          doc.font('Helvetica').fontSize(9);
+          
+          materiasNames.forEach((m) => {
+              // Draw Row Rect
+              doc.rect(left, y, availableWidth, rowHeight).stroke();
+              
+              // Materia Name
+              doc.fillColor('black').font('Helvetica-Bold').fontSize(8);
+              doc.text(m.toUpperCase(), left + 4, y + 6, { width: colMateriaWidth - 8, align: 'left', height: rowHeight - 4, ellipsis: true });
+              
+              // Grades
+              doc.font('Helvetica-Bold').fontSize(9);
+              periodsShort.forEach((p, pIdx) => {
+                  const xPos = left + colMateriaWidth + (colWidth * pIdx);
+                  doc.moveTo(xPos, y).lineTo(xPos, y + rowHeight).stroke();
+                  
+                  const val = alumno.gradesByMateria[m][pIdx];
+                  if (val !== '') {
+                      const numVal = Number(val);
+                      if (!isNaN(numVal) && numVal < 6) {
+                          doc.fillColor('red').text(val, xPos, y + 6, { width: colWidth, align: 'center' }).fillColor('black');
+                      } else {
+                          doc.fillColor('black').text(val, xPos, y + 6, { width: colWidth, align: 'center' });
+                      }
+                  }
+              });
+              y += rowHeight;
+          });
+
+          y += 40;
+
+          // Signatures at the bottom right
+          if (config?.selloBase64) {
+              try {
+                  doc.image(Buffer.from(config.selloBase64.split(',')[1], 'base64'), 595.28 - 250, y - 20, { width: 70, height: 70 });
+              } catch(e) {}
+          }
+          if (config?.firmaBase64) {
+              try {
+                  doc.image(Buffer.from(config.firmaBase64.split(',')[1], 'base64'), 595.28 - 150, y, { width: 90, height: 50 });
+              } catch(e) {}
+          }
+      };
+
+      for (let i = 0; i < alumnos.length; i++) {
+          if (i > 0) doc.addPage();
+          drawBoletin(alumnos[i]);
+      }
+
+      if (alumnos.length === 0) {
+          doc.font('Helvetica').fontSize(12).text('No hay alumnos inscriptos en este curso.', 50, 50);
+      }
+
+      doc.end();
+    });
+  }
 }

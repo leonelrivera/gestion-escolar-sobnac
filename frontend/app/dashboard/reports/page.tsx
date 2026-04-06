@@ -99,21 +99,22 @@ export default function ReportsPage() {
                     </button>
                 </div>
 
-                {/* Placeholder for other reports */}
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 opacity-50 border-dashed flex flex-col justify-between">
+                {/* Boletines Report Card */}
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between">
                     <div>
-                        <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-4 text-gray-400">
-                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                            </svg>
+                        <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center mb-4 text-amber-600 text-xl font-bold">
+                            PDF
                         </div>
-                        <h3 className="text-lg font-bold text-gray-800 mb-2">Planilla de Asistencia Anual</h3>
+                        <h2 className="text-lg font-bold text-gray-800 mb-2">Boletines (Evaluación Formativa)</h2>
                         <p className="text-sm text-gray-400 mb-6">
-                            Próximamente: Resumen de asistencias por curso y ciclo lectivo.
+                            Planilla oficial transpuesta para imprimir de a 1 por estudiante con columnas de periodos.
                         </p>
                     </div>
-                    <button disabled className="w-full py-2.5 bg-gray-100 text-gray-400 rounded-lg text-sm font-bold cursor-not-allowed">
-                        No disponible
+                    <button
+                        onClick={() => window.location.href = '/dashboard/reports/boletines'}
+                        className="w-full py-2.5 bg-amber-500 text-white hover:bg-amber-600 rounded-lg text-sm font-bold shadow-sm shadow-amber-200 transition-all"
+                    >
+                        Abrir Reporte
                     </button>
                 </div>
 
