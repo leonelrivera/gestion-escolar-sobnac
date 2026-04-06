@@ -79,18 +79,62 @@ export class ReportsController {
     res.end(buffer);
   }
 
-  @Get('family-report/student/:studentId')
-  async getStudentFamilyReport(
-    @Param('studentId') studentId: string,
+  @Get('family-report/student/:id')
+  async getFamilyReportStudent(
+    @Param('id') studentId: string,
     @Query('cursoId') cursoId: string,
     @Query('cuatrimestre') cuatrimestre: string,
     @Query('instancia') instancia: string,
     @Res() res: Response,
   ) {
-    const buffer = await this.reportsService.generateFamilyReportPDF(+cursoId, cuatrimestre, instancia, 'INDIVIDUAL', +studentId);
+    const buffer = await this.reportsService.generateFamilyReportPDF(
+      Number(cursoId),
+      cuatrimestre,
+      instancia,
+      'INDIVIDUAL',
+      Number(studentId),
+    );
     res.set({
       'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename=informe_familia_${studentId}.pdf`,
+      'Content-Disposition': 'attachment; filename="informe_familia.pdf"',
+      'Content-Length': buffer.length,
+    });
+    res.end(buffer);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('calificadores/course')
+  async getCalificadoresCourse(
+    @Query('cursoId') cursoId: string,
+    @Res() res: Response,
+  ) {
+    const buffer = await this.reportsService.generateCalificadoresPDF(
+      Number(cursoId),
+      'COURSE'
+    );
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': 'attachment; filename="calificadores_curso.pdf"',
+      'Content-Length': buffer.length,
+    });
+    res.end(buffer);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('calificadores/student/:id')
+  async getCalificadoresStudent(
+    @Param('id') studentId: string,
+    @Query('cursoId') cursoId: string,
+    @Res() res: Response,
+  ) {
+    const buffer = await this.reportsService.generateCalificadoresPDF(
+      Number(cursoId),
+      'INDIVIDUAL',
+      Number(studentId),
+    );
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': 'attachment; filename="calificador_individual.pdf"',
       'Content-Length': buffer.length,
     });
     res.end(buffer);
