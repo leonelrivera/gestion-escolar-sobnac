@@ -2,6 +2,30 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 const PDFDocument = require('pdfkit-table');
 const ExcelJS = require('exceljs');
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
+
+const prepareTempImage = (base64Str: string | null | undefined, prefix: string, tempFiles: string[]): string | null => {
+    if (!base64Str) return null;
+    try {
+        const part = base64Str.split(',')[1];
+        if (!part) return null;
+        const buf = Buffer.from(part, 'base64');
+        const p = path.join(os.tmpdir(), `${prefix}_${Date.now()}_${Math.random().toString(36).substring(7)}.png`);
+        fs.writeFileSync(p, buf);
+        tempFiles.push(p);
+        return p;
+    } catch (e) {
+        return null;
+    }
+};
+
+const cleanupTempImages = (tempFiles: string[]) => {
+    tempFiles.forEach(p => {
+        try { fs.unlinkSync(p); } catch(e) {}
+    });
+};
 
 @Injectable()
 export class ReportsService {
@@ -404,6 +428,9 @@ export class ReportsService {
 
   async generateFamilyReportPDF(cursoId: number, cuatrimestreStr: string, instanciaStr: string, type: 'COURSE' | 'INDIVIDUAL', studentId?: number): Promise<Buffer> {
     const config = await this.prisma.configuracion.findFirst({ where: { id: 1 } });
+    const tempFiles: string[] = [];
+    const selloPath = prepareTempImage(config?.selloBase64, 'sello', tempFiles);
+    const firmaPath = prepareTempImage(config?.firmaBase64, 'firma', tempFiles);
     
     let currentCuatrimestre = 1;
     let currentInstancia = 'INFORME_1';
@@ -502,7 +529,10 @@ export class ReportsService {
     doc.on('data', (chunk: Buffer) => chunks.push(chunk));
 
     return new Promise((resolve) => {
-      doc.on('end', () => resolve(Buffer.concat(chunks)));
+      doc.on('end', () => {
+          cleanupTempImages(tempFiles);
+          resolve(Buffer.concat(chunks));
+      });
 
       let drawSlip = (alumno: any, xOffset: number, yOffset: number) => {
           const width = 500;
@@ -578,23 +608,21 @@ export class ReportsService {
           
           doc.lineWidth(1.5).rect(left, startTableY - rowHeight, width, endTableY - (startTableY - rowHeight)).stroke();
           
-          const insertImage = (base64Str: string, xPos: number, yPos: number, maxWidth: number, maxHeight: number) => {
-              try {
-                  const part = base64Str.split(',')[1];
-                  if(part) {
-                     const img = Buffer.from(part, 'base64');
-                     doc.image(img, xPos, yPos, { fit: [maxWidth, maxHeight], align: 'center', valign: 'center' });
-                  }
-              } catch(e) {}
+          const insertImagePath = (imgPath: string | null, xPos: number, yPos: number, maxWidth: number, maxHeight: number) => {
+              if (imgPath) {
+                  try {
+                      doc.image(imgPath, xPos, yPos, { fit: [maxWidth, maxHeight], align: 'center', valign: 'center' });
+                  } catch(e) {}
+              }
           };
 
           // Fijas los tamaños en ancho 80 para sello y 100 para firma maximo. Centro = colX[4] + 55
-          if (config?.selloBase64) {
-              insertImage(config.selloBase64, colX[4] + 15, startTableY + 5, 80, 80);
+          if (selloPath) {
+              insertImagePath(selloPath, colX[4] + 15, startTableY + 5, 80, 80);
           }
-          if (config?.firmaBase64) {
+          if (firmaPath) {
               let sigY = startTableY + 95;
-              insertImage(config.firmaBase64, colX[4] + 10, sigY, 90, 50);
+              insertImagePath(firmaPath, colX[4] + 10, sigY, 90, 50);
           }
       };
 
@@ -617,7 +645,10 @@ export class ReportsService {
 
   async generateCalificadoresPDF(cursoId: number, type: 'COURSE' | 'INDIVIDUAL', studentId?: number): Promise<Buffer> {
     const config = await this.prisma.configuracion.findFirst({ where: { id: 1 } });
-    
+    const tempFiles: string[] = [];
+    const selloPath = prepareTempImage(config?.selloBase64, 'sello', tempFiles);
+    const firmaPath = prepareTempImage(config?.firmaBase64, 'firma', tempFiles);
+
     const course = await this.prisma.curso.findUnique({
       where: { id: cursoId },
       include: {
@@ -740,7 +771,10 @@ export class ReportsService {
     doc.on('data', (chunk: Buffer) => chunks.push(chunk));
 
     return new Promise((resolve) => {
-      doc.on('end', () => resolve(Buffer.concat(chunks)));
+      doc.on('end', () => {
+          cleanupTempImages(tempFiles);
+          resolve(Buffer.concat(chunks));
+      });
 
       let drawSlip = (alumno: any) => {
           let y = 60;
@@ -802,15 +836,11 @@ export class ReportsService {
           y += 40;
 
           // Signatures at the bottom right
-          if (config?.selloBase64) {
-              try {
-                  doc.image(Buffer.from(config.selloBase64.split(',')[1], 'base64'), 841.89 - 220, y - 40, { width: 70, height: 70 });
-              } catch(e) {}
+          if (selloPath) {
+              try { doc.image(selloPath, 841.89 - 220, y - 40, { width: 70, height: 70 }); } catch (e) {}
           }
-          if (config?.firmaBase64) {
-              try {
-                  doc.image(Buffer.from(config.firmaBase64.split(',')[1], 'base64'), 841.89 - 200, y + 30, { width: 90, height: 50 });
-              } catch(e) {}
+          if (firmaPath) {
+              try { doc.image(firmaPath, 841.89 - 200, y + 30, { width: 90, height: 50 }); } catch (e) {}
           }
       };
 
@@ -829,6 +859,11 @@ export class ReportsService {
 
   async generateBoletinesPDF(cursoId: number, cicloId: number, type: 'COURSE' | 'INDIVIDUAL', studentId?: number): Promise<Buffer> {
     const config = await this.prisma.configuracion.findFirst({ where: { id: 1 } });
+    const tempFiles: string[] = [];
+    const logoPath = prepareTempImage(config?.logoBase64, 'logo', tempFiles);
+    const selloPath = prepareTempImage(config?.selloBase64, 'sello', tempFiles);
+    const firmaPath = prepareTempImage(config?.firmaBase64, 'firma', tempFiles);
+    
     const ciclo = await this.prisma.cicloLectivo.findUnique({ where: { id: cicloId } });
     const anioCiclo = ciclo?.anio || new Date().getFullYear().toString();
 
@@ -918,7 +953,10 @@ export class ReportsService {
     doc.on('data', (chunk: Buffer) => chunks.push(chunk));
 
     return new Promise((resolve) => {
-      doc.on('end', () => resolve(Buffer.concat(chunks)));
+      doc.on('end', () => {
+          cleanupTempImages(tempFiles);
+          resolve(Buffer.concat(chunks));
+      });
 
       let drawBoletin = (alumno: any) => {
           let y = 50;
@@ -928,9 +966,9 @@ export class ReportsService {
           // Institucional Header + Logo right
           const title = config?.nombreInstitucion || 'Colegio Provincial Técnico Soberanía Nacional';
           doc.font('Helvetica-Bold').fontSize(12).text(title.toUpperCase(), left, y, { width: availableWidth - 60, align: 'center' });
-          if (config?.logoBase64) {
+          if (logoPath) {
               try {
-                  doc.image(Buffer.from(config.logoBase64.split(',')[1], 'base64'), left + availableWidth - 50, y - 10, { width: 50, height: 50 });
+                  doc.image(logoPath, left + availableWidth - 50, y - 10, { width: 50, height: 50 });
               } catch(e) {}
           }
           y += 20;
@@ -996,14 +1034,14 @@ export class ReportsService {
           y += 40;
 
           // Signatures at the bottom right
-          if (config?.selloBase64) {
+          if (selloPath) {
               try {
-                  doc.image(Buffer.from(config.selloBase64.split(',')[1], 'base64'), 595.28 - 250, y - 20, { width: 70, height: 70 });
+                  doc.image(selloPath, 595.28 - 250, y - 20, { width: 70, height: 70 });
               } catch(e) {}
           }
-          if (config?.firmaBase64) {
+          if (firmaPath) {
               try {
-                  doc.image(Buffer.from(config.firmaBase64.split(',')[1], 'base64'), 595.28 - 150, y, { width: 90, height: 50 });
+                  doc.image(firmaPath, 595.28 - 150, y, { width: 90, height: 50 });
               } catch(e) {}
           }
       };
