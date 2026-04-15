@@ -165,6 +165,31 @@ export default function GradesPage() {
         }
     };
 
+    const handleDownloadEmptySheet = async () => {
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/reports/empty-grades-sheet?courseId=${selectedCourseId}&subjectId=${selectedSubjectId}`, {
+                headers: getHeaders()
+            });
+
+            if (res.ok) {
+                const blob = await res.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `planilla_vacia_curso_${selectedCourseId}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                a.remove();
+            } else {
+                alert('Error al descargar la planilla');
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Error de red al intentar descargar la planilla');
+        }
+    };
+
     const getGradeInputs = (row: GradeMatrixRow, cuatrimestre: number) => {
         return INSTANCES.map(inst => {
             const gradeKey = `${cuatrimestre}-${inst.key}`;
@@ -315,6 +340,12 @@ export default function GradesPage() {
                                 </h2>
                                 <p className="text-xs text-gray-400 font-bold uppercase">Ciclo Lectivo: {cycles.find(c => String(c.id) === selectedCycleId)?.anio}</p>
                             </div>
+                            <button
+                                onClick={handleDownloadEmptySheet}
+                                className="bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 px-4 py-2 rounded-lg font-bold text-sm shadow-sm transition-colors"
+                            >
+                                Descargar Planilla Vacía
+                            </button>
                         </div>
                         <table key={`${selectedCourseId}-${selectedSubjectId}`} className="w-full text-sm border-collapse">
                             <thead className="bg-gray-100 sticky top-0 z-10 shadow-sm">

@@ -1058,4 +1058,134 @@ export class ReportsService {
       doc.end();
     });
   }
+
+  async generateEmptyGradesSheetPDF(courseId: number, subjectId: number): Promise<Buffer> {
+    const config = await this.prisma.configuracion.findFirst({ where: { id: 1 } });
+    
+    const course = await this.prisma.curso.findUnique({
+      where: { id: courseId },
+      include: {
+        inscripciones: {
+          include: { estudiante: true }
+        }
+      }
+    });
+
+    if (!course) throw new Error('Curso no encontrado');
+
+    const materia = await this.prisma.materia.findUnique({
+      where: { id: subjectId }
+    });
+
+    if (!materia) throw new Error('Materia no encontrada');
+
+    const alumnos = course.inscripciones.map(ins => ins.estudiante);
+    alumnos.sort((a,b) => `${a.apellido} ${a.nombre}`.localeCompare(`${b.apellido} ${b.nombre}`));
+
+    const PDFDocument = require('pdfkit');
+    const doc = new PDFDocument({ margin: 30, size: 'A4', layout: 'landscape' });
+    const chunks: Buffer[] = [];
+    doc.on('data', (chunk: Buffer) => chunks.push(chunk));
+
+    return new Promise((resolve) => {
+      doc.on('end', () => resolve(Buffer.concat(chunks)));
+
+      let drawPage = (pageAlumnos: any[]) => {
+          let y = 40;
+          const left = 30;
+          const availableWidth = 841.89 - 60;
+
+          // Header
+          const title = config?.nombreInstitucion || 'SGE - Soberanía Nacional';
+          doc.font('Helvetica-Bold').fontSize(14).text(title.toUpperCase(), left, y, { width: availableWidth, align: 'center' });
+          y += 25;
+
+          doc.fontSize(10).text(`CURSO: ${course.anioCurso} "${course.division}"`, left, y);
+          doc.text(`ESPACIO CURRICULAR: ${materia.nombre}`, left, y, { width: availableWidth, align: 'right' });
+          y += 20;
+
+          const wNo = 25;
+          const wDni = 60;
+          const wName = 145; 
+          const wGradeCol = (availableWidth - (wNo + wDni + wName)) / 11;
+
+          const h1 = 20;
+          const h2 = 25;
+          const startX = left;
+          
+          doc.lineWidth(1).rect(startX, y, availableWidth, h1 + h2).stroke();
+          
+          // Header Row 1
+          doc.font('Helvetica-Bold').fontSize(8);
+          doc.moveTo(startX + wNo, y).lineTo(startX + wNo, y + h1 + h2).stroke();
+          doc.text('Nº', startX, y + (h1+h2)/2 - 4, { width: wNo, align: 'center' });
+          
+          doc.moveTo(startX + wNo + wDni, y).lineTo(startX + wNo + wDni, y + h1 + h2).stroke();
+          doc.text('DNI', startX + wNo, y + (h1+h2)/2 - 4, { width: wDni, align: 'center' });
+          
+          const endNameX = startX + wNo + wDni + wName;
+          doc.moveTo(endNameX, y).lineTo(endNameX, y + h1 + h2).stroke();
+          doc.text('APELLIDO Y NOMBRE', startX + wNo + wDni, y + (h1+h2)/2 - 4, { width: wName, align: 'center' });
+
+          const endCuat1 = endNameX + (wGradeCol * 4);
+          doc.moveTo(endCuat1, y).lineTo(endCuat1, y + h1 + h2).stroke();
+          doc.moveTo(endNameX, y + h1).lineTo(availableWidth + left, y + h1).stroke();
+          doc.text('1º CUATRIMESTRE', endNameX, y + 6, { width: wGradeCol * 4, align: 'center' });
+
+          const endCuat2 = endCuat1 + (wGradeCol * 4);
+          doc.moveTo(endCuat2, y).lineTo(endCuat2, y + h1 + h2).stroke();
+          doc.text('2º CUATRIMESTRE', endCuat1, y + 6, { width: wGradeCol * 4, align: 'center' });
+
+          doc.text('INSTANCIAS FINALES', endCuat2, y + 6, { width: wGradeCol * 3, align: 'center' });
+
+          // Header Row 2
+          const subTitles = ['Inf 1', 'Inf 2', 'PFA', 'Cierre', 'Inf 1', 'Inf 2', 'PFA', 'Cierre', 'Dic', 'Feb', 'Final'];
+          subTitles.forEach((t, i) => {
+              const xPos = endNameX + (wGradeCol * i);
+              if (i > 0) doc.moveTo(xPos, y + h1).lineTo(xPos, y + h1 + h2).stroke();
+              doc.text(t, xPos, y + h1 + 8, { width: wGradeCol, align: 'center' });
+          });
+
+          y += (h1 + h2);
+
+          // Data Rows
+          const rowHeight = 22;
+          doc.font('Helvetica').fontSize(9);
+
+          pageAlumnos.forEach((al, idx) => {
+              doc.rect(startX, y, availableWidth, rowHeight).stroke();
+              
+              const globalIdx = alumnos.findIndex(a => a.id === al.id) + 1;
+              doc.text(globalIdx.toString(), startX, y + 6, { width: wNo, align: 'center' });
+              doc.moveTo(startX + wNo, y).lineTo(startX + wNo, y + rowHeight).stroke();
+
+              doc.text(al.dni, startX + wNo, y + 6, { width: wDni, align: 'center' });
+              doc.moveTo(startX + wNo + wDni, y).lineTo(startX + wNo + wDni, y + rowHeight).stroke();
+
+              doc.text(`${al.apellido.toUpperCase()}, ${al.nombre}`, startX + wNo + wDni + 4, y + 6, { width: wName - 8, align: 'left' });
+              doc.moveTo(endNameX, y).lineTo(endNameX, y + rowHeight).stroke();
+
+              for (let i = 0; i < 11; i++) {
+                 const xPos = endNameX + (wGradeCol * i);
+                 if (i > 0) doc.moveTo(xPos, y).lineTo(xPos, y + rowHeight).stroke();
+              }
+
+              y += rowHeight;
+          });
+      };
+
+      const itemsPerPage = 18;
+      for (let i = 0; i < alumnos.length; i += itemsPerPage) {
+          if (i > 0) doc.addPage();
+          drawPage(alumnos.slice(i, i + itemsPerPage));
+      }
+
+      if (alumnos.length === 0) {
+          drawPage([]);
+          doc.font('Helvetica').fontSize(12).text('No hay alumnos inscriptos en este curso.', 50, 150);
+      }
+
+      doc.end();
+    });
+  }
 }
