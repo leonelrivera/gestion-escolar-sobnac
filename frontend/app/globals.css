@@ -53,3 +53,19 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Forzar negro nítido en todos los cuadros de texto, selectores y áreas de texto */
+input, select, textarea {
+  color: #000000 !important;
+}
+
+/* Oscurecer placeholders para que no se vean tenues */
+::placeholder {
+  color: #000000 !important;
+  opacity: 0.6; /* Negro con opacidad leve para distinguir sugerencia de texto real */
+}
+
+/* Asegurar que el texto general del cuerpo sea negro nítido */
+body {
+  color: #000000 !important;
+}
