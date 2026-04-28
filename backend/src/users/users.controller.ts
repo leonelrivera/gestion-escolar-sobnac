@@ -19,7 +19,10 @@ export class UsersController {
 
         // Filtrado jerárquico
         if (currentUserRole === 'ADMIN') return users;
-        if (currentUserRole === 'DIRECTIVO' || currentUserRole === 'SECRETARIO') {
+        if (currentUserRole === 'DIRECTIVO') {
+            return users.filter(u => u.rol !== 'ADMIN' && u.rol !== 'DIRECTIVO');
+        }
+        if (currentUserRole === 'SECRETARIO') {
             return users.filter(u => u.rol !== 'ADMIN');
         }
         if (currentUserRole === 'PROSECRETARIO') {
@@ -75,8 +78,17 @@ export class UsersController {
     private validateHierarchy(currentUserRole: string, targetRole: string) {
         if (currentUserRole === 'ADMIN') return;
 
-        if (currentUserRole === 'DIRECTIVO' || currentUserRole === 'SECRETARIO') {
-            if (targetRole === 'ADMIN') throw new ForbiddenException('No puedes jerarquizar perfiles a un nivel superior administrativo/directivo');
+        if (currentUserRole === 'DIRECTIVO') {
+            if (targetRole === 'ADMIN' || targetRole === 'DIRECTIVO') {
+                throw new ForbiddenException('Un Directivo no puede crear o modificar perfiles de igual o mayor jerarquía (ADMIN/DIRECTIVO)');
+            }
+            return;
+        }
+
+        if (currentUserRole === 'SECRETARIO') {
+            if (targetRole === 'ADMIN') {
+                throw new ForbiddenException('Un Secretario no puede administrar perfiles ADMIN');
+            }
             return;
         }
 

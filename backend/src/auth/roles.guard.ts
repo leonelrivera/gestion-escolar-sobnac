@@ -24,8 +24,8 @@ export class RolesGuard implements CanActivate {
             return false;
         }
 
-        // El ADMIN siempre tiene acceso a todo.
-        if (user.rol === Rol.ADMIN) {
+        // El ADMIN y DIRECTIVO siempre tienen acceso a casi todo (excepto lógica específica en controladores)
+        if (user.rol === Rol.ADMIN || user.rol === Rol.DIRECTIVO) {
             return true;
         }
 

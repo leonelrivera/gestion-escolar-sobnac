@@ -28,7 +28,7 @@ export function usePermissions() {
     // PRECEPTOR: SOLO VER
     // COORDINADOR: SOLO VER
     const canCreateStudent = ['ADMIN', 'DIRECTIVO', 'SECRETARIO', 'PROSECRETARIO', 'DEP_ESTUDIANTES'].includes(role || '');
-    const canBulkImportStudents = ['ADMIN', 'PROSECRETARIO', 'DEP_ESTUDIANTES'].includes(role || '');
+    const canBulkImportStudents = ['ADMIN', 'DIRECTIVO', 'PROSECRETARIO', 'DEP_ESTUDIANTES'].includes(role || '');
     const canEditStudent = ['ADMIN', 'DIRECTIVO', 'SECRETARIO', 'PROSECRETARIO', 'DEP_ESTUDIANTES', 'JEFE_PRECEPTOR'].includes(role || '');
 
     // --- Permisos de Cursos ---
@@ -49,7 +49,8 @@ export function usePermissions() {
     // Devuelve qué roles puede crear el usuario actual
     const allowedRolesToCreate = (): Role[] => {
         if (role === 'ADMIN') return ['ADMIN', 'DIRECTIVO', 'SECRETARIO', 'PROSECRETARIO', 'DEP_ESTUDIANTES', 'COORDINADOR', 'JEFE_PRECEPTOR', 'PRECEPTOR'];
-        if (role === 'DIRECTIVO' || role === 'SECRETARIO') return ['DIRECTIVO', 'SECRETARIO', 'PROSECRETARIO', 'DEP_ESTUDIANTES', 'COORDINADOR', 'JEFE_PRECEPTOR', 'PRECEPTOR'];
+        if (role === 'DIRECTIVO') return ['SECRETARIO', 'PROSECRETARIO', 'DEP_ESTUDIANTES', 'COORDINADOR', 'JEFE_PRECEPTOR', 'PRECEPTOR'];
+        if (role === 'SECRETARIO') return ['DIRECTIVO', 'SECRETARIO', 'PROSECRETARIO', 'DEP_ESTUDIANTES', 'COORDINADOR', 'JEFE_PRECEPTOR', 'PRECEPTOR'];
         if (role === 'PROSECRETARIO') return ['PROSECRETARIO', 'DEP_ESTUDIANTES', 'COORDINADOR', 'JEFE_PRECEPTOR', 'PRECEPTOR'];
         if (role === 'JEFE_PRECEPTOR') return ['PRECEPTOR'];
         return [];
