@@ -191,31 +191,31 @@ export default function GeneralGradesReportPage() {
 
             {/* Render Tabla */}
             {reportData && (
-                <div className="bg-white rounded-xl shadow border-2 border-gray-300 overflow-hidden text-sm flex-1">
+                <div className="bg-white rounded-xl shadow border-2 border-gray-300 overflow-hidden text-sm flex-1 flex flex-col">
                     <div className="p-4 bg-gray-50 border-b-2 border-gray-300 font-black text-lg text-black text-center">
                         Curso: {reportData.curso}
                     </div>
-                    <div className="overflow-x-auto custom-scrollbar">
+                    <div className="overflow-auto flex-1 custom-scrollbar">
                         <table className="min-w-full text-center border-collapse">
-                            <thead>
+                            <thead className="sticky top-0 z-20 bg-gray-100">
                                 <tr className="bg-gray-100 border-b-2 border-gray-400">
-                                    <th className="px-2 py-3 border-r-2 border-gray-300 font-black text-black">Nº</th>
-                                    <th className="px-3 py-3 border-r-2 border-gray-300 font-black text-black text-left">DNI</th>
-                                    <th className="px-2 py-3 border-r-2 border-gray-300 font-black text-black">Sexo</th>
-                                    <th className="px-4 py-3 border-r-2 border-gray-300 font-black text-black text-left min-w-[250px]">Apellido y Nombre</th>
+                                    <th className="px-2 py-3 border-r-2 border-gray-300 font-black text-black whitespace-nowrap w-1">Nº</th>
+                                    <th className="px-3 py-3 border-r-2 border-gray-300 font-black text-black text-left whitespace-nowrap w-1">DNI</th>
+                                    <th className="px-2 py-3 border-r-2 border-gray-300 font-black text-black whitespace-nowrap w-1">Sexo</th>
+                                    <th className="px-4 py-3 border-r-2 border-gray-300 font-black text-black text-left whitespace-nowrap w-1">Apellido y Nombre</th>
                                     {reportData.materias.map((m: string) => (
                                         <th key={m} className="px-2 py-3 border-r-2 border-gray-300 font-black text-black text-xs break-all w-16 px-1">{m}</th>
                                     ))}
-                                    <th className="px-2 py-3 border-r-2 border-gray-300 font-black text-black bg-orange-50 whitespace-nowrap">C. Desapr</th>
-                                    <th className="px-2 py-3 font-black text-black bg-red-50">R.P.</th>
+                                    <th className="px-2 py-3 border-r-2 border-gray-300 font-black text-black bg-orange-50 whitespace-nowrap w-1">C. Desapr</th>
+                                    <th className="px-2 py-3 font-black text-black bg-red-50 whitespace-nowrap w-1">R.P.</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {reportData.alumnos.map((a: any, index: number) => (
                                     <tr key={a.id} className="border-b border-gray-300 hover:bg-yellow-50 transition-colors">
-                                        <td className="px-2 py-2 border-r-2 border-gray-300 font-bold text-gray-700">{index + 1}</td>
+                                        <td className="px-2 py-2 border-r-2 border-gray-300 font-bold text-gray-700 whitespace-nowrap">{index + 1}</td>
                                         <td className="px-3 py-2 border-r-2 border-gray-300 font-bold text-gray-800 text-left whitespace-nowrap">{a.dni}</td>
-                                        <td className="px-2 py-2 border-r-2 border-gray-300 font-bold text-gray-800">{a.genero}</td>
+                                        <td className="px-2 py-2 border-r-2 border-gray-300 font-bold text-gray-800 whitespace-nowrap">{a.genero}</td>
                                         <td className="px-4 py-2 border-r-2 border-gray-300 font-black text-black text-left uppercase whitespace-nowrap">{a.apellido}, {a.nombre}</td>
                                         {reportData.materias.map((m: string) => (
                                             <td key={m} className={`px-2 py-2 border-r-2 border-gray-300 font-black ${
@@ -224,8 +224,8 @@ export default function GeneralGradesReportPage() {
                                                 {a.materias[m] !== null ? a.materias[m] : '-'}
                                             </td>
                                         ))}
-                                        <td className="px-2 py-2 border-r-2 border-gray-300 font-black text-black bg-orange-50/50">{a.desaprobadas > 0 ? a.desaprobadas : ''}</td>
-                                        <td className={`px-2 py-2 font-black text-center ${
+                                        <td className="px-2 py-2 border-r-2 border-gray-300 font-black text-black bg-orange-50/50 whitespace-nowrap">{a.desaprobadas > 0 ? a.desaprobadas : ''}</td>
+                                        <td className={`px-2 py-2 font-black text-center whitespace-nowrap ${
                                             a.riesgo === 'A' ? 'text-white bg-red-600' :
                                             a.riesgo === 'M' ? 'text-white bg-orange-500' :
                                             a.riesgo === 'B' ? 'text-white bg-yellow-500' : 'text-transparent'
