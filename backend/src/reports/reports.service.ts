@@ -332,7 +332,10 @@ export class ReportsService {
 
     const materiasList = await this.prisma.materia.findMany({
       where: materiasCondition,
-      orderBy: { id: 'asc' },
+      orderBy: [
+        { orden: 'asc' },
+        { nombre: 'asc' }
+      ],
     });
 
     const materiasNames = materiasList.map((m) => m.nombre);
@@ -489,7 +492,10 @@ export class ReportsService {
     }
     const materiasList = await this.prisma.materia.findMany({
       where: materiasCondition,
-      orderBy: { id: 'asc' },
+      orderBy: [
+        { orden: 'asc' },
+        { nombre: 'asc' }
+      ],
     });
     
     const materiasNames = materiasList.map((m) => m.nombre);

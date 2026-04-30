@@ -7,6 +7,7 @@ interface Subject {
     nombre: string;
     anioCurso: string;
     orientacionFiltro?: string;
+    orden: number;
 }
 
 interface Orientation {
@@ -135,6 +136,7 @@ export default function SubjectsPage() {
                 <table className="w-full text-left">
                     <thead className="bg-gray-50 border-b border-gray-100">
                         <tr>
+                            <th className="p-4 font-semibold text-gray-700">Orden</th>
                             <th className="p-4 font-semibold text-gray-700">Nombre</th>
                             <th className="p-4 font-semibold text-gray-700">Año</th>
                             <th className="p-4 font-semibold text-gray-700">Orientación/Referencia</th>
@@ -149,6 +151,7 @@ export default function SubjectsPage() {
                         ) : (
                             filteredSubjects.map(s => (
                                 <tr key={s.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition">
+                                    <td className="p-4 text-gray-500 font-bold">#{s.orden}</td>
                                     <td className="p-4 font-medium text-gray-800">{s.nombre}</td>
                                     <td className="p-4 text-gray-600">{s.anioCurso}</td>
                                     <td className="p-4">
@@ -188,15 +191,27 @@ export default function SubjectsPage() {
                         </div>
                         <form onSubmit={handleSave} className="p-6">
                             <div className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-1">Nombre</label>
-                                    <input
+                                <div className="flex gap-4">
+                                    <div className="w-1/3">
+                                        <label className="block text-sm font-semibold text-gray-700 mb-1">Orden</label>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                            value={currentSubject.orden || 0}
+                                            onChange={(e) => setCurrentSubject({ ...currentSubject, orden: parseInt(e.target.value) || 0 })}
+                                        />
+                                    </div>
+                                    <div className="w-2/3">
+                                        <label className="block text-sm font-semibold text-gray-700 mb-1">Nombre</label>
+                                        <input
                                         type="text"
                                         required
                                         className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                                         value={currentSubject.nombre || ''}
                                         onChange={(e) => setCurrentSubject({ ...currentSubject, nombre: e.target.value })}
                                     />
+                                </div>
                                 </div>
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 mb-1">Año</label>

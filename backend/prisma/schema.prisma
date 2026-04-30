@@ -147,6 +147,7 @@ model Materia {
   nombre            String
   anioCurso         String?        @map("anio_curso")
   orientacionFiltro String?        @map("orientacion_filtro")
+  orden             Int            @default(0)
   calificaciones    Calificacion[]
 
   @@map("materias")

@@ -24,6 +24,7 @@ export class SubjectsService {
       } : undefined,
       orderBy: [
         { anioCurso: 'asc' },
+        { orden: 'asc' },
         { nombre: 'asc' }
       ]
     });
