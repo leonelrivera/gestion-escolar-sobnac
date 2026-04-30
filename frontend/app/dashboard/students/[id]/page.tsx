@@ -93,7 +93,10 @@ export default function StudentProfilePage() {
                 <div className="flex-1">
                     <div className="flex justify-between items-start">
                         <div>
-                            <h1 className="text-2xl font-black text-gray-800 uppercase tracking-tight">{student.apellido}, {student.nombre}</h1>
+                            <h1 className="text-2xl font-black text-gray-800 uppercase tracking-tight flex items-center gap-2">
+                                {student.apellido}, {student.nombre}
+                                {student.cud && <span className="bg-purple-100 text-purple-700 text-xs px-2 py-0.5 rounded font-black">CUD</span>}
+                            </h1>
                             <p className="text-gray-500 font-medium text-sm">DNI: {student.dni} | {student.genero}</p>
                         </div>
                         <div className="text-right">

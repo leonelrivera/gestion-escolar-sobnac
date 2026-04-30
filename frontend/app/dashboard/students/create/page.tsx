@@ -21,6 +21,7 @@ export default function CreateStudentPage() {
         institucionDestino: '',
         condicion: 'REGULAR',
         // Nuevos campos
+        cud: false,
         grupoSanguineo: '',
         alergias: '',
         enfermedadesCronicas: '',
@@ -61,7 +62,9 @@ export default function CreateStudentPage() {
     }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value, type } = e.target;
+        const checked = (e.target as HTMLInputElement).checked;
+        setFormData({ ...formData, [name]: type === 'checkbox' ? checked : value });
     };
 
     const handleLibroChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
@@ -152,6 +155,21 @@ export default function CreateStudentPage() {
                 {/* Sección Salud */}
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                     <h3 className="text-lg font-semibold mb-4 text-red-600 border-b pb-2">2. Salud y Emergencias</h3>
+                    
+                    <div className="mb-4 flex items-center gap-2 bg-purple-50 p-3 rounded-lg border border-purple-100">
+                        <input
+                            type="checkbox"
+                            id="cud"
+                            name="cud"
+                            checked={formData.cud}
+                            onChange={handleChange}
+                            className="w-5 h-5 text-purple-600 rounded focus:ring-purple-500 cursor-pointer"
+                        />
+                        <label htmlFor="cud" className="text-sm font-bold text-purple-800 cursor-pointer select-none">
+                            ¿El estudiante posee Certificado Único de Discapacidad (CUD)?
+                        </label>
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                         <div>
                             <label className="block text-[10px] font-black text-gray-400 uppercase">Grupo Sanguíneo</label>

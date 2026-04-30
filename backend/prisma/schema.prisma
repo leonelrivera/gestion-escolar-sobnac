@@ -64,6 +64,7 @@ model Estudiante {
   contactoEmergenciaTelefono String?
   orientacion                String?
   observacionesGenerales     String?
+  cud                        Boolean             @default(false)
   usuarioCargaId             Int
   usuarioModificacionId      Int?                @map("usuario_modificacion_id")
   createdAt                  DateTime            @default(now())

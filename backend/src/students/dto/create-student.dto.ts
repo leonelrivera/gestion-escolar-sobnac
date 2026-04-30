@@ -20,6 +20,7 @@ export class CreateStudentDto {
   librosFolios: { libro: string; folio: string }[];
 
   // Nuevos campos
+  cud?: boolean;
   grupoSanguineo?: string;
   alergias?: string;
   enfermedadesCronicas?: string;

@@ -10,6 +10,7 @@ interface Student {
     dni: string;
     nombre: string;
     apellido: string;
+    cud?: boolean;
 }
 
 interface Inscription {
@@ -180,7 +181,9 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                         <div className="p-5 border-b flex justify-between items-center bg-gray-50/50">
                             <h2 className="font-bold text-gray-800 flex items-center gap-2">
                                 Alumnos Inscriptos
-                                <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full">{course.inscripciones.length}</span>
+                                <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full" title={`Estudiantes físicos: ${course.inscripciones.length}`}>
+                                    {course.inscripciones.reduce((acc, ins) => acc + (ins.estudiante.cud ? 2 : 1), 0)}
+                                </span>
                             </h2>
                             {(canPromoteOrTransfer && selectedStudents.length > 0) && (
                                 <button
@@ -223,7 +226,10 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                                                 />
                                             </td>
                                             <td className="px-6 py-4">
-                                                <div className="font-bold text-gray-800">{ins.estudiante.apellido}, {ins.estudiante.nombre}</div>
+                                                <div className="font-bold text-gray-800 flex items-center gap-2">
+                                                    <span>{ins.estudiante.apellido}, {ins.estudiante.nombre}</span>
+                                                    {ins.estudiante.cud && <span className="bg-purple-100 text-purple-700 text-[10px] px-1.5 py-0.5 rounded font-black">CUD</span>}
+                                                </div>
                                             </td>
                                             <td className="px-6 py-4 text-gray-500 font-medium">{ins.estudiante.dni}</td>
                                             <td className="px-6 py-4 text-right">

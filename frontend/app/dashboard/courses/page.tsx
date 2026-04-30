@@ -18,7 +18,7 @@ interface Course {
     orientacion?: { id: number; nombre: string };
     cicloLectivo: Cycle;
     preceptor?: { id: number; nombreCompleto: string };
-    inscripciones?: { id: number }[];
+    inscripciones?: { id: number; estudiante?: { cud: boolean } }[];
 }
 
 interface Orientation {
@@ -267,8 +267,8 @@ export default function CoursesPage() {
                                 <Link href={`/dashboard/courses/${course.id}`} className="text-xs font-black text-blue-800 hover:text-blue-900 transition flex items-center gap-1">
                                     Ver Alumnos <span>→</span>
                                 </Link>
-                                <span className="text-xs font-black text-black bg-gray-200 px-2 py-0.5 rounded">
-                                    {course.inscripciones?.length || 0} alumnos
+                                <span className="text-xs font-black text-black bg-gray-200 px-2 py-0.5 rounded" title={`Estudiantes físicos: ${course.inscripciones?.length || 0}`}>
+                                    {course.inscripciones?.reduce((acc, ins) => acc + (ins.estudiante?.cud ? 2 : 1), 0) || 0} alumnos
                                 </span>
                             </div>
 
