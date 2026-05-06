@@ -99,11 +99,7 @@ export class StudentsService {
       // Si se pide explícitamente "sin curso" (para asignación)
       if (filters?.sinCurso) {
         where.inscripciones = {
-          none: {
-            curso: {
-              cicloLectivo: { anio: +(filters.cicloLectivo || new Date().getFullYear()) }
-            }
-          }
+          none: {}
         };
       }
       // Si hay filtros de cursada

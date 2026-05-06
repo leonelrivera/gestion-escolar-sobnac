@@ -26,4 +26,8 @@ docker-compose.override.yml
 # Backup VM
 scripts/vm-backup/*.env
 scripts/vm-backup/*.json
-/opt/backups/
+/opt/backups/
+
+# Carpetas de Antigravity / Locales
+Info/
+skills/
