@@ -215,7 +215,7 @@ export default function StudentProfilePage() {
                                     </div>
                                     <div>
                                         <p className="text-[10px] text-gray-400 uppercase font-bold">Fecha Ingreso</p>
-                                        <p className="font-bold text-gray-700">{student.fechaIngreso ? new Date(student.fechaIngreso).toLocaleDateString() : '-'}</p>
+                                        <p className="font-bold text-gray-700">{student.fechaIngreso ? student.fechaIngreso.split('T')[0].split('-').reverse().join('/') : '-'}</p>
                                     </div>
                                 </div>
                                 <div>

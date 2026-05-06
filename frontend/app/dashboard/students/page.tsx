@@ -258,7 +258,7 @@ export default function StudentsPage() {
                                     ))}
                                 </td>
                                 <td className="px-4 py-3 whitespace-nowrap font-black text-black">
-                                    {new Date(student.fechaNacimiento).toLocaleDateString()}
+                                    {student.fechaNacimiento ? student.fechaNacimiento.split('T')[0].split('-').reverse().join('/') : '-'}
                                 </td>
                                 <td className="px-4 py-3 italic font-black text-black">
                                     {student.inscripciones[0]?.curso?.orientacion?.nombre || '-'}
