@@ -1,6 +1,36 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+
 export default function DashboardPage() {
+    const [stats, setStats] = useState({
+        cicloLectivo: '--',
+        estudiantesActivos: '--',
+        inasistenciasHoy: '--'
+    });
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/stats`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    setStats({
+                        cicloLectivo: data.cicloLectivo,
+                        estudiantesActivos: data.estudiantesActivos.toString(),
+                        inasistenciasHoy: data.inasistenciasHoy.toString()
+                    });
+                }
+            } catch (err) {
+                console.error("Error fetching stats:", err);
+            }
+        };
+        fetchStats();
+    }, []);
+
     const downloadRiskReport = () => {
         const token = localStorage.getItem('token');
         window.open(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/reports/risk-report?token=${token}`, '_blank');
@@ -24,15 +54,15 @@ export default function DashboardPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                     <p className="text-gray-400 text-sm font-bold uppercase">Ciclo Lectivo</p>
-                    <p className="text-4xl font-black text-blue-600 mt-2">2025</p>
+                    <p className="text-4xl font-black text-blue-600 mt-2">{stats.cicloLectivo}</p>
                 </div>
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                     <p className="text-gray-400 text-sm font-bold uppercase">Estudiantes Activos</p>
-                    <p className="text-4xl font-black text-green-600 mt-2">--</p>
+                    <p className="text-4xl font-black text-green-600 mt-2">{stats.estudiantesActivos}</p>
                 </div>
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                     <p className="text-gray-400 text-sm font-bold uppercase">Inasistencias Hoy</p>
-                    <p className="text-4xl font-black text-red-600 mt-2">--</p>
+                    <p className="text-4xl font-black text-red-600 mt-2">{stats.inasistenciasHoy}</p>
                 </div>
             </div>
         </div>
