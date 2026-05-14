@@ -74,7 +74,25 @@ export class CoursesService {
         },
       },
     });
+    
     if (!curso) throw new NotFoundException(`Curso #${id} no encontrado`);
+    
+    if (curso.inscripciones) {
+      curso.inscripciones.sort((a, b) => {
+        const apellidoA = a.estudiante?.apellido?.toLowerCase() || '';
+        const apellidoB = b.estudiante?.apellido?.toLowerCase() || '';
+        if (apellidoA < apellidoB) return -1;
+        if (apellidoA > apellidoB) return 1;
+
+        const nombreA = a.estudiante?.nombre?.toLowerCase() || '';
+        const nombreB = b.estudiante?.nombre?.toLowerCase() || '';
+        if (nombreA < nombreB) return -1;
+        if (nombreA > nombreB) return 1;
+
+        return 0;
+      });
+    }
+
     return curso;
   }
 
