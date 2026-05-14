@@ -16,6 +16,10 @@ export class CreateStudentDto {
   fechaEgreso?: string;
   institucionDestino?: string;
   condicion?: CondicionEstudiante;
+  paseDestino?: string;
+  paseColegio?: string;
+  paseFecha?: string;
+  paseEstado?: string;
 
   librosFolios: { libro: string; folio: string }[];
 

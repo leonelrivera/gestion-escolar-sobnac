@@ -48,7 +48,10 @@ export class CoursesService {
         cicloLectivo: true,
         orientacion: true,
         asignaciones: { include: { usuario: true } },
-        inscripciones: { select: { id: true, estudiante: { select: { cud: true } } } },
+        inscripciones: { 
+          where: { estudiante: { condicion: { not: 'PASE' } } },
+          select: { id: true, estudiante: { select: { cud: true } } } 
+        },
       },
       orderBy: [
         { cicloLectivo: { anio: 'desc' } },
@@ -66,6 +69,7 @@ export class CoursesService {
         orientacion: true,
         asignaciones: { include: { usuario: true } },
         inscripciones: {
+          where: { estudiante: { condicion: { not: 'PASE' } } },
           include: { estudiante: true },
         },
       },

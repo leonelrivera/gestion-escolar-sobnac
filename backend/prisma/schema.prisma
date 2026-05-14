@@ -53,6 +53,10 @@ model Estudiante {
   fechaEgreso                DateTime?           @map("fecha_egreso") @db.Date
   institucionDestino         String?             @map("institucion_destino")
   condicion                  CondicionEstudiante @default(REGULAR)
+  paseDestino                String?             @map("pase_destino")
+  paseColegio                String?             @map("pase_colegio")
+  paseFecha                  DateTime?           @map("pase_fecha") @db.Date
+  paseEstado                 String?             @map("pase_estado")
   grupoSanguineo             String?
   alergias                   String?
   enfermedadesCronicas       String?

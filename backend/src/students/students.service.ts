@@ -16,6 +16,9 @@ export class StudentsService {
         fechaIngreso: studentData.fechaIngreso
           ? new Date(studentData.fechaIngreso)
           : undefined,
+        paseFecha: studentData.paseFecha
+          ? new Date(studentData.paseFecha)
+          : undefined,
         usuarioCarga: { connect: { id: usuarioCargaId } },
         librosFolios: librosFolios
           ? {
@@ -35,6 +38,7 @@ export class StudentsService {
         ...studentData,
         fechaNacimiento: new Date(studentData.fechaNacimiento),
         fechaIngreso: studentData.fechaIngreso ? new Date(studentData.fechaIngreso) : undefined,
+        paseFecha: studentData.paseFecha ? new Date(studentData.paseFecha) : undefined,
         usuarioCargaId: usuarioCargaId,
       };
     });
@@ -68,6 +72,8 @@ export class StudentsService {
       data.fechaIngreso = new Date(studentData.fechaIngreso);
     if (studentData.fechaEgreso)
       data.fechaEgreso = new Date(studentData.fechaEgreso);
+    if (studentData.paseFecha)
+      data.paseFecha = new Date(studentData.paseFecha);
 
     return this.prisma.estudiante.update({
       where: { id },

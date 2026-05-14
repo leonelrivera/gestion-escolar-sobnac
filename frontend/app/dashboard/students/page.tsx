@@ -11,6 +11,7 @@ interface Student {
     nombre: string;
     fechaNacimiento: string;
     condicion: string;
+    paseEstado?: string;
     librosFolios: { libro: string; folio: string }[];
     inscripciones: {
         curso: {
@@ -295,9 +296,10 @@ export default function StudentsPage() {
                                 <td className="px-4 py-3">
                                     <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${student.condicion === 'REGULAR' ? 'bg-green-100 text-green-700' :
                                         student.condicion === 'REPITENTE' ? 'bg-red-100 text-red-700' :
-                                            'bg-blue-100 text-blue-700'
+                                            student.condicion === 'PASE' ? 'bg-orange-100 text-orange-800' :
+                                                'bg-blue-100 text-blue-700'
                                         }`}>
-                                        {student.condicion}
+                                        {student.condicion === 'PASE' ? `PASE - ${student.paseEstado || 'TRAMITE'}` : student.condicion}
                                     </span>
                                 </td>
                                 <td className="px-4 py-3 text-center space-x-2 flex items-center justify-center">

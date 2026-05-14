@@ -21,6 +21,10 @@ export default function EditStudentPage() {
         institucionOrigen: '',
         institucionDestino: '',
         condicion: 'REGULAR',
+        paseDestino: '',
+        paseColegio: '',
+        paseFecha: '',
+        paseEstado: '',
         cud: false,
         grupoSanguineo: '',
         alergias: '',
@@ -81,6 +85,10 @@ export default function EditStudentPage() {
                         institucionOrigen: data.institucionOrigen || '',
                         institucionDestino: data.institucionDestino || '',
                         condicion: data.condicion || 'REGULAR',
+                        paseDestino: data.paseDestino || '',
+                        paseColegio: data.paseColegio || '',
+                        paseFecha: data.paseFecha ? data.paseFecha.split('T')[0] : '',
+                        paseEstado: data.paseEstado || '',
                         cud: data.cud || false,
                         grupoSanguineo: data.grupoSanguineo || '',
                         alergias: data.alergias || '',
@@ -337,6 +345,40 @@ export default function EditStudentPage() {
                             </select>
                         </div>
                     </div>
+
+                    {formData.condicion === 'PASE' && (
+                        <div className="bg-orange-50 border border-orange-200 p-4 rounded-xl mb-6">
+                            <h4 className="text-orange-800 font-bold mb-3 text-sm">Información del Pase</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                                <div>
+                                    <label className="block text-[10px] font-black text-orange-600 uppercase">Destino</label>
+                                    <select name="paseDestino" value={formData.paseDestino} onChange={handleChange} className="mt-1 block w-full border border-orange-200 rounded-lg p-2 bg-white focus:outline-none">
+                                        <option value="">Seleccionar...</option>
+                                        <option value="Provincial">Provincial</option>
+                                        <option value="Nacional">Nacional</option>
+                                        <option value="Internacional">Internacional</option>
+                                    </select>
+                                </div>
+                                <div className="md:col-span-2">
+                                    <label className="block text-[10px] font-black text-orange-600 uppercase">Colegio de Destino</label>
+                                    <input name="paseColegio" value={formData.paseColegio} onChange={handleChange} className="mt-1 block w-full border border-orange-200 rounded-lg p-2 bg-white focus:outline-none" />
+                                </div>
+                                <div>
+                                    <label className="block text-[10px] font-black text-orange-600 uppercase">F. Salida</label>
+                                    <input type="date" name="paseFecha" value={formData.paseFecha} onChange={handleChange} className="mt-1 block w-full border border-orange-200 rounded-lg p-2 bg-white focus:outline-none" />
+                                </div>
+                                <div>
+                                    <label className="block text-[10px] font-black text-orange-600 uppercase">Estado del Pase</label>
+                                    <select name="paseEstado" value={formData.paseEstado} onChange={handleChange} className="mt-1 block w-full border border-orange-200 rounded-lg p-2 bg-white focus:outline-none">
+                                        <option value="">Seleccionar...</option>
+                                        <option value="TRAMITE">En Trámite</option>
+                                        <option value="FINALIZADO">Finalizado</option>
+                                        <option value="IRREGULAR">Irregular</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     <div>
                         <div className="flex justify-between items-center mb-2">
