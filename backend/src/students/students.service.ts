@@ -178,6 +178,63 @@ export class StudentsService {
     });
   }
 
+  async getMovements(filters?: {
+    dni?: string;
+    cursoId?: number;
+    fechaIngreso?: string;
+    fechaEgreso?: string;
+  }) {
+    const where: any = {};
+    const andConditions: any[] = [
+      { OR: [
+        { fechaIngreso: { not: null } },
+        { paseFecha: { not: null } },
+        { fechaEgreso: { not: null } },
+        { condicion: { in: ['INGRESO', 'PASE'] } }
+      ]}
+    ];
+
+    if (filters?.dni) andConditions.push({ dni: { contains: filters.dni, mode: 'insensitive' } });
+    if (filters?.cursoId) andConditions.push({ inscripciones: { some: { cursoId: filters.cursoId } } });
+
+    if (filters?.fechaIngreso) {
+      const start = new Date(filters.fechaIngreso);
+      const end = new Date(filters.fechaIngreso);
+      end.setHours(23,59,59,999);
+      andConditions.push({ fechaIngreso: { gte: start, lte: end } });
+    }
+
+    if (filters?.fechaEgreso) {
+      const start = new Date(filters.fechaEgreso);
+      const end = new Date(filters.fechaEgreso);
+      end.setHours(23,59,59,999);
+      andConditions.push({
+        OR: [
+          { paseFecha: { gte: start, lte: end } },
+          { fechaEgreso: { gte: start, lte: end } }
+        ]
+      });
+    }
+
+    where.AND = andConditions;
+
+    return this.prisma.estudiante.findMany({
+      where,
+      include: {
+        inscripciones: {
+          include: {
+            curso: {
+              include: { cicloLectivo: true }
+            }
+          }
+        }
+      },
+      orderBy: [
+        { fechaIngreso: 'desc' }
+      ]
+    });
+  }
+
   async findOne(id: number) {
     const student = await this.prisma.estudiante.findUnique({
       where: { id },

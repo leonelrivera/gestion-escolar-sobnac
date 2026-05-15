@@ -11,6 +11,7 @@ const ALL_ROLES: Role[] = ['ADMIN', 'DIRECTIVO', 'SECRETARIO', 'PROSECRETARIO', 
 const menuItems = [
     { href: '/dashboard', label: 'Inicio', icon: '🏠', roles: ALL_ROLES },
     { href: '/dashboard/students', label: 'Estudiantes', icon: '🎓', roles: ['ADMIN', 'DIRECTIVO', 'SECRETARIO', 'PROSECRETARIO', 'DEP_ESTUDIANTES', 'COORDINADOR', 'JEFE_PRECEPTOR'] },
+    { href: '/dashboard/students/movements', label: 'Altas y Bajas', icon: '🔄', roles: ['ADMIN', 'DIRECTIVO', 'SECRETARIO', 'PROSECRETARIO', 'DEP_ESTUDIANTES'] },
     { href: '/dashboard/courses', label: 'Cursos', icon: '📚', roles: ALL_ROLES },
     { href: '/dashboard/orientations', label: 'Orientaciones', icon: '🧭', roles: ['ADMIN', 'DIRECTIVO', 'SECRETARIO', 'PROSECRETARIO', 'DEP_ESTUDIANTES'] },
     { href: '/dashboard/subjects', label: 'Materias', icon: '📖', roles: ['ADMIN', 'DIRECTIVO', 'SECRETARIO', 'PROSECRETARIO', 'DEP_ESTUDIANTES'] },
@@ -40,7 +41,6 @@ function decodeRoleFromToken(): Role | null {
 
 export default function Sidebar() {
     const pathname = usePathname();
-
     const [userRole, setUserRole] = useState<Role | null>(null);
 
     useEffect(() => {

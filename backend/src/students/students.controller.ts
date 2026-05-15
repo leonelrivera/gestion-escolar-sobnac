@@ -56,6 +56,16 @@ export class StudentsController {
     }, req.user);
   }
 
+  @Get('report/movements')
+  getMovements(
+    @Query('dni') dni?: string,
+    @Query('cursoId') cursoId?: string,
+    @Query('fechaIngreso') fechaIngreso?: string,
+    @Query('fechaEgreso') fechaEgreso?: string,
+  ) {
+    return this.studentsService.getMovements({ dni, cursoId: cursoId ? +cursoId : undefined, fechaIngreso, fechaEgreso });
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.studentsService.findOne(+id);
