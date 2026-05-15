@@ -7,18 +7,21 @@ import { UpdateStudentDto } from './dto/update-student.dto';
 export class StudentsService {
   constructor(private prisma: PrismaService) { }
 
+  private parseDateSafe(dateString?: string): Date | null | undefined {
+    if (dateString === undefined) return undefined;
+    if (dateString === null || dateString.trim() === '') return null;
+    return new Date(dateString);
+  }
+
   create(createStudentDto: CreateStudentDto, usuarioCargaId: number) {
     const { librosFolios, ...studentData } = createStudentDto;
     return this.prisma.estudiante.create({
       data: {
         ...studentData,
-        fechaNacimiento: new Date(studentData.fechaNacimiento),
-        fechaIngreso: studentData.fechaIngreso
-          ? new Date(studentData.fechaIngreso)
-          : undefined,
-        paseFecha: studentData.paseFecha
-          ? new Date(studentData.paseFecha)
-          : undefined,
+        fechaNacimiento: this.parseDateSafe(studentData.fechaNacimiento) as any,
+        fechaIngreso: this.parseDateSafe(studentData.fechaIngreso),
+        fechaEgreso: this.parseDateSafe(studentData.fechaEgreso),
+        paseFecha: this.parseDateSafe(studentData.paseFecha),
         usuarioCarga: { connect: { id: usuarioCargaId } },
         librosFolios: librosFolios
           ? {
@@ -36,9 +39,10 @@ export class StudentsService {
       const { librosFolios, ...studentData } = dto;
       return {
         ...studentData,
-        fechaNacimiento: new Date(studentData.fechaNacimiento),
-        fechaIngreso: studentData.fechaIngreso ? new Date(studentData.fechaIngreso) : undefined,
-        paseFecha: studentData.paseFecha ? new Date(studentData.paseFecha) : undefined,
+        fechaNacimiento: this.parseDateSafe(studentData.fechaNacimiento) as any,
+        fechaIngreso: this.parseDateSafe(studentData.fechaIngreso),
+        fechaEgreso: this.parseDateSafe(studentData.fechaEgreso),
+        paseFecha: this.parseDateSafe(studentData.paseFecha),
         usuarioCargaId: usuarioCargaId,
       };
     });
@@ -66,14 +70,17 @@ export class StudentsService {
       usuarioModificacion: { connect: { id: usuarioModificacionId } },
     };
 
-    if (studentData.fechaNacimiento)
-      data.fechaNacimiento = new Date(studentData.fechaNacimiento);
-    if (studentData.fechaIngreso)
-      data.fechaIngreso = new Date(studentData.fechaIngreso);
-    if (studentData.fechaEgreso)
-      data.fechaEgreso = new Date(studentData.fechaEgreso);
-    if (studentData.paseFecha)
-      data.paseFecha = new Date(studentData.paseFecha);
+    if (studentData.fechaNacimiento !== undefined) data.fechaNacimiento = this.parseDateSafe(studentData.fechaNacimiento);
+    if (studentData.fechaIngreso !== undefined) data.fechaIngreso = this.parseDateSafe(studentData.fechaIngreso);
+    if (studentData.fechaEgreso !== undefined) data.fechaEgreso = this.parseDateSafe(studentData.fechaEgreso);
+    if (studentData.paseFecha !== undefined) data.paseFecha = this.parseDateSafe(studentData.paseFecha);
+
+    if (librosFolios !== undefined) {
+      data.librosFolios = {
+        deleteMany: {},
+        create: librosFolios,
+      };
+    }
 
     return this.prisma.estudiante.update({
       where: { id },
@@ -180,7 +187,9 @@ export class StudentsService {
 
   async getMovements(filters?: {
     dni?: string;
-    cursoId?: number;
+    curso?: string;
+    division?: string;
+    cicloLectivo?: number;
     fechaIngreso?: string;
     fechaEgreso?: string;
   }) {
@@ -195,7 +204,20 @@ export class StudentsService {
     ];
 
     if (filters?.dni) andConditions.push({ dni: { contains: filters.dni, mode: 'insensitive' } });
-    if (filters?.cursoId) andConditions.push({ inscripciones: { some: { cursoId: filters.cursoId } } });
+    
+    if (filters?.curso || filters?.division || filters?.cicloLectivo) {
+      andConditions.push({
+        inscripciones: {
+          some: {
+            curso: {
+              ...(filters.curso && { anioCurso: filters.curso }),
+              ...(filters.division && { division: filters.division }),
+              ...(filters.cicloLectivo && { cicloLectivo: { anio: +filters.cicloLectivo } })
+            }
+          }
+        }
+      });
+    }
 
     if (filters?.fechaIngreso) {
       const start = new Date(filters.fechaIngreso);

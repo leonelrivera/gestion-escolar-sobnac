@@ -59,11 +59,13 @@ export class StudentsController {
   @Get('report/movements')
   getMovements(
     @Query('dni') dni?: string,
-    @Query('cursoId') cursoId?: string,
+    @Query('curso') curso?: string,
+    @Query('division') division?: string,
+    @Query('cicloLectivo') cicloLectivo?: string,
     @Query('fechaIngreso') fechaIngreso?: string,
     @Query('fechaEgreso') fechaEgreso?: string,
   ) {
-    return this.studentsService.getMovements({ dni, cursoId: cursoId ? +cursoId : undefined, fechaIngreso, fechaEgreso });
+    return this.studentsService.getMovements({ dni, curso, division, cicloLectivo: cicloLectivo ? +cicloLectivo : undefined, fechaIngreso, fechaEgreso });
   }
 
   @Get(':id')

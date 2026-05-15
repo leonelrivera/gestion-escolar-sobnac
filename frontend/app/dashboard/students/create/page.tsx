@@ -87,8 +87,15 @@ export default function CreateStudentPage() {
 
         const dataToSend = { ...formData };
         if (!vieneDeOtraInstitucion) {
-            delete (dataToSend as any).fechaIngreso;
-            delete (dataToSend as any).institucionOrigen;
+            (dataToSend as any).fechaIngreso = '';
+            (dataToSend as any).institucionOrigen = '';
+        }
+
+        if (formData.condicion !== 'PASE') {
+            (dataToSend as any).paseDestino = '';
+            (dataToSend as any).paseColegio = '';
+            (dataToSend as any).paseFecha = '';
+            (dataToSend as any).paseEstado = '';
         }
 
         try {
