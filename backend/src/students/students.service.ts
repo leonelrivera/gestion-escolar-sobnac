@@ -78,7 +78,10 @@ export class StudentsService {
     if (librosFolios !== undefined) {
       data.librosFolios = {
         deleteMany: {},
-        create: librosFolios,
+        create: librosFolios.map((lf: any) => ({
+          libro: lf.libro,
+          folio: lf.folio,
+        })),
       };
     }
 

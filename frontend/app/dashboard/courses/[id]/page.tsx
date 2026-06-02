@@ -11,6 +11,8 @@ interface Student {
     nombre: string;
     apellido: string;
     cud?: boolean;
+    cudTutor?: boolean;
+    cudDai?: boolean;
 }
 
 interface Inscription {
@@ -182,7 +184,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                             <h2 className="font-bold text-gray-800 flex items-center gap-2">
                                 Alumnos Inscriptos
                                 <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full" title={`Estudiantes físicos: ${course.inscripciones.length}`}>
-                                    {course.inscripciones.reduce((acc, ins) => acc + (ins.estudiante.cud ? 2 : 1), 0)}
+                                    {course.inscripciones.reduce((acc, ins) => acc + ((ins.estudiante.cud && ins.estudiante.cudTutor) ? 2 : 1), 0)}
                                 </span>
                             </h2>
                             {(canPromoteOrTransfer && selectedStudents.length > 0) && (
@@ -227,8 +229,10 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="font-bold text-gray-800 flex items-center gap-2">
-                                                    <span>{ins.estudiante.apellido}, {ins.estudiante.nombre}</span>
-                                                    {ins.estudiante.cud && <span className="bg-purple-100 text-purple-700 text-[10px] px-1.5 py-0.5 rounded font-black">CUD</span>}
+                                                    {ins.estudiante.apellido}, {ins.estudiante.nombre}
+                                                    {ins.estudiante.cud && <span className="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-black">CUD</span>}
+                                                    {ins.estudiante.cudTutor && <span className="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-black">TUTOR</span>}
+                                                    {ins.estudiante.cudDai && <span className="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-black">DAI</span>}
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 text-gray-500 font-medium">{ins.estudiante.dni}</td>

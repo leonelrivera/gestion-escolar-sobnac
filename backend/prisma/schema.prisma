@@ -69,6 +69,8 @@ model Estudiante {
   orientacion                String?
   observacionesGenerales     String?
   cud                        Boolean             @default(false)
+  cudTutor                   Boolean             @default(false) @map("cud_tutor")
+  cudDai                     Boolean             @default(false) @map("cud_dai")
   usuarioCargaId             Int
   usuarioModificacionId      Int?                @map("usuario_modificacion_id")
   createdAt                  DateTime            @default(now())

@@ -143,6 +143,16 @@ export default function StudentProfilePage() {
                                         <p className="font-bold text-gray-700">{student.obraSocial || '-'}</p>
                                     </div>
                                 </div>
+                                {student.cud && (
+                                    <div className="bg-purple-50 p-3 rounded-lg border border-purple-100 mt-2">
+                                        <p className="text-[10px] font-bold text-purple-700 uppercase mb-1">Discapacidad e Inclusión</p>
+                                        <div className="flex gap-2 items-center flex-wrap">
+                                            <span className="bg-purple-600 text-white text-xs font-black px-2 py-1 rounded">Tiene CUD</span>
+                                            {student.cudTutor && <span className="bg-white border border-purple-200 text-purple-700 text-xs font-black px-2 py-1 rounded shadow-sm">Tutor Acompañante (+1 vacante)</span>}
+                                            {student.cudDai && <span className="bg-white border border-purple-200 text-purple-700 text-xs font-black px-2 py-1 rounded shadow-sm">DAI</span>}
+                                        </div>
+                                    </div>
+                                )}
                                 <div>
                                     <p className="text-[10px] text-gray-400 uppercase font-bold">Alergias</p>
                                     <p className="font-bold text-gray-700">{student.alergias || 'Ninguna informada'}</p>

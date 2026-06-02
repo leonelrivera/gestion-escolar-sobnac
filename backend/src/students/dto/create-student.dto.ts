@@ -25,6 +25,8 @@ export class CreateStudentDto {
 
   // Nuevos campos
   cud?: boolean;
+  cudTutor?: boolean;
+  cudDai?: boolean;
   grupoSanguineo?: string;
   alergias?: string;
   enfermedadesCronicas?: string;

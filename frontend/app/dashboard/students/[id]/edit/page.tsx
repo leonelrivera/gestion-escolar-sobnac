@@ -26,6 +26,8 @@ export default function EditStudentPage() {
         paseFecha: '',
         paseEstado: '',
         cud: false,
+        cudTutor: false,
+        cudDai: false,
         grupoSanguineo: '',
         alergias: '',
         enfermedadesCronicas: '',
@@ -90,6 +92,8 @@ export default function EditStudentPage() {
                         paseFecha: data.paseFecha ? data.paseFecha.split('T')[0] : '',
                         paseEstado: data.paseEstado || '',
                         cud: data.cud || false,
+                        cudTutor: data.cudTutor || false,
+                        cudDai: data.cudDai || false,
                         grupoSanguineo: data.grupoSanguineo || '',
                         alergias: data.alergias || '',
                         enfermedadesCronicas: data.enfermedadesCronicas || '',
@@ -147,6 +151,11 @@ export default function EditStudentPage() {
             (dataToSend as any).paseColegio = '';
             (dataToSend as any).paseFecha = '';
             (dataToSend as any).paseEstado = '';
+        }
+
+        if (!formData.cud) {
+            (dataToSend as any).cudTutor = false;
+            (dataToSend as any).cudDai = false;
         }
 
         try {
@@ -220,18 +229,50 @@ export default function EditStudentPage() {
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                     <h3 className="text-lg font-semibold mb-4 text-red-600 border-b pb-2">2. Salud y Emergencias</h3>
                     
-                    <div className="mb-4 flex items-center gap-2 bg-purple-50 p-3 rounded-lg border border-purple-100">
-                        <input
-                            type="checkbox"
-                            id="cud"
-                            name="cud"
-                            checked={formData.cud}
-                            onChange={handleChange}
-                            className="w-5 h-5 text-purple-600 rounded focus:ring-purple-500 cursor-pointer"
-                        />
-                        <label htmlFor="cud" className="text-sm font-bold text-purple-800 cursor-pointer select-none">
-                            ¿El estudiante posee Certificado Único de Discapacidad (CUD)?
-                        </label>
+                    <div className="mb-4 flex flex-col gap-2 bg-purple-50 p-3 rounded-lg border border-purple-100">
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                id="cud"
+                                name="cud"
+                                checked={formData.cud}
+                                onChange={handleChange}
+                                className="w-5 h-5 text-purple-600 rounded focus:ring-purple-500 cursor-pointer"
+                            />
+                            <label htmlFor="cud" className="text-sm font-bold text-purple-800 cursor-pointer select-none">
+                                ¿El estudiante posee Certificado Único de Discapacidad (CUD)?
+                            </label>
+                        </div>
+                        {formData.cud && (
+                            <div className="ml-7 flex gap-4 mt-1">
+                                <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-md border border-purple-200">
+                                    <input
+                                        type="checkbox"
+                                        id="cudTutor"
+                                        name="cudTutor"
+                                        checked={formData.cudTutor}
+                                        onChange={handleChange}
+                                        className="w-4 h-4 text-purple-600 rounded cursor-pointer"
+                                    />
+                                    <label htmlFor="cudTutor" className="text-xs font-bold text-purple-700 cursor-pointer select-none">
+                                        Tutor Acompañante
+                                    </label>
+                                </div>
+                                <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-md border border-purple-200">
+                                    <input
+                                        type="checkbox"
+                                        id="cudDai"
+                                        name="cudDai"
+                                        checked={formData.cudDai}
+                                        onChange={handleChange}
+                                        className="w-4 h-4 text-purple-600 rounded cursor-pointer"
+                                    />
+                                    <label htmlFor="cudDai" className="text-xs font-bold text-purple-700 cursor-pointer select-none">
+                                        DAI
+                                    </label>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">

@@ -50,7 +50,7 @@ export class CoursesService {
         asignaciones: { include: { usuario: true } },
         inscripciones: { 
           where: { estudiante: { condicion: { not: 'PASE' } } },
-          select: { id: true, estudiante: { select: { cud: true } } } 
+          select: { id: true, estudiante: { select: { cud: true, cudTutor: true, cudDai: true } } } 
         },
       },
       orderBy: [
