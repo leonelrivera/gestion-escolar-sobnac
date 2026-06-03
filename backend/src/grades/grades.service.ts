@@ -74,7 +74,7 @@ export class GradesService {
 
     // 2. Obtener inscripciones de ese curso
     const inscripciones = await this.prisma.inscripcion.findMany({
-      where: { cursoId: courseId },
+      where: { cursoId: courseId, estudiante: { condicion: { not: 'PASE' } } },
       include: {
         estudiante: {
           select: {

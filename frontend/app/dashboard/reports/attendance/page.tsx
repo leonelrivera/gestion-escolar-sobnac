@@ -64,7 +64,8 @@ export default function AttendanceReportPage() {
             const sRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/students?curso=${course.anioCurso}&division=${course.division}&cicloLectivo=${course.cicloLectivo.anio}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            const students = await sRes.json();
+            const rawStudents = await sRes.json();
+            const students = rawStudents.filter((s: any) => s.condicion !== 'PASE');
             
             // Extract unique dates
             const fechasSet = new Set<string>();

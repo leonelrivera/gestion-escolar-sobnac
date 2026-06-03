@@ -69,7 +69,8 @@ export default function AttendancePage() {
             const sRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/students?curso=${course.anioCurso}&division=${course.division}&cicloLectivo=${course.cicloLectivo.anio}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            const studentsData = await sRes.json();
+            const rawStudents = await sRes.json();
+            const studentsData = rawStudents.filter((s: any) => s.condicion !== 'PASE');
 
             // 2. Get Existing Attendance
             const attRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/attendance?cursoId=${selectedCourseId}&fecha=${selectedDate}`, {

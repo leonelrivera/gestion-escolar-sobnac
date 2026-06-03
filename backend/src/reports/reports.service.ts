@@ -296,6 +296,7 @@ export class ReportsService {
       include: {
         orientacion: true,
         inscripciones: {
+          where: { estudiante: { condicion: { not: 'PASE' } } },
           include: {
             estudiante: true,
             calificaciones: {
@@ -459,7 +460,7 @@ export class ReportsService {
       include: {
         orientacion: true,
         inscripciones: {
-          where: studentId ? { estudianteId: studentId } : undefined,
+          where: studentId ? { estudianteId: studentId, estudiante: { condicion: { not: 'PASE' } } } : { estudiante: { condicion: { not: 'PASE' } } },
           include: {
             estudiante: true,
             calificaciones: {
@@ -660,7 +661,7 @@ export class ReportsService {
       include: {
         orientacion: true,
         inscripciones: {
-          where: studentId ? { estudianteId: studentId } : undefined,
+          where: studentId ? { estudianteId: studentId, estudiante: { condicion: { not: 'PASE' } } } : { estudiante: { condicion: { not: 'PASE' } } },
           include: {
             estudiante: {
               include: {
@@ -881,7 +882,7 @@ export class ReportsService {
       include: {
         orientacion: true,
         inscripciones: {
-          where: studentId ? { estudianteId: studentId } : undefined,
+          where: studentId ? { estudianteId: studentId, estudiante: { condicion: { not: 'PASE' } } } : { estudiante: { condicion: { not: 'PASE' } } },
           include: {
             estudiante: true,
             calificaciones: { include: { materia: true } },
@@ -1078,6 +1079,7 @@ export class ReportsService {
       where: { id: courseId },
       include: {
         inscripciones: {
+          where: { estudiante: { condicion: { not: 'PASE' } } },
           include: { estudiante: true }
         }
       }
@@ -1240,7 +1242,7 @@ export class ReportsService {
         const fechas = Array.from(fechasSet).sort();
         
         const inscripciones = await this.prisma.inscripcion.findMany({
-            where: { cursoId },
+            where: { cursoId, estudiante: { condicion: { not: 'PASE' } } },
             include: { estudiante: true },
             orderBy: { estudiante: { apellido: 'asc' } }
         });
