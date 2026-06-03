@@ -100,7 +100,13 @@ export default function StudentProfilePage() {
                             <p className="text-gray-500 font-medium text-sm">DNI: {student.dni} | {student.genero}</p>
                         </div>
                         <div className="text-right">
-                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${student.condicion === 'REGULAR' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
+                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${
+                                student.condicion === 'REGULAR' ? 'bg-green-100 text-green-700' : 
+                                student.condicion === 'REPITE' ? 'bg-red-100 text-red-700' : 
+                                student.condicion === 'IRREGULAR' ? 'bg-purple-100 text-purple-800' : 
+                                student.condicion === 'PASE' ? 'bg-orange-100 text-orange-800' : 
+                                'bg-blue-100 text-blue-700'
+                            }`}>
                                 {student.condicion}
                             </span>
                         </div>

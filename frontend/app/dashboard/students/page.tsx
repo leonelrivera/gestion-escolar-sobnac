@@ -204,7 +204,8 @@ export default function StudentsPage() {
                         <select name="condicion" value={filters.condicion} onChange={handleFilterChange} className="w-full border-2 border-gray-300 rounded p-2 text-sm font-black text-black">
                             <option value="">Todas</option>
                             <option value="REGULAR">Regular</option>
-                            <option value="REPITENTE">Repitente</option>
+                            <option value="REPITE">Repite</option>
+                            <option value="IRREGULAR">Irregular</option>
                             <option value="PASE">Pase</option>
                             <option value="INGRESO">Ingreso</option>
                         </select>
@@ -295,9 +296,10 @@ export default function StudentsPage() {
                                 </td>
                                 <td className="px-4 py-3">
                                     <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${student.condicion === 'REGULAR' ? 'bg-green-100 text-green-700' :
-                                        student.condicion === 'REPITENTE' ? 'bg-red-100 text-red-700' :
-                                            student.condicion === 'PASE' ? 'bg-orange-100 text-orange-800' :
-                                                'bg-blue-100 text-blue-700'
+                                        student.condicion === 'REPITE' ? 'bg-red-100 text-red-700' :
+                                            student.condicion === 'IRREGULAR' ? 'bg-purple-100 text-purple-800' :
+                                                student.condicion === 'PASE' ? 'bg-orange-100 text-orange-800' :
+                                                    'bg-blue-100 text-blue-700'
                                         }`}>
                                         {student.condicion === 'PASE' ? `PASE - ${student.paseEstado || 'TRAMITE'}` : student.condicion}
                                     </span>

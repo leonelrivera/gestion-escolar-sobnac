@@ -324,7 +324,8 @@ export default function CreateStudentPage() {
                             <select name="condicion" value={formData.condicion} onChange={handleChange} className="mt-1 block w-full border rounded-lg p-2 bg-gray-50 focus:bg-white outline-none">
                                 <option value="REGULAR">Regular</option>
                                 <option value="INGRESO">Ingreso</option>
-                                <option value="REPITENTE">Repitente</option>
+                                <option value="REPITE">Repite</option>
+                                <option value="IRREGULAR">Irregular</option>
                                 <option value="PASE">Pase</option>
                             </select>
                         </div>

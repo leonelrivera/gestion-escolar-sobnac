@@ -1,0 +1,2 @@
+ALTER TYPE "CondicionEstudiante" RENAME VALUE 'REPITENTE' TO 'REPITE';
+ALTER TYPE "CondicionEstudiante" ADD VALUE 'IRREGULAR';

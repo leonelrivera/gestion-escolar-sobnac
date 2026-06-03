@@ -235,9 +235,10 @@ enum Rol {
 
 enum CondicionEstudiante {
   REGULAR
-  REPITENTE
+  REPITE
   PASE
   INGRESO
+  IRREGULAR
 }
 
 enum InstanciaEvaluacion {
