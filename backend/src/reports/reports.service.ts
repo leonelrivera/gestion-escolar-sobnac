@@ -595,12 +595,19 @@ export class ReportsService {
               let mat = matKeys[i];
               let grades = alumno.materias[mat];
               
-              doc.text(mat, colX[0] + 5, currentY + 3, { width: 190 });
-              doc.text(grades.inf.toString(), colX[1], currentY + 3, { width: 60, align: 'center'});
-              doc.text(grades.pfa.toString(), colX[2], currentY + 3, { width: 60, align: 'center'});
-              doc.text(grades.cierre.toString(), colX[3], currentY + 3, { width: 60, align: 'center'});
+              const defaultRowHeight = 15;
+              let currentRowHeight = defaultRowHeight;
+              const textHeight = doc.heightOfString(mat, { width: 190 });
+              if (textHeight > defaultRowHeight) {
+                  currentRowHeight = textHeight + 4;
+              }
 
-              currentY += rowHeight;
+              doc.text(mat, colX[0] + 5, currentY + (currentRowHeight / 2) - (textHeight / 2), { width: 190 });
+              doc.text(grades.inf.toString(), colX[1], currentY + (currentRowHeight / 2) - 4, { width: 60, align: 'center'});
+              doc.text(grades.pfa.toString(), colX[2], currentY + (currentRowHeight / 2) - 4, { width: 60, align: 'center'});
+              doc.text(grades.cierre.toString(), colX[3], currentY + (currentRowHeight / 2) - 4, { width: 60, align: 'center'});
+
+              currentY += currentRowHeight;
               doc.moveTo(left, currentY).lineTo(colX[4], currentY).stroke(); // Line until signature
           }
           
@@ -802,18 +809,24 @@ export class ReportsService {
           // Headers
           const numCols = materiasNames.length > 0 ? materiasNames.length + 1 : 1;
           const colWidth = availableWidth / numCols;
-          let rowHeight = 40; // Taller for wrapped subjects
+          
+          doc.font('Helvetica-Bold').fontSize(8);
+          let rowHeight = 40; // Base height
+          materiasNames.forEach(m => {
+              const h = doc.heightOfString(m.toUpperCase(), { width: colWidth - 4 });
+              if (h + 10 > rowHeight) rowHeight = h + 10;
+          });
 
           // Header rects
           doc.lineWidth(1).rect(left, y, availableWidth, rowHeight).stroke();
-          doc.font('Helvetica-Bold').fontSize(8);
           
-          doc.text('PERÍODO', left + 2, y + 15, { width: colWidth - 4, align: 'center' });
+          doc.text('PERÍODO', left + 2, y + (rowHeight / 2) - 4, { width: colWidth - 4, align: 'center' });
           
           materiasNames.forEach((m, idx) => {
               const xPos = left + (colWidth * (idx + 1));
               doc.moveTo(xPos, y).lineTo(xPos, y + rowHeight).stroke();
-              doc.text(m.toUpperCase(), xPos + 2, y + 5, { width: colWidth - 4, align: 'center', height: rowHeight - 10 });
+              const textHeight = doc.heightOfString(m.toUpperCase(), { width: colWidth - 4 });
+              doc.text(m.toUpperCase(), xPos + 2, y + (rowHeight / 2) - (textHeight / 2), { width: colWidth - 4, align: 'center' });
           });
           y += rowHeight;
 
@@ -1014,34 +1027,41 @@ export class ReportsService {
           y += headerHeight;
 
           // Table Rows (Materias)
-          let rowHeight = 22;
+          let defaultRowHeight = 22;
           doc.font('Helvetica').fontSize(9);
           
           materiasNames.forEach((m) => {
+              doc.font('Helvetica-Bold').fontSize(8);
+              let currentRowHeight = defaultRowHeight;
+              const textHeight = doc.heightOfString(m.toUpperCase(), { width: colMateriaWidth - 8 });
+              if (textHeight > defaultRowHeight) {
+                  currentRowHeight = textHeight + 6;
+              }
+
               // Draw Row Rect
-              doc.rect(left, y, availableWidth, rowHeight).stroke();
+              doc.rect(left, y, availableWidth, currentRowHeight).stroke();
               
               // Materia Name
-              doc.fillColor('black').font('Helvetica-Bold').fontSize(8);
-              doc.text(m.toUpperCase(), left + 4, y + 6, { width: colMateriaWidth - 8, align: 'left', height: rowHeight - 4, ellipsis: true });
+              doc.fillColor('black');
+              doc.text(m.toUpperCase(), left + 4, y + (currentRowHeight / 2) - (textHeight / 2), { width: colMateriaWidth - 8, align: 'left' });
               
               // Grades
               doc.font('Helvetica-Bold').fontSize(9);
               periodsShort.forEach((p, pIdx) => {
                   const xPos = left + colMateriaWidth + (colWidth * pIdx);
-                  doc.moveTo(xPos, y).lineTo(xPos, y + rowHeight).stroke();
+                  doc.moveTo(xPos, y).lineTo(xPos, y + currentRowHeight).stroke();
                   
                   const val = alumno.gradesByMateria[m][pIdx];
                   if (val !== '') {
                       const numVal = Number(val);
                       if (!isNaN(numVal) && numVal < 6) {
-                          doc.fillColor('red').text(val, xPos, y + 6, { width: colWidth, align: 'center' }).fillColor('black');
+                          doc.fillColor('red').text(val, xPos, y + (currentRowHeight / 2) - 4, { width: colWidth, align: 'center' }).fillColor('black');
                       } else {
-                          doc.fillColor('black').text(val, xPos, y + 6, { width: colWidth, align: 'center' });
+                          doc.fillColor('black').text(val, xPos, y + (currentRowHeight / 2) - 4, { width: colWidth, align: 'center' });
                       }
                   }
               });
-              y += rowHeight;
+              y += currentRowHeight;
           });
 
           y += 40;
@@ -1174,34 +1194,51 @@ export class ReportsService {
           y += (h1 + h2);
 
           // Data Rows
-          const rowHeight = 14.5;
+          const defaultRowHeight = 14.5;
           doc.font('Helvetica').fontSize(8);
 
           pageAlumnos.forEach((al, idx) => {
-              doc.rect(startX, y, availableWidth, rowHeight).stroke();
-              
-              const globalIdx = idx + 1;
-              doc.text(globalIdx.toString(), startX, y + 4, { width: wNo, align: 'center' });
-              doc.moveTo(startX + wNo, y).lineTo(startX + wNo, y + rowHeight).stroke();
+              let currentRowHeight = defaultRowHeight;
+              let nameText = '';
+              let textHeight = 8; // Default text height
 
               if (al) {
-                  doc.text(al.dni, startX + wNo, y + 4, { width: wDni, align: 'center' });
-                  doc.moveTo(startX + wNo + wDni, y).lineTo(startX + wNo + wDni, y + rowHeight).stroke();
+                  nameText = `${al.apellido.toUpperCase()}, ${al.nombre}`;
+                  textHeight = doc.heightOfString(nameText, { width: wName - 8 });
+                  if (textHeight > defaultRowHeight) {
+                      currentRowHeight = textHeight + 6; // Padding
+                  }
+              }
 
-                  doc.text(`${al.apellido.toUpperCase()}, ${al.nombre}`, startX + wNo + wDni + 4, y + 4, { width: wName - 8, align: 'left' });
+              if (y + currentRowHeight > 560) {
+                  doc.addPage({ margin: 30, size: 'A4', layout: 'landscape' });
+                  y = 30;
+              }
+
+              doc.rect(startX, y, availableWidth, currentRowHeight).stroke();
+              
+              const globalIdx = idx + 1;
+              doc.text(globalIdx.toString(), startX, y + (currentRowHeight / 2) - 4, { width: wNo, align: 'center' });
+              doc.moveTo(startX + wNo, y).lineTo(startX + wNo, y + currentRowHeight).stroke();
+
+              if (al) {
+                  doc.text(al.dni, startX + wNo, y + (currentRowHeight / 2) - 4, { width: wDni, align: 'center' });
+                  doc.moveTo(startX + wNo + wDni, y).lineTo(startX + wNo + wDni, y + currentRowHeight).stroke();
+
+                  doc.text(nameText, startX + wNo + wDni + 4, y + (currentRowHeight / 2) - (textHeight / 2), { width: wName - 8, align: 'left' });
               } else {
                   // Fila vacía
-                  doc.moveTo(startX + wNo + wDni, y).lineTo(startX + wNo + wDni, y + rowHeight).stroke();
+                  doc.moveTo(startX + wNo + wDni, y).lineTo(startX + wNo + wDni, y + currentRowHeight).stroke();
               }
               
-              doc.moveTo(endNameX, y).lineTo(endNameX, y + rowHeight).stroke();
+              doc.moveTo(endNameX, y).lineTo(endNameX, y + currentRowHeight).stroke();
 
               for (let i = 0; i < 11; i++) {
                  const xPos = endNameX + (wGradeCol * i);
-                 if (i > 0) doc.moveTo(xPos, y).lineTo(xPos, y + rowHeight).stroke();
+                 if (i > 0) doc.moveTo(xPos, y).lineTo(xPos, y + currentRowHeight).stroke();
               }
 
-              y += rowHeight;
+              y += currentRowHeight;
           });
       };
 

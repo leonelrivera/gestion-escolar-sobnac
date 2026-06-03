@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function AttendanceReportPage() {
     const router = useRouter();
@@ -110,7 +111,12 @@ export default function AttendanceReportPage() {
 
     return (
         <div className="p-6 max-w-7xl mx-auto">
-            <h1 className="text-2xl font-bold mb-6 text-gray-800">Reporte de Control de Asistencias</h1>
+            <div className="flex items-center gap-3 mb-6">
+                <Link href="/dashboard/reports" className="text-gray-500 hover:text-gray-800 transition">
+                    ← Volver
+                </Link>
+                <h1 className="text-2xl font-bold text-gray-800">Reporte de Control de Asistencias</h1>
+            </div>
 
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-6">
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
