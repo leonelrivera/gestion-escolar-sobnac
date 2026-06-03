@@ -118,22 +118,23 @@ export default function ReportsPage() {
                     </button>
                 </div>
 
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 opacity-50 border-dashed flex flex-col justify-between">
+                {/* Control de Asistencias */}
+                <Link href="/dashboard/reports/attendance" className="bg-white p-6 rounded-xl shadow-sm border-2 border-gray-100 hover:border-cyan-400 hover:shadow-lg transition flex flex-col justify-between group">
                     <div>
-                        <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-4 text-gray-400">
+                        <div className="w-12 h-12 bg-cyan-100 rounded-full flex items-center justify-center mb-4 text-cyan-600 group-hover:scale-110 transition-transform">
                             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                         </div>
-                        <h3 className="text-lg font-black text-gray-800 mb-2">Exportación de Estudiantes</h3>
-                        <p className="text-gray-400 text-sm mb-4 flex-grow">
-                            Próximamente: Exportación completa de datos de alumnos para Excel.
+                        <h3 className="text-lg font-black text-gray-800 mb-2">Control de Asistencias</h3>
+                        <p className="text-gray-500 text-sm mb-4 flex-grow">
+                            Planilla de asistencia en tabla cruzada por curso y periodo, con descarga en PDF.
                         </p>
                     </div>
-                    <button disabled className="w-full py-2 bg-gray-100 text-gray-400 font-bold rounded cursor-not-allowed">
-                        No disponible
+                    <button className="w-full py-2.5 bg-cyan-50 text-cyan-600 font-bold rounded-lg group-hover:bg-cyan-600 group-hover:text-white transition">
+                        Abrir Reporte
                     </button>
-                </div>
+                </Link>
                 
                 {/* CALIFICADORES */}
                 <Link href="/dashboard/reports/calificadores" className="bg-white p-6 rounded-xl shadow-sm border-2 border-gray-100 hover:border-blue-400 hover:shadow-lg transition flex flex-col justify-between group">

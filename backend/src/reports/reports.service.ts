@@ -1208,4 +1208,151 @@ export class ReportsService {
       doc.end();
     });
   }
+
+  async generateAttendanceReportPDF(cursoId: number, fechaDesde: string, fechaHasta: string): Promise<Buffer> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const tempFiles: string[] = [];
+        
+        const curso = await this.prisma.curso.findUnique({
+          where: { id: cursoId },
+          include: { cicloLectivo: true }
+        });
+        
+        if (!curso) throw new Error('Curso no encontrado');
+        
+        const start = new Date(fechaDesde);
+        start.setHours(0, 0, 0, 0);
+        const end = new Date(fechaHasta);
+        end.setHours(23, 59, 59, 999);
+        
+        const asistencias = await this.prisma.asistencia.findMany({
+            where: {
+                inscripcion: { cursoId },
+                fecha: { gte: start, lte: end }
+            },
+            include: { inscripcion: { include: { estudiante: true } } },
+            orderBy: [{ fecha: 'asc' }, { inscripcion: { estudiante: { apellido: 'asc' } } }]
+        });
+        
+        const fechasSet = new Set<string>();
+        asistencias.forEach(a => fechasSet.add(a.fecha.toISOString().split('T')[0]));
+        const fechas = Array.from(fechasSet).sort();
+        
+        const inscripciones = await this.prisma.inscripcion.findMany({
+            where: { cursoId },
+            include: { estudiante: true },
+            orderBy: { estudiante: { apellido: 'asc' } }
+        });
+        
+        const doc = new PDFDocument({ margin: 30, size: 'A4', layout: 'landscape' });
+        const buffers: Buffer[] = [];
+        doc.on('data', buffers.push.bind(buffers));
+        doc.on('end', () => {
+          cleanupTempImages(tempFiles);
+          resolve(Buffer.concat(buffers));
+        });
+        
+        doc.fontSize(16).text('Planilla de Control de Asistencias', 30, 40);
+        doc.fontSize(10).text(`Curso: ${curso.anioCurso} "${curso.division}" - Ciclo ${curso.cicloLectivo.anio}`, 30, 60);
+        doc.text(`Período: ${start.toLocaleDateString('es-AR')} al ${end.toLocaleDateString('es-AR')}`, 30, 75);
+        doc.moveDown(2);
+        
+        if (fechas.length === 0) {
+            doc.fontSize(12).text('No hay registros de asistencia en el período seleccionado.', 30, 120);
+            doc.end();
+            return;
+        }
+
+        const maxFechas = 31;
+        const renderFechas = fechas.slice(0, maxFechas);
+        const nameWidth = 110;
+        const summaryWidth = 20;
+        const rowHeight = 20;
+        const availableWidth = 841.89 - 60;
+        const remainingWidth = availableWidth - nameWidth - (summaryWidth * 2);
+        const dateColWidth = remainingWidth / Math.max(renderFechas.length, 1);
+
+        let y = 110;
+
+        const drawHeader = (yPos: number) => {
+            doc.lineWidth(0.5);
+            doc.font('Helvetica-Bold').fontSize(7);
+            doc.rect(30, yPos, availableWidth, rowHeight).fillAndStroke('#eeeeee', '#000000');
+            doc.fillColor('black');
+            
+            let x = 30;
+            doc.text('Apellido y Nombre', x, yPos + 6, { width: nameWidth, align: 'center' });
+            x += nameWidth;
+            doc.moveTo(x, yPos).lineTo(x, yPos + rowHeight).stroke();
+            
+            renderFechas.forEach(f => {
+                const label = f.substring(8) + "/" + f.substring(5,7);
+                doc.text(label, x, yPos + 6, { width: dateColWidth, align: 'center' });
+                x += dateColWidth;
+                doc.moveTo(x, yPos).lineTo(x, yPos + rowHeight).stroke();
+            });
+            
+            doc.text('P', x, yPos + 6, { width: summaryWidth, align: 'center' });
+            x += summaryWidth;
+            doc.moveTo(x, yPos).lineTo(x, yPos + rowHeight).stroke();
+            
+            doc.text('A', x, yPos + 6, { width: summaryWidth, align: 'center' });
+            x += summaryWidth;
+            doc.moveTo(x, yPos).lineTo(x, yPos + rowHeight).stroke();
+            
+            return yPos + rowHeight;
+        };
+
+        y = drawHeader(y);
+
+        doc.font('Helvetica').fontSize(7);
+        inscripciones.forEach(ins => {
+            if (y > 520) {
+                doc.addPage();
+                y = 30;
+                y = drawHeader(y);
+                doc.font('Helvetica').fontSize(7);
+            }
+            
+            let x = 30;
+            doc.rect(30, y, availableWidth, rowHeight).stroke();
+            
+            const name = `${ins.estudiante.apellido}, ${ins.estudiante.nombre}`;
+            doc.text(name, x + 2, y + 2, { width: nameWidth - 4, align: 'left' });
+            x += nameWidth;
+            doc.moveTo(x, y).lineTo(x, y + rowHeight).stroke();
+            
+            let presentes = 0;
+            let ausentes = 0;
+            
+            renderFechas.forEach(f => {
+                const asis = asistencias.find(a => a.inscripcionId === ins.id && a.fecha.toISOString().split('T')[0] === f);
+                let val = '-';
+                if (asis) {
+                    if (asis.presente) { val = 'P'; presentes++; }
+                    else if (asis.justificado) { val = 'J'; }
+                    else { val = 'A'; ausentes++; }
+                }
+                
+                doc.text(val, x, y + 6, { width: dateColWidth, align: 'center' });
+                x += dateColWidth;
+                doc.moveTo(x, y).lineTo(x, y + rowHeight).stroke();
+            });
+            
+            doc.text(presentes.toString(), x, y + 6, { width: summaryWidth, align: 'center' });
+            x += summaryWidth;
+            doc.moveTo(x, y).lineTo(x, y + rowHeight).stroke();
+            
+            doc.text(ausentes.toString(), x, y + 6, { width: summaryWidth, align: 'center' });
+            
+            y += rowHeight;
+        });
+        
+        doc.end();
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
 }

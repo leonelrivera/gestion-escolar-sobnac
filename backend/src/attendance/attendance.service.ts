@@ -39,14 +39,20 @@ export class AttendanceService {
           if (existing) {
             results.push(await tx.asistencia.update({
               where: { id: existing.id },
-              data: { presente: data.presente }
+              data: { 
+                presente: data.presente,
+                justificado: data.justificado !== undefined ? data.justificado : existing.justificado,
+                observaciones: data.observaciones !== undefined ? data.observaciones : existing.observaciones
+              }
             }));
           } else {
             results.push(await tx.asistencia.create({
               data: {
                 inscripcionId: data.inscripcionId,
                 fecha: new Date(data.fecha),
-                presente: data.presente
+                presente: data.presente,
+                justificado: data.justificado || false,
+                observaciones: data.observaciones || null
               }
             }));
           }
@@ -56,15 +62,26 @@ export class AttendanceService {
     );
   }
 
-  findAll(filters?: { cursoId?: number; fecha?: string }) {
+  findAll(filters?: { cursoId?: number; fecha?: string; fechaDesde?: string; fechaHasta?: string }) {
     const where: any = {};
     if (filters?.fecha) {
-      // Range for the whole day
       const start = new Date(filters.fecha);
       start.setHours(0, 0, 0, 0);
       const end = new Date(filters.fecha);
       end.setHours(23, 59, 59, 999);
       where.fecha = { gte: start, lte: end };
+    } else if (filters?.fechaDesde || filters?.fechaHasta) {
+      where.fecha = {};
+      if (filters.fechaDesde) {
+        const start = new Date(filters.fechaDesde);
+        start.setHours(0, 0, 0, 0);
+        where.fecha.gte = start;
+      }
+      if (filters.fechaHasta) {
+        const end = new Date(filters.fechaHasta);
+        end.setHours(23, 59, 59, 999);
+        where.fecha.lte = end;
+      }
     }
     if (filters?.cursoId) {
       where.inscripcion = { cursoId: filters.cursoId };

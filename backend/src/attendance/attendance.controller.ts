@@ -31,13 +31,17 @@ export class AttendanceController {
     @Query('studentId') studentId?: string,
     @Query('cursoId') cursoId?: string,
     @Query('fecha') fecha?: string,
+    @Query('fechaDesde') fechaDesde?: string,
+    @Query('fechaHasta') fechaHasta?: string,
   ) {
     if (studentId) {
       return this.attendanceService.findByStudent(+studentId);
     }
     return this.attendanceService.findAll({
       cursoId: cursoId ? +cursoId : undefined,
-      fecha
+      fecha,
+      fechaDesde,
+      fechaHasta
     });
   }
 

@@ -194,4 +194,24 @@ export class ReportsController {
     });
     res.end(buffer);
   }
+
+  @Get('attendance')
+  async getAttendanceReport(
+    @Query('cursoId') cursoId: string,
+    @Query('fechaDesde') fechaDesde: string,
+    @Query('fechaHasta') fechaHasta: string,
+    @Res() res: Response,
+  ) {
+    const buffer = await this.reportsService.generateAttendanceReportPDF(
+      Number(cursoId),
+      fechaDesde,
+      fechaHasta
+    );
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': 'attachment; filename="control_asistencias.pdf"',
+      'Content-Length': buffer.length,
+    });
+    res.end(buffer);
+  }
 }

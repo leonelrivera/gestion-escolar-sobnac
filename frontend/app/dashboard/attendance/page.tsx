@@ -14,6 +14,11 @@ export default function AttendancePage() {
     const [selectedCourseId, setSelectedCourseId] = useState('');
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
+    // Opciones Masivas
+    const [isFeriado, setIsFeriado] = useState(false);
+    const [isSuspension, setIsSuspension] = useState(false);
+    const [suspensionReason, setSuspensionReason] = useState('');
+
     useEffect(() => {
         const token = localStorage.getItem('token');
 
@@ -104,11 +109,29 @@ export default function AttendancePage() {
 
     const saveAttendance = async () => {
         const token = localStorage.getItem('token');
-        const payload = Object.entries(attendances).map(([insId, presente]) => ({
-            inscripcionId: +insId,
-            fecha: selectedDate,
-            presente
-        }));
+        let payload: any[] = [];
+        
+        if (isFeriado || isSuspension) {
+            const observacion = isFeriado ? 'Feriado' : `Suspensión: ${suspensionReason}`;
+            payload = students.map((s: any) => {
+                const inscripcion = s.inscripciones[0];
+                return inscripcion ? {
+                    inscripcionId: inscripcion.id,
+                    fecha: selectedDate,
+                    presente: false,
+                    justificado: true,
+                    observaciones: observacion
+                } : null;
+            }).filter(Boolean);
+        } else {
+            payload = Object.entries(attendances).map(([insId, presente]) => ({
+                inscripcionId: +insId,
+                fecha: selectedDate,
+                presente,
+                justificado: false,
+                observaciones: ''
+            }));
+        }
 
         try {
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/attendance/bulk`, {
@@ -184,6 +207,49 @@ export default function AttendancePage() {
                 </div>
             </div>
 
+            {/* Opciones Masivas */}
+            {!loading && students.length > 0 && (
+                <div className="bg-orange-50 p-4 rounded-xl border border-orange-100 mb-6 flex flex-col md:flex-row gap-6 items-center">
+                    <div className="flex items-center gap-2">
+                        <input
+                            type="checkbox"
+                            id="isFeriado"
+                            checked={isFeriado}
+                            onChange={(e) => {
+                                setIsFeriado(e.target.checked);
+                                if (e.target.checked) setIsSuspension(false);
+                            }}
+                            className="w-5 h-5 text-orange-600 cursor-pointer rounded"
+                        />
+                        <label htmlFor="isFeriado" className="font-bold text-orange-800 cursor-pointer">Día Feriado</label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <input
+                            type="checkbox"
+                            id="isSuspension"
+                            checked={isSuspension}
+                            onChange={(e) => {
+                                setIsSuspension(e.target.checked);
+                                if (e.target.checked) setIsFeriado(false);
+                            }}
+                            className="w-5 h-5 text-orange-600 cursor-pointer rounded"
+                        />
+                        <label htmlFor="isSuspension" className="font-bold text-orange-800 cursor-pointer">Suspensión de Actividades</label>
+                    </div>
+                    {isSuspension && (
+                        <div className="flex-1 w-full md:w-auto">
+                            <input
+                                type="text"
+                                placeholder="Motivo breve (ej. Falta de agua, Desinfección...)"
+                                value={suspensionReason}
+                                onChange={(e) => setSuspensionReason(e.target.value)}
+                                className="w-full border-orange-200 rounded p-2 text-sm focus:ring-orange-500 outline-none"
+                            />
+                        </div>
+                    )}
+                </div>
+            )}
+
             {loading && <p className="text-center p-4">Cargando...</p>}
 
             {!loading && students.length > 0 && (
@@ -205,13 +271,15 @@ export default function AttendancePage() {
                         </thead>
                         <tbody className="divide-y divide-gray-100">
                             {students.map(student => (
-                                <tr key={student.id} className="hover:bg-gray-50">
+                                <tr key={student.id} className={`hover:bg-gray-50 ${(isFeriado || isSuspension) ? 'opacity-50' : ''}`}>
                                     <td className="px-6 py-4 font-medium text-gray-800 uppercase">
                                         {student.apellido}, {student.nombre}
                                         <span className="block text-xs text-gray-400 font-normal">{student.dni}</span>
                                     </td>
                                     <td className="px-6 py-4 text-center">
-                                        {attendances[student.inscripciones[0]?.id] ? (
+                                        {(isFeriado || isSuspension) ? (
+                                            <span className="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-xs font-bold">JUSTIFICADO MASIVO</span>
+                                        ) : attendances[student.inscripciones[0]?.id] ? (
                                             <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">PRESENTE</span>
                                         ) : (
                                             <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold">AUSENTE</span>
@@ -220,7 +288,8 @@ export default function AttendancePage() {
                                     <td className="px-6 py-4 text-center">
                                         <button
                                             onClick={() => toggleAttendance(student.inscripciones[0]?.id)}
-                                            className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors font-bold ${attendances[student.inscripciones[0]?.id]
+                                            disabled={isFeriado || isSuspension}
+                                            className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors font-bold disabled:bg-gray-100 disabled:text-gray-300 ${attendances[student.inscripciones[0]?.id]
                                                 ? 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200'
                                                 : 'bg-green-50 text-green-600 hover:bg-green-100 border border-green-200'
                                                 }`}

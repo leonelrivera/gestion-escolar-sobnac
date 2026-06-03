@@ -3,4 +3,5 @@ export class CreateAttendanceDto {
   fecha: string; // ISO
   presente: boolean;
   justificado?: boolean;
+  observaciones?: string;
 }
