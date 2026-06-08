@@ -148,10 +148,11 @@ export default function UsersPage() {
                 )}
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <table className="w-full text-sm text-left">
-                    <thead className="bg-gray-50 border-b border-gray-100">
-                        <tr>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex-1 flex flex-col">
+                <div className="overflow-auto flex-1 custom-scrollbar">
+                    <table className="w-full text-sm text-left">
+                        <thead className="bg-gray-50 border-b border-gray-100 sticky top-0 z-10">
+                            <tr>
                             <th className="px-6 py-4 font-bold text-gray-600">Nombre</th>
                             <th className="px-6 py-4 font-bold text-gray-600">Email</th>
                             <th className="px-6 py-4 font-bold text-gray-600">Rol</th>
@@ -209,6 +210,7 @@ export default function UsersPage() {
                         ))}
                     </tbody>
                 </table>
+                </div>
             </div>
 
             {/* Modal de Usuario */}
