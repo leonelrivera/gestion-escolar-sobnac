@@ -2,6 +2,15 @@
 
 import { useState, useEffect } from 'react';
 
+const isBeforeEntryDate = (fechaIngreso: string | null, attendanceDate: string) => {
+    if (!fechaIngreso) return false;
+    const ingreso = new Date(fechaIngreso);
+    const [year, month, day] = attendanceDate.split('-');
+    const asistencia = new Date(+year, +month - 1, +day);
+    const ingresoLocal = new Date(ingreso.getUTCFullYear(), ingreso.getUTCMonth(), ingreso.getUTCDate());
+    return asistencia < ingresoLocal;
+};
+
 export default function AttendancePage() {
     const [courses, setCourses] = useState<any[]>([]);
     const [students, setStudents] = useState<any[]>([]);
@@ -115,6 +124,7 @@ export default function AttendancePage() {
         if (isFeriado || isSuspension) {
             const observacion = isFeriado ? 'Feriado' : `Suspensión: ${suspensionReason}`;
             payload = students.map((s: any) => {
+                if (isBeforeEntryDate(s.fechaIngreso, selectedDate)) return null;
                 const inscripcion = s.inscripciones[0];
                 return inscripcion ? {
                     inscripcionId: inscripcion.id,
@@ -125,13 +135,17 @@ export default function AttendancePage() {
                 } : null;
             }).filter(Boolean);
         } else {
-            payload = Object.entries(attendances).map(([insId, presente]) => ({
-                inscripcionId: +insId,
-                fecha: selectedDate,
-                presente,
-                justificado: false,
-                observaciones: ''
-            }));
+            payload = Object.entries(attendances).map(([insId, presente]) => {
+                const s = students.find((st: any) => st.inscripciones[0]?.id === +insId);
+                if (s && isBeforeEntryDate(s.fechaIngreso, selectedDate)) return null;
+                return {
+                    inscripcionId: +insId,
+                    fecha: selectedDate,
+                    presente,
+                    justificado: false,
+                    observaciones: ''
+                };
+            }).filter(Boolean);
         }
 
         try {
@@ -258,8 +272,8 @@ export default function AttendancePage() {
                     <div className="p-4 bg-gray-50 border-b flex justify-between items-center">
                         <h3 className="font-bold text-gray-700">Listado de Estudiantes ({students.length})</h3>
                         <div className="text-sm text-gray-500">
-                            Presentes: <span className="text-green-600 font-bold">{Object.values(attendances).filter(Boolean).length}</span> |
-                            Ausentes: <span className="text-red-600 font-bold">{Object.values(attendances).filter(v => !v).length}</span>
+                            Presentes: <span className="text-green-600 font-bold">{students.filter(s => !isBeforeEntryDate(s.fechaIngreso, selectedDate)).filter(s => attendances[s.inscripciones[0]?.id]).length}</span> |
+                            Ausentes: <span className="text-red-600 font-bold">{students.filter(s => !isBeforeEntryDate(s.fechaIngreso, selectedDate)).filter(s => !attendances[s.inscripciones[0]?.id]).length}</span>
                         </div>
                     </div>
                     <table className="w-full">
@@ -278,7 +292,9 @@ export default function AttendancePage() {
                                         <span className="block text-xs text-gray-400 font-normal">{student.dni}</span>
                                     </td>
                                     <td className="px-6 py-4 text-center">
-                                        {(isFeriado || isSuspension) ? (
+                                        {isBeforeEntryDate(student.fechaIngreso, selectedDate) ? (
+                                            <span className="bg-gray-200 text-gray-600 px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap">PREVIO AL INGRESO</span>
+                                        ) : (isFeriado || isSuspension) ? (
                                             <span className="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-xs font-bold">JUSTIFICADO MASIVO</span>
                                         ) : attendances[student.inscripciones[0]?.id] ? (
                                             <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">PRESENTE</span>
@@ -286,18 +302,20 @@ export default function AttendancePage() {
                                             <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold">AUSENTE</span>
                                         )}
                                     </td>
-                                    <td className="px-6 py-4 text-center">
-                                        <button
-                                            onClick={() => toggleAttendance(student.inscripciones[0]?.id)}
-                                            disabled={isFeriado || isSuspension}
-                                            className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors font-bold disabled:bg-gray-100 disabled:text-gray-300 ${attendances[student.inscripciones[0]?.id]
-                                                ? 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200'
-                                                : 'bg-green-50 text-green-600 hover:bg-green-100 border border-green-200'
-                                                }`}
-                                            title={attendances[student.inscripciones[0]?.id] ? 'Marcar Ausente' : 'Marcar Presente'}
-                                        >
-                                            {attendances[student.inscripciones[0]?.id] ? '✕' : '✓'}
-                                        </button>
+                                    <td className="px-6 py-4 text-center flex justify-center">
+                                        {!isBeforeEntryDate(student.fechaIngreso, selectedDate) && (
+                                            <button
+                                                onClick={() => toggleAttendance(student.inscripciones[0]?.id)}
+                                                disabled={isFeriado || isSuspension}
+                                                className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors font-bold disabled:bg-gray-100 disabled:text-gray-300 ${attendances[student.inscripciones[0]?.id]
+                                                    ? 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200'
+                                                    : 'bg-green-50 text-green-600 hover:bg-green-100 border border-green-200'
+                                                    }`}
+                                                title={attendances[student.inscripciones[0]?.id] ? 'Marcar Ausente' : 'Marcar Presente'}
+                                            >
+                                                {attendances[student.inscripciones[0]?.id] ? '✕' : '✓'}
+                                            </button>
+                                        )}
                                     </td>
                                 </tr>
                             ))}
