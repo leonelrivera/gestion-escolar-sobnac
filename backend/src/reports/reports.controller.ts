@@ -214,4 +214,41 @@ export class ReportsController {
     });
     res.end(buffer);
   }
+
+  @Get('total-classes')
+  async getTotalClassesReport(
+    @Query('ciclo') ciclo: string,
+    @Query('desde') desde: string,
+    @Query('hasta') hasta: string,
+    @Query('cursoId') cursoId: string | undefined,
+    @Res() res: Response,
+  ) {
+    const buffer = await this.reportsService.generateTotalClassesPDF(
+      Number(ciclo),
+      desde,
+      hasta,
+      cursoId ? Number(cursoId) : undefined
+    );
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': 'attachment; filename="dias_clases_totales.pdf"',
+      'Content-Length': buffer.length,
+    });
+    res.end(buffer);
+  }
+
+  @Get('total-classes/data')
+  async getTotalClassesData(
+    @Query('ciclo') ciclo: string,
+    @Query('desde') desde: string,
+    @Query('hasta') hasta: string,
+    @Query('cursoId') cursoId: string | undefined,
+  ) {
+    return this.reportsService.getTotalClassesData(
+      Number(ciclo),
+      desde,
+      hasta,
+      cursoId ? Number(cursoId) : undefined
+    );
+  }
 }

@@ -58,6 +58,9 @@ export class AttendanceService {
           }
         }
         return results;
+      },
+      {
+        timeout: 20000 // 20 seconds timeout for large bulk operations
       }
     );
   }

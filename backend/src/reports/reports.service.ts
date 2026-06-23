@@ -1394,4 +1394,124 @@ export class ReportsService {
       }
     });
   }
+
+  async getTotalClassesData(ciclo: number, fechaDesde: string, fechaHasta: string, cursoId?: number) {
+    const start = new Date(fechaDesde);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(fechaHasta);
+    end.setHours(23, 59, 59, 999);
+
+    const whereCurso: any = {
+      cicloLectivo: { anio: ciclo }
+    };
+    if (cursoId) whereCurso.id = cursoId;
+    
+    const cursos = await this.prisma.curso.findMany({
+      where: whereCurso,
+      orderBy: [{ anioCurso: 'asc' }, { division: 'asc' }]
+    });
+
+    const asistencias = await this.prisma.asistencia.findMany({
+      where: {
+        inscripcion: {
+          curso: whereCurso
+        },
+        fecha: { gte: start, lte: end },
+        presente: true
+      },
+      select: {
+        fecha: true,
+        inscripcion: { select: { cursoId: true } }
+      }
+    });
+
+    const courseDaysMap = new Map<number, Set<string>>();
+    cursos.forEach(c => courseDaysMap.set(c.id, new Set()));
+
+    asistencias.forEach(a => {
+      const cId = a.inscripcion.cursoId;
+      const dateStr = a.fecha.toISOString().split('T')[0];
+      courseDaysMap.get(cId)?.add(dateStr);
+    });
+
+    return cursos.map(c => ({
+      id: c.id,
+      cursoStr: `${c.anioCurso} "${c.division}" - Turno ${c.turno}`,
+      totalDias: courseDaysMap.get(c.id)?.size || 0
+    }));
+  }
+
+  async generateTotalClassesPDF(ciclo: number, fechaDesde: string, fechaHasta: string, cursoId?: number): Promise<Buffer> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const start = new Date(fechaDesde);
+        start.setHours(0, 0, 0, 0);
+        const end = new Date(fechaHasta);
+        end.setHours(23, 59, 59, 999);
+
+        const data = await this.getTotalClassesData(ciclo, fechaDesde, fechaHasta, cursoId);
+
+        const PDFDocument = require('pdfkit');
+        const doc = new PDFDocument({ margin: 40, size: 'A4' });
+        const buffers: Buffer[] = [];
+        doc.on('data', buffers.push.bind(buffers));
+        doc.on('end', () => resolve(Buffer.concat(buffers)));
+
+        // Draw PDF
+        const title = "REPORTE DE DÍAS TOTALES DE CLASES";
+        doc.font('Helvetica-Bold').fontSize(14).text(title, { align: 'center' });
+        doc.moveDown(0.5);
+        
+        doc.fontSize(10).font('Helvetica');
+        doc.text(`Ciclo Lectivo: ${ciclo}`, { align: 'center' });
+        const startStr = start.toLocaleDateString('es-AR');
+        const endStr = end.toLocaleDateString('es-AR');
+        doc.text(`Período: ${startStr} al ${endStr}`, { align: 'center' });
+        doc.moveDown(2);
+
+        // Table headers
+        let y = doc.y;
+        const left = 50;
+        const width = 495; // A4 is 595, margin 50 each side
+        const col1W = 350;
+        const col2W = 145;
+        const rowHeight = 25;
+
+        const drawHeader = () => {
+            doc.lineWidth(1).rect(left, y, width, rowHeight).stroke();
+            doc.font('Helvetica-Bold').fontSize(10);
+            doc.text("CURSO", left + 10, y + 8, { width: col1W - 20, align: 'left' });
+            doc.moveTo(left + col1W, y).lineTo(left + col1W, y + rowHeight).stroke();
+            doc.text("TOTAL DÍAS EFECTIVOS", left + col1W, y + 8, { width: col2W, align: 'center' });
+            y += rowHeight;
+        };
+
+        drawHeader();
+
+        // Rows
+        doc.font('Helvetica').fontSize(10);
+        data.forEach(item => {
+          if (y > 750) {
+            doc.addPage();
+            y = 50;
+            drawHeader();
+            doc.font('Helvetica').fontSize(10);
+          }
+
+          doc.rect(left, y, width, rowHeight).stroke();
+          doc.text(item.cursoStr, left + 10, y + 8, { width: col1W - 20, align: 'left' });
+          
+          doc.moveTo(left + col1W, y).lineTo(left + col1W, y + rowHeight).stroke();
+          
+          doc.text(item.totalDias.toString(), left + col1W, y + 8, { width: col2W, align: 'center' });
+
+          y += rowHeight;
+        });
+
+        doc.end();
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
 }

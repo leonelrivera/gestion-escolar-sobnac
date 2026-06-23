@@ -153,6 +153,24 @@ export default function ReportsPage() {
                         Abrir Reporte
                     </button>
                 </Link>
+                
+                {/* Días Totales de Clases */}
+                <Link href="/dashboard/reports/total-classes" className="bg-white p-6 rounded-xl shadow-sm border-2 border-gray-100 hover:border-fuchsia-400 hover:shadow-lg transition flex flex-col justify-between group">
+                    <div>
+                        <div className="w-12 h-12 bg-fuchsia-100 rounded-full flex items-center justify-center mb-4 text-fuchsia-600 group-hover:scale-110 transition-transform">
+                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <h3 className="text-lg font-black text-gray-800 mb-2">Días Totales de Clases</h3>
+                        <p className="text-gray-500 text-sm mb-4 flex-grow">
+                            Reporte con el conteo de días efectivos de clase por curso.
+                        </p>
+                    </div>
+                    <button className="w-full py-2.5 bg-fuchsia-50 text-fuchsia-600 font-bold rounded-lg group-hover:bg-fuchsia-600 group-hover:text-white transition">
+                        Abrir Reporte
+                    </button>
+                </Link>
             </div>
 
             {/* Info Box */}
