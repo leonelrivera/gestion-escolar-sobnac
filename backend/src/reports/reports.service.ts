@@ -577,7 +577,7 @@ export class ReportsService {
 
           doc.font('Helvetica-Bold').fontSize(8);
           doc.text('ESPACIO CURRICULAR', colX[0] + 5, currentY + 3);
-          let sufijo = cuatrimestreStr === '1' ? '1º' : '2º';
+          let sufijo = instanciaStr.includes('1') ? '1º' : '2º';
           doc.text(`${sufijo} INF.`, colX[1], currentY + 3, { width: 60, align: 'center'});
           doc.text('P.F.A', colX[2], currentY + 3, { width: 60, align: 'center'});
           doc.text('Cal. Cierre', colX[3], currentY + 3, { width: 60, align: 'center'});
