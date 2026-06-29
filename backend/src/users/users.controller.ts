@@ -20,7 +20,7 @@ export class UsersController {
         // Filtrado jerárquico
         if (currentUserRole === 'ADMIN') return users;
         if (currentUserRole === 'DIRECTIVO') {
-            return users.filter(u => u.rol !== 'ADMIN' && u.rol !== 'DIRECTIVO');
+            return users.filter(u => u.rol !== 'ADMIN');
         }
         if (currentUserRole === 'SECRETARIO') {
             return users.filter(u => u.rol !== 'ADMIN');
@@ -79,8 +79,8 @@ export class UsersController {
         if (currentUserRole === 'ADMIN') return;
 
         if (currentUserRole === 'DIRECTIVO') {
-            if (targetRole === 'ADMIN' || targetRole === 'DIRECTIVO') {
-                throw new ForbiddenException('Un Directivo no puede crear o modificar perfiles de igual o mayor jerarquía (ADMIN/DIRECTIVO)');
+            if (targetRole === 'ADMIN') {
+                throw new ForbiddenException('Un Directivo no puede crear o modificar perfiles de jerarquía superior (ADMIN)');
             }
             return;
         }

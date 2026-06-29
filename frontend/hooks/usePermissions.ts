@@ -49,7 +49,7 @@ export function usePermissions() {
     // Devuelve qué roles puede crear el usuario actual
     const allowedRolesToCreate = (): Role[] => {
         if (role === 'ADMIN') return ['ADMIN', 'DIRECTIVO', 'SECRETARIO', 'PROSECRETARIO', 'DEP_ESTUDIANTES', 'COORDINADOR', 'JEFE_PRECEPTOR', 'PRECEPTOR'];
-        if (role === 'DIRECTIVO') return ['SECRETARIO', 'PROSECRETARIO', 'DEP_ESTUDIANTES', 'COORDINADOR', 'JEFE_PRECEPTOR', 'PRECEPTOR'];
+        if (role === 'DIRECTIVO') return ['DIRECTIVO', 'SECRETARIO', 'PROSECRETARIO', 'DEP_ESTUDIANTES', 'COORDINADOR', 'JEFE_PRECEPTOR', 'PRECEPTOR'];
         if (role === 'SECRETARIO') return ['DIRECTIVO', 'SECRETARIO', 'PROSECRETARIO', 'DEP_ESTUDIANTES', 'COORDINADOR', 'JEFE_PRECEPTOR', 'PRECEPTOR'];
         if (role === 'PROSECRETARIO') return ['PROSECRETARIO', 'DEP_ESTUDIANTES', 'COORDINADOR', 'JEFE_PRECEPTOR', 'PRECEPTOR'];
         if (role === 'JEFE_PRECEPTOR') return ['PRECEPTOR'];
