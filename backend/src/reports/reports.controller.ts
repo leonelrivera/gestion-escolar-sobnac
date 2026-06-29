@@ -185,11 +185,31 @@ export class ReportsController {
   ) {
     const buffer = await this.reportsService.generateEmptyGradesSheetPDF(
       Number(courseId),
-      Number(subjectId)
+      Number(subjectId),
+      false
     );
     res.set({
       'Content-Type': 'application/pdf',
       'Content-Disposition': 'attachment; filename="planilla_vacia.pdf"',
+      'Content-Length': buffer.length,
+    });
+    res.end(buffer);
+  }
+
+  @Get('filled-grades-sheet')
+  async getFilledGradesSheet(
+    @Query('courseId') courseId: string,
+    @Query('subjectId') subjectId: string,
+    @Res() res: Response,
+  ) {
+    const buffer = await this.reportsService.generateEmptyGradesSheetPDF(
+      Number(courseId),
+      Number(subjectId),
+      true
+    );
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': 'attachment; filename="planilla_completa.pdf"',
       'Content-Length': buffer.length,
     });
     res.end(buffer);

@@ -1092,7 +1092,7 @@ export class ReportsService {
     });
   }
 
-  async generateEmptyGradesSheetPDF(courseId: number, subjectId: number): Promise<Buffer> {
+  async generateEmptyGradesSheetPDF(courseId: number, subjectId: number, withGrades: boolean = false): Promise<Buffer> {
     const config = await this.prisma.configuracion.findFirst({ where: { id: 1 } });
     
     const course = await this.prisma.curso.findUnique({
@@ -1100,7 +1100,10 @@ export class ReportsService {
       include: {
         inscripciones: {
           where: { estudiante: { condicion: { not: 'PASE' } } },
-          include: { estudiante: true }
+          include: { 
+            estudiante: true,
+            calificaciones: withGrades ? { where: { materiaId: subjectId } } : false
+          }
         }
       }
     });
@@ -1113,8 +1116,8 @@ export class ReportsService {
 
     if (!materia) throw new Error('Materia no encontrada');
 
-    const alumnosReales = course.inscripciones.map(ins => ins.estudiante);
-    alumnosReales.sort((a,b) => `${a.apellido} ${a.nombre}`.localeCompare(`${b.apellido} ${b.nombre}`));
+    const alumnosReales = course.inscripciones.map(ins => ({ estudiante: ins.estudiante, calificaciones: ins.calificaciones || [] }));
+    alumnosReales.sort((a,b) => `${a.estudiante.apellido} ${a.estudiante.nombre}`.localeCompare(`${b.estudiante.apellido} ${b.estudiante.nombre}`));
 
     // Crear lista de 30 filas (completar con vacíos si hay menos)
     const displayRows: any[] = [];
@@ -1197,13 +1200,13 @@ export class ReportsService {
           const defaultRowHeight = 14.5;
           doc.font('Helvetica').fontSize(8);
 
-          pageAlumnos.forEach((al, idx) => {
+          pageAlumnos.forEach((rowObj, idx) => {
               let currentRowHeight = defaultRowHeight;
               let nameText = '';
               let textHeight = 8; // Default text height
 
-              if (al) {
-                  nameText = `${al.apellido.toUpperCase()}, ${al.nombre}`;
+              if (rowObj) {
+                  nameText = `${rowObj.estudiante.apellido.toUpperCase()}, ${rowObj.estudiante.nombre}`;
                   textHeight = doc.heightOfString(nameText, { width: wName - 8 });
                   if (textHeight > defaultRowHeight) {
                       currentRowHeight = textHeight + 6; // Padding
@@ -1221,8 +1224,8 @@ export class ReportsService {
               doc.text(globalIdx.toString(), startX, y + (currentRowHeight / 2) - 4, { width: wNo, align: 'center' });
               doc.moveTo(startX + wNo, y).lineTo(startX + wNo, y + currentRowHeight).stroke();
 
-              if (al) {
-                  doc.text(al.dni, startX + wNo, y + (currentRowHeight / 2) - 4, { width: wDni, align: 'center' });
+              if (rowObj) {
+                  doc.text(rowObj.estudiante.dni, startX + wNo, y + (currentRowHeight / 2) - 4, { width: wDni, align: 'center' });
                   doc.moveTo(startX + wNo + wDni, y).lineTo(startX + wNo + wDni, y + currentRowHeight).stroke();
 
                   doc.text(nameText, startX + wNo + wDni + 4, y + (currentRowHeight / 2) - (textHeight / 2), { width: wName - 8, align: 'left' });
@@ -1233,9 +1236,25 @@ export class ReportsService {
               
               doc.moveTo(endNameX, y).lineTo(endNameX, y + currentRowHeight).stroke();
 
+              const instanceMap = [
+                  { c: 1, k: 'INFORME_1' }, { c: 1, k: 'INFORME_2' }, { c: 1, k: 'PFA' }, { c: 1, k: 'CIERRE' },
+                  { c: 2, k: 'INFORME_1' }, { c: 2, k: 'INFORME_2' }, { c: 2, k: 'PFA' }, { c: 2, k: 'CIERRE' },
+                  { c: 2, k: 'COMPLEMENTARIO_DIC' }, { c: 2, k: 'COMPLEMENTARIO_FEB' }, { c: 2, k: 'FINAL' }
+              ];
+
               for (let i = 0; i < 11; i++) {
                  const xPos = endNameX + (wGradeCol * i);
                  if (i > 0) doc.moveTo(xPos, y).lineTo(xPos, y + currentRowHeight).stroke();
+
+                 if (withGrades && rowObj) {
+                     const mapping = instanceMap[i];
+                     const calif = rowObj.calificaciones.find((c: any) => c.cuatrimestre === mapping.c && c.instancia === mapping.k);
+                     if (calif) {
+                         doc.font('Helvetica-Bold').fontSize(8);
+                         doc.text(calif.nota.toString(), xPos, y + (currentRowHeight / 2) - 4, { width: wGradeCol, align: 'center' });
+                         doc.font('Helvetica').fontSize(8);
+                     }
+                 }
               }
 
               y += currentRowHeight;

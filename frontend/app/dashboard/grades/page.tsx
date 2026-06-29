@@ -164,7 +164,6 @@ export default function GradesPage() {
             setSaving(null);
         }
     };
-
     const handleDownloadEmptySheet = async () => {
         try {
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/reports/empty-grades-sheet?courseId=${selectedCourseId}&subjectId=${selectedSubjectId}`, {
@@ -179,14 +178,37 @@ export default function GradesPage() {
                 a.download = `planilla_vacia_curso_${selectedCourseId}.pdf`;
                 document.body.appendChild(a);
                 a.click();
-                window.URL.revokeObjectURL(url);
                 a.remove();
             } else {
                 alert('Error al descargar la planilla');
             }
-        } catch (err) {
-            console.error(err);
-            alert('Error de red al intentar descargar la planilla');
+        } catch (e) {
+            console.error(e);
+            alert('Error de conexión');
+        }
+    };
+
+    const handleDownloadFilledSheet = async () => {
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/reports/filled-grades-sheet?courseId=${selectedCourseId}&subjectId=${selectedSubjectId}`, {
+                headers: getHeaders()
+            });
+
+            if (res.ok) {
+                const blob = await res.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `planilla_completa_curso_${selectedCourseId}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            } else {
+                alert('Error al descargar la planilla completa');
+            }
+        } catch (e) {
+            console.error(e);
+            alert('Error de conexión');
         }
     };
 
@@ -340,12 +362,20 @@ export default function GradesPage() {
                                 </h2>
                                 <p className="text-xs text-gray-400 font-bold uppercase">Ciclo Lectivo: {cycles.find(c => String(c.id) === selectedCycleId)?.anio}</p>
                             </div>
-                            <button
-                                onClick={handleDownloadEmptySheet}
-                                className="bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 px-4 py-2 rounded-lg font-bold text-sm shadow-sm transition-colors"
-                            >
-                                Descargar Planilla Vacía
-                            </button>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={handleDownloadFilledSheet}
+                                    className="bg-blue-50 border border-blue-200 text-blue-700 hover:bg-blue-100 hover:border-blue-300 px-4 py-2 rounded-lg font-bold text-sm shadow-sm transition-colors"
+                                >
+                                    Descargar Planilla (Con Notas)
+                                </button>
+                                <button
+                                    onClick={handleDownloadEmptySheet}
+                                    className="bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 px-4 py-2 rounded-lg font-bold text-sm shadow-sm transition-colors"
+                                >
+                                    Descargar Planilla Vacía
+                                </button>
+                            </div>
                         </div>
                         <table key={`${selectedCourseId}-${selectedSubjectId}`} className="w-full text-sm border-collapse">
                             <thead className="bg-gray-100 sticky top-0 z-10 shadow-sm">
