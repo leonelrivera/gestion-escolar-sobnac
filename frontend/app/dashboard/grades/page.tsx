@@ -112,20 +112,20 @@ export default function GradesPage() {
         }
     };
 
-    const handleSave = async (studentId: number, grade: number | string, cuatrimestre: number, instancia: string) => {
-        if (grade === '' || isNaN(Number(grade))) return;
+    const handleSave = async (studentId: number, grade: string, cuatrimestre: number, instancia: string) => {
+        // Validación de número
+        if (grade.trim() !== '' && isNaN(Number(grade))) return false;
 
         // Client-side validation
         const periodIsClosed = periods.find(p => p.instancia === instancia && p.cuatrimestre === cuatrimestre)?.cerrado;
         if (periodIsClosed && userRole !== 'ADMIN') {
             alert('El periodo está CERRADO. No se pueden modificar notas.');
-            return;
+            return false;
         }
 
+        const cellId = `${studentId}-${cuatrimestre}-${instancia}`;
         const key = `${cuatrimestre}-${instancia}`;
-        const cellId = `${studentId}-${key}`;
         setSaving(cellId);
-
         try {
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/grades`, {
                 method: 'POST',
@@ -133,8 +133,8 @@ export default function GradesPage() {
                 body: JSON.stringify({
                     estudianteId: studentId,
                     materiaId: +selectedSubjectId,
-                    courseId: +selectedCourseId, // Context for validation
-                    nota: +grade,
+                    courseId: +selectedCourseId,
+                    nota: grade.trim() === '' ? -1 : +grade,
                     cuatrimestre,
                     instancia,
                     fecha: new Date().toISOString(),
@@ -146,24 +146,65 @@ export default function GradesPage() {
                 throw new Error(errData.message || 'Error');
             }
 
-            // Actualizar estado local
             setMatrix(prev => prev.map(row => {
                 if (row.student.id === studentId) {
-                    return {
-                        ...row,
-                        grades: { ...row.grades, [key]: +grade }
-                    };
+                    const newGrades = { ...row.grades };
+                    if (grade.trim() === '') {
+                        delete newGrades[key];
+                    } else {
+                        newGrades[key] = +grade;
+                    }
+                    return { ...row, grades: newGrades };
                 }
                 return row;
             }));
-
+            return true;
         } catch (err: any) {
             alert(`Error: ${err.message}`);
-            // Revert value? Requires complex state management or reload.
+            return false;
         } finally {
             setSaving(null);
         }
     };
+
+    const GradeInputCell = ({ val, gradeKey, isSaving, isClosedAndNotAdmin, periodIsClosed, studentId, cuatrimestre, instanciaKey, isFinal }: any) => {
+        const [localVal, setLocalVal] = useState(val ?? '');
+
+        useEffect(() => {
+            setLocalVal(val ?? '');
+        }, [val]);
+
+        const handleBlur = async () => {
+            if (String(localVal).trim() !== String(val ?? '').trim()) {
+                const success = await handleSave(studentId, String(localVal), cuatrimestre, instanciaKey);
+                if (!success) {
+                    setLocalVal(val ?? ''); // revert on failure
+                }
+            }
+        };
+
+        const handleKeyDown = (e: React.KeyboardEvent) => {
+            if (e.key === 'Enter') {
+                (e.target as HTMLInputElement).blur();
+            }
+        };
+
+        return (
+            <td className={`p-1 border text-center ${isClosedAndNotAdmin ? 'bg-gray-100' : (isFinal ? 'bg-gray-50/50' : '')}`}>
+                <input
+                    type="text"
+                    className={`w-12 text-center p-1 rounded border ${isSaving ? 'bg-blue-50 border-blue-400' : 'border-transparent hover:border-gray-200 focus:border-blue-500'} outline-none transition-colors ${isFinal ? 'font-bold text-gray-700' : 'font-medium'} disabled:text-gray-400 disabled:bg-gray-100 disabled:cursor-not-allowed`}
+                    value={localVal}
+                    onChange={(e) => setLocalVal(e.target.value)}
+                    onBlur={handleBlur}
+                    onKeyDown={handleKeyDown}
+                    disabled={isClosedAndNotAdmin}
+                    title={periodIsClosed ? (isClosedAndNotAdmin ? 'Periodo Cerrado' : 'Cerrado (Editando como ADMIN)') : ''}
+                />
+            </td>
+        );
+    };
+
     const handleDownloadEmptySheet = async () => {
         try {
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/reports/empty-grades-sheet?courseId=${selectedCourseId}&subjectId=${selectedSubjectId}`, {
@@ -220,26 +261,18 @@ export default function GradesPage() {
             const periodIsClosed = periods.find(p => p.instancia === inst.key && p.cuatrimestre === cuatrimestre)?.cerrado;
             const isClosedAndNotAdmin = periodIsClosed && userRole !== 'ADMIN';
 
-            return (
-                <td key={gradeKey} className={`p-1 border text-center ${isClosedAndNotAdmin ? 'bg-gray-100' : ''}`}>
-                    <input
-                        className={`w-12 text-center p-1 rounded border ${isSaving ? 'bg-blue-50 border-blue-400' : 'border-transparent hover:border-gray-200 focus:border-blue-500'} outline-none transition-colors font-medium disabled:text-gray-400 disabled:bg-gray-100 disabled:cursor-not-allowed`}
-                        defaultValue={val ?? ''}
-                        disabled={isClosedAndNotAdmin}
-                        title={periodIsClosed ? (isClosedAndNotAdmin ? 'Periodo Cerrado' : 'Cerrado (Editando como ADMIN)') : ''}
-                        onBlur={(e) => {
-                            if (e.target.value !== String(val ?? '')) {
-                                handleSave(row.student.id, e.target.value, cuatrimestre, inst.key);
-                            }
-                        }}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                                (e.target as HTMLInputElement).blur();
-                            }
-                        }}
-                    />
-                </td>
-            );
+            return <GradeInputCell 
+                key={gradeKey}
+                val={val}
+                gradeKey={gradeKey}
+                isSaving={isSaving}
+                isClosedAndNotAdmin={isClosedAndNotAdmin}
+                periodIsClosed={periodIsClosed}
+                studentId={row.student.id}
+                cuatrimestre={cuatrimestre}
+                instanciaKey={inst.key}
+                isFinal={false}
+            />;
         });
     };
 
@@ -252,26 +285,18 @@ export default function GradesPage() {
             const periodIsClosed = periods.find(p => p.instancia === inst.key && p.cuatrimestre === cuatrimestre)?.cerrado;
             const isClosedAndNotAdmin = periodIsClosed && userRole !== 'ADMIN';
 
-            return (
-                <td key={gradeKey} className={`p-1 border text-center ${isClosedAndNotAdmin ? 'bg-gray-100' : 'bg-gray-50/50'}`}>
-                    <input
-                        className={`w-12 text-center p-1 rounded border ${isSaving ? 'bg-blue-50 border-blue-400' : 'border-transparent hover:border-gray-200 focus:border-blue-500'} outline-none transition-colors font-bold text-gray-700 disabled:text-gray-400 disabled:bg-gray-100 disabled:cursor-not-allowed`}
-                        defaultValue={val ?? ''}
-                        disabled={isClosedAndNotAdmin}
-                        title={periodIsClosed ? (isClosedAndNotAdmin ? 'Periodo Cerrado' : 'Cerrado (Editando como ADMIN)') : ''}
-                        onBlur={(e) => {
-                            if (e.target.value !== String(val ?? '')) {
-                                handleSave(row.student.id, e.target.value, cuatrimestre, inst.key);
-                            }
-                        }}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                                (e.target as HTMLInputElement).blur();
-                            }
-                        }}
-                    />
-                </td>
-            );
+            return <GradeInputCell 
+                key={gradeKey}
+                val={val}
+                gradeKey={gradeKey}
+                isSaving={isSaving}
+                isClosedAndNotAdmin={isClosedAndNotAdmin}
+                periodIsClosed={periodIsClosed}
+                studentId={row.student.id}
+                cuatrimestre={cuatrimestre}
+                instanciaKey={inst.key}
+                isFinal={true}
+            />;
         });
     };
 

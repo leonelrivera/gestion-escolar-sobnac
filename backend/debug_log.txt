@@ -1,0 +1,17 @@
+UPSERTING: {"estudianteId":5,"materiaId":7,"courseId":10,"nota":1,"cuatrimestre":1,"instancia":"PFA","fecha":"2026-07-02T15:22:25.723Z"}
+UPSERTING: {"estudianteId":5,"materiaId":7,"courseId":10,"nota":10,"cuatrimestre":1,"instancia":"CIERRE","fecha":"2026-07-02T15:22:27.509Z"}
+DELETED OK: {"estudianteId":5,"materiaId":7,"courseId":10,"nota":-1,"cuatrimestre":1,"instancia":"PFA","fecha":"2026-07-02T15:29:05.260Z"}
+UPSERTING: {"estudianteId":5,"materiaId":7,"courseId":10,"nota":1,"cuatrimestre":1,"instancia":"PFA","fecha":"2026-07-02T15:29:28.804Z"}
+DELETED OK: {"estudianteId":5,"materiaId":7,"courseId":10,"nota":-1,"cuatrimestre":1,"instancia":"PFA","fecha":"2026-07-02T15:43:13.754Z"}
+DELETED OK: {"estudianteId":5,"materiaId":7,"courseId":10,"nota":-1,"cuatrimestre":1,"instancia":"CIERRE","fecha":"2026-07-02T15:43:14.725Z"}
+UPSERTING: {"estudianteId":5,"materiaId":7,"courseId":10,"nota":1,"cuatrimestre":1,"instancia":"PFA","fecha":"2026-07-02T15:43:22.697Z"}
+UPSERTING: {"estudianteId":5,"materiaId":7,"courseId":10,"nota":10,"cuatrimestre":1,"instancia":"CIERRE","fecha":"2026-07-02T15:43:24.309Z"}
+UPSERTING: {"estudianteId":5,"materiaId":7,"courseId":10,"nota":8,"cuatrimestre":1,"instancia":"CIERRE","fecha":"2026-07-02T15:43:35.530Z"}
+UPSERTING: {"estudianteId":5,"materiaId":7,"courseId":10,"nota":4,"cuatrimestre":1,"instancia":"PFA","fecha":"2026-07-02T15:43:37.024Z"}
+DELETED OK: {"estudianteId":5,"materiaId":7,"courseId":10,"nota":-1,"cuatrimestre":1,"instancia":"PFA","fecha":"2026-07-02T15:43:47.255Z"}
+DELETED OK: {"estudianteId":5,"materiaId":7,"courseId":10,"nota":-1,"cuatrimestre":1,"instancia":"CIERRE","fecha":"2026-07-02T15:44:06.672Z"}
+UPSERTING: {"estudianteId":5,"materiaId":7,"courseId":10,"nota":4,"cuatrimestre":1,"instancia":"PFA","fecha":"2026-07-02T17:06:46.965Z"}
+UPSERTING: {"estudianteId":5,"materiaId":7,"courseId":10,"nota":6,"cuatrimestre":1,"instancia":"CIERRE","fecha":"2026-07-02T17:06:50.919Z"}
+DELETED OK: {"estudianteId":5,"materiaId":7,"courseId":10,"nota":-1,"cuatrimestre":1,"instancia":"PFA","fecha":"2026-07-02T17:07:02.133Z"}
+UPSERTING: {"estudianteId":5,"materiaId":7,"courseId":10,"nota":8,"cuatrimestre":1,"instancia":"CIERRE","fecha":"2026-07-02T17:07:03.786Z"}
+DELETED OK: {"estudianteId":5,"materiaId":7,"courseId":10,"nota":-1,"cuatrimestre":1,"instancia":"CIERRE","fecha":"2026-07-02T17:07:14.881Z"}

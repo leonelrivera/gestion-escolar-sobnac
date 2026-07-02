@@ -11,6 +11,7 @@ export class GradesService {
   ) { }
 
   async create(createGradeDto: CreateGradeDto) {
+    console.log('DTO RECIBIDO EN BACKEND:', createGradeDto);
     const { estudianteId, materiaId, cuatrimestre, instancia, nota, courseId } = createGradeDto;
 
     // 1. Validar curso e inscripción
@@ -38,6 +39,30 @@ export class GradesService {
       );
     }
 
+    if (nota === -1 || nota === null) {
+      try {
+        await this.prisma.calificacion.delete({
+          where: {
+            inscripcionId_materiaId_cuatrimestre_instancia: {
+              inscripcionId: inscripcion.id,
+              materiaId,
+              cuatrimestre,
+              instancia,
+            },
+          },
+        });
+        require('fs').appendFileSync('debug_log.txt', `DELETED OK: ${JSON.stringify(createGradeDto)}\n`);
+      } catch (e: any) {
+        require('fs').appendFileSync('debug_log.txt', `DELETE FAILED: ${JSON.stringify(createGradeDto)} - ERROR: ${e.message}\n`);
+        if (e.code !== 'P2025') { // P2025 es Record to delete does not exist.
+          console.error('Error deleting grade:', e);
+          throw e;
+        }
+      }
+      return { success: true, action: 'deleted' };
+    }
+
+    require('fs').appendFileSync('debug_log.txt', `UPSERTING: ${JSON.stringify(createGradeDto)}\n`);
     return this.prisma.calificacion.upsert({
       where: {
         inscripcionId_materiaId_cuatrimestre_instancia: {
